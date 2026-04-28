@@ -56,6 +56,7 @@ pnpm nx graph                       # visualize project dependency graph
 | [shadcn/ui](https://ui.shadcn.com/)                                   | Component library (within each app)                   |
 | [Hono](https://hono.dev/)                                             | API server (each app has its own `+server.ts`)        |
 | [Auth0](https://auth0.com/)                                           | Authentication via `vike-react-auth0`                 |
+| [Module Federation](https://github.com/module-federation/vite)        | MFE runtime sharing via `@module-federation/vite`     |
 | [Jotai](https://jotai.org/)                                           | Atomic client-side state management                   |
 | [Vitest](https://vitest.dev/)                                         | Unit testing                                          |
 | [Playwright](https://playwright.dev/)                                 | E2E testing (`e2e/` folder per app)                   |
@@ -88,6 +89,13 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 - Supported filters: tier (S/A/B/C/D), role (Top/Jungle/Mid/ADC/Support), patch
 - URL search params are synced with filter atoms so filtered views are shareable/bookmarkable
 
+### Authentication & Route Access
+- **Public** (no auth required): `mfe-champions`, `mfe-tier-list`
+- **Private** (Auth0 login required): `mfe-player` — all pages guarded via `+guard.ts`
+- Auth provider: [Auth0](https://auth0.com/) via `vike-react-auth0`
+- Unauthenticated users hitting `mfe-player` routes are redirected to Auth0 login
+- Server-side: read `pageContext.user.sub` (Auth0 `sub` claim) to identify the player
+
 ### Player Profile (`mfe-player`)
 - Requires Auth0 authentication — guard all pages with `+guard.ts`
 - Displays top 3 champions by mastery points (from `PlayerChampion`)
@@ -113,8 +121,10 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 - NX enforce-module-boundaries: `apps/*` may import `libs/*`; `libs/domain` may not import `libs/data-access`
 
 ### Code Style
-- **Formatter**: oxfmt — run `pnpm oxfmt .` to format
-- **Linter**: oxlint — run `pnpm oxlint .` to lint
+- **Formatter**: oxfmt — config at `.oxfmtrc.json`, run `pnpm oxfmt .` to format
+- **Linter**: oxlint — config at `oxlint.config.ts`, run `pnpm oxlint .` to lint
+- Plugins enabled: `typescript`, `import`, `react`, `react-perf`, `jsx-a11y`, `vitest`, `unicorn`
+- Vike `+` files and Storybook stories are overridden to allow default exports (required by convention)
 - TypeScript strict mode — no `any`, prefer `unknown` for external data (use typescript 6 defaults, which should be strict by default)
 - React: functional components only, no class components
 - Avoid default exports in `libs/`; named exports only
@@ -134,6 +144,11 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 - [NX task pipeline config](https://nx.dev/docs/concepts/task-pipeline-configuration)
 - [Hono docs](https://hono.dev/docs/)
 - [Oxlint rules](https://oxc.rs/docs/guide/usage/linter/rules.html)
+- [Module Federation for Vite](https://github.com/module-federation/vite) — runtime MFE sharing
+
+## MFE Patterns to Investigate
+- [OpenComponents](https://opencomponents.github.io/) — serverless micro-frontend registry and runtime
+- [AWS Frontend Discovery](https://github.com/awslabs/frontend-discovery) — service-based MFE discovery from AWS Labs
 
 ## LoL Data Sources (for mock/seed data)
 - [Riot Data Dragon API](https://developer.riotgames.com/docs/lol#data-dragon) — champion JSON, ability data
