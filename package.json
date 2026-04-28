@@ -13,7 +13,8 @@
     "test": "nx run-many -t test",
     "lint": "nx run-many -t lint",
     "fmt": "nx run-many -t fmt",
-    "fmt:check": "nx run-many -t fmt:check"
+    "fmt:check": "nx run-many -t fmt:check",
+    "nx:reset": "nx reset"
   },
   "devDependencies": {
     "@nx/js": "22.7.0",

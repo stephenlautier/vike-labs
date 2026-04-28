@@ -46,6 +46,7 @@ pnpm nx run-many -t fmt             # format all projects
 pnpm nx run-many -t fmt:check       # check formatting (CI)
 pnpm nx affected -t build           # build only affected projects
 pnpm nx graph                       # visualize project dependency graph
+pnpm run nx:reset                   # clear NX cache (use when builds behave unexpectedly)
 ```
 
 ## Tech Stack
