@@ -37,8 +37,8 @@ Always extend `vike-react` in the root config:
 // pages/+config.ts
 import vikeReact from "vike-react/config";
 export default {
-	extends: [vikeReact],
-	ssr: true,
+  extends: [vikeReact],
+  ssr: true,
 };
 ```
 
@@ -54,11 +54,11 @@ export default { ssr: false };
 ```ts
 // pages/champions/@id/+data.ts
 import type { PageContextServer } from "vike/types";
-import { getChampion } from "@vike-labs/data-access";
+import { getChampion } from "@rift/data-access";
 
 export async function data(pageContext: PageContextServer) {
-	const { id } = pageContext.routeParams;
-	return getChampion(id); // return value becomes `pageContext.data`
+  const { id } = pageContext.routeParams;
+  return getChampion(id); // return value becomes `pageContext.data`
 }
 export type Data = Awaited<ReturnType<typeof data>>;
 ```
@@ -70,8 +70,8 @@ import { useData } from "vike-react/useData";
 import type { Data } from "./+data";
 
 export default function Page() {
-	const champion = useData<Data>();
-	return <lol-champion-card champion={champion} />;
+  const champion = useData<Data>();
+  return <lol-champion-card champion={champion} />;
 }
 ```
 
@@ -83,8 +83,8 @@ import { useData } from "vike-react/useData";
 import type { Data } from "./+data";
 
 export default function Head() {
-	const { name } = useData<Data>();
-	return <title>{name} — LoL Champions</title>;
+  const { name } = useData<Data>();
+  return <title>{name} — LoL Champions</title>;
 }
 ```
 
@@ -110,7 +110,7 @@ import type { PageContextServer } from "vike/types";
 import { render } from "vike/abort";
 
 export async function guard(pageContext: PageContextServer) {
-	if (!pageContext.user) throw render(401);
+  if (!pageContext.user) throw render(401);
 }
 ```
 
@@ -121,5 +121,5 @@ export async function guard(pageContext: PageContextServer) {
 - Layouts at `pages/+Layout.tsx` wrap ALL pages — use nested `+Layout.tsx` for sub-trees
 - `pageContext.data` is serialized to JSON — keep it plain; no class instances
 - Use `@/` for intra-app imports (maps to the app's own `src/`); never use relative `../../../` for cross-lib imports
-- Use `@vike-labs/champion`, `@vike-labs/player`, `@vike-labs/data-access` for cross-lib imports
+- Use `@rift/champion`, `@rift/player`, `@rift/data-access` for cross-lib imports
 - Follow vertical slice architecture within `src/` — group by feature (e.g. `src/champion/`), not by type (`src/components/`)

@@ -1,4 +1,4 @@
-import { ChampionRoleSchema } from "@vike-labs/champion";
+import { ChampionRoleSchema } from "@rift/champion";
 import * as v from "valibot";
 
 // TODO: fill in all fields per AGENTS.md domain model

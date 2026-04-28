@@ -44,7 +44,7 @@ importers:
 
   libs/player:
     dependencies:
-      '@vike-labs/champion':
+      '@rift/champion':
         specifier: workspace:*
         version: link:../champion
       valibot:

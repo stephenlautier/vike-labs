@@ -1,4 +1,4 @@
-# vike-labs
+# rift
 
 > Experiment and testing monorepo for exploring [Vike](https://vike.dev/), micro-frontends (MFE), SSR/hydration strategies, and [StencilJS](https://stenciljs.com/) web components.
 

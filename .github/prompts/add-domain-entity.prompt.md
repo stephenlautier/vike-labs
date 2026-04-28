@@ -46,7 +46,7 @@ Create `libs/data-access/src/${input:entityName}.ts`:
 
 ```ts
 import * as v from 'valibot'
-import { ${input:entityName}Schema } from '@vike-labs/domain'
+import { ${input:entityName}Schema } from '@rift/domain'
 
 export async function get${input:EntityName}s() {
   const res = await fetch('/api/${input:entityName}s')
@@ -65,7 +65,7 @@ Create `libs/data-access/src/routers/${input:entityName}.router.ts`:
 
 ```ts
 import { Hono } from 'hono'
-import { mock${input:EntityName}s } from '@vike-labs/domain/mocks'
+import { mock${input:EntityName}s } from '@rift/domain/mocks'
 
 export const ${input:entityName}Router = new Hono()
 

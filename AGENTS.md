@@ -1,4 +1,4 @@
-# vike-labs
+# rift
 
 Experiment and testing monorepo for exploring [Vike](https://vike.dev/), micro-frontends (MFE), SSR/hydration strategies, and [StencilJS](https://stenciljs.com/) web components. Domain theme: **League of Legends** — champions, abilities, tier lists, and skins.
 
@@ -126,7 +126,7 @@ Each app uses `@/` as an alias for its own `src/` directory.
 - Configured in the app's `tsconfig.json` paths: `"@/*": ["./src/*"]`
 - Configured in the app's `vite.config.ts` resolve alias: `"@": path.resolve(__dirname, "./src")`
 - Example: `import { TierBadge } from "@/tier-list/TierBadge"`
-- Use `@/` for **intra-app** imports only; use `@vike-labs/*` aliases for cross-lib imports
+- Use `@/` for **intra-app** imports only; use `@rift/*` aliases for cross-lib imports
 
 ### File Routing (Vike)
 - Pages use [filesystem routing](https://vike.dev/filesystem-routing): `pages/index/+Page.tsx`, `pages/champions/@id/+Page.tsx`

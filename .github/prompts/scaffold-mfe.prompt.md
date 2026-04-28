@@ -89,7 +89,7 @@ Ensure `tsconfig.json` references the root `tsconfig.base.json` which contains t
 
 ```ts
 // apps/${input:appName}/src/main.tsx or app entry
-import { defineCustomElements } from "@vike-labs/ui/loader";
+import { defineCustomElements } from "@rift/ui/loader";
 defineCustomElements();
 ```
 

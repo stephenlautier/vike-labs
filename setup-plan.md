@@ -1,4 +1,4 @@
-# vike-labs — Project Setup Plan
+# rift — Project Setup Plan
 
 **TL;DR**: Bootstrap from scratch. Architecture is **Vike Host Shell + 3 Vike MFE remotes**. StencilJS is the design system only (`libs/ui`). Module Federation is Phase 2. Each phase is an independently verifiable deliverable.
 
@@ -65,15 +65,15 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phase 1. libs/player depends on libs/champion (for `ChampionRole`).
 
-- [x] 2.1. `libs/champion/package.json` — name `@vike-labs/champion`, dep: `valibot`
+- [x] 2.1. `libs/champion/package.json` — name `@rift/champion`, dep: `valibot`
 - [x] 2.2. `libs/champion/tsconfig.json` + `project.json` — NX targets: `build` (tsc), `lint` (oxlint), `test` (vitest)
 - [x] 2.3. 4 entity files in `libs/champion/src/` — champion, champion-ability, champion-tier, champion-skin
 - [x] 2.4. `libs/champion/src/index.ts` — barrel export
-- [x] 2.5. `libs/player/package.json` — name `@vike-labs/player`, deps: `valibot` + `@vike-labs/champion`
+- [x] 2.5. `libs/player/package.json` — name `@rift/player`, deps: `valibot` + `@rift/champion`
 - [x] 2.6. `libs/player/tsconfig.json` + `project.json` — NX targets: `build` (tsc), `lint` (oxlint), `test` (vitest)
-- [x] 2.7. 3 entity files in `libs/player/src/` — player, player-champion, player-match-entry (imports `ChampionRoleSchema` from `@vike-labs/champion`)
+- [x] 2.7. 3 entity files in `libs/player/src/` — player, player-champion, player-match-entry (imports `ChampionRoleSchema` from `@rift/champion`)
 - [x] 2.8. `libs/player/src/index.ts` — barrel export
-- [x] 2.9. Add `@vike-labs/champion` + `@vike-labs/player` path aliases to root `tsconfig.base.json`
+- [x] 2.9. Add `@rift/champion` + `@rift/player` path aliases to root `tsconfig.base.json`
 
 **Verify**: `pnpm nx run champion:build` + `pnpm nx run player:build` + both lint pass
 
@@ -88,7 +88,7 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 - [ ] 3.3. Configure React output target in `libs/ui/stencil.config.ts`
 - [ ] 3.4. Stub `lol-champion-card` component — bare `@Component` decorator, `lol-` prefix, no logic
 - [ ] 3.5. Create `libs/ui/project.json` — NX targets: `build` (stencil build), `lint`
-- [ ] 3.6. Add `@vike-labs/ui` path alias to root `tsconfig.base.json`
+- [ ] 3.6. Add `@rift/ui` path alias to root `tsconfig.base.json`
 
 **Verify**: `pnpm nx run ui:build` generates web component output + React wrappers in `dist/`
 
@@ -98,10 +98,10 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phase 2.
 
-- [ ] 4.1. `libs/data-access/package.json` — name `@vike-labs/data-access`, deps: `hono` + `@vike-labs/champion` + `@vike-labs/player`; peerDep: `react`
+- [ ] 4.1. `libs/data-access/package.json` — name `@rift/data-access`, deps: `hono` + `@rift/champion` + `@rift/player`; peerDep: `react`
 - [ ] 4.2. `libs/data-access/tsconfig.json` + `project.json` — NX targets: `build`, `lint`, `test`
 - [ ] 4.3. `libs/data-access/src/index.ts` — stub barrel with placeholder hook/client exports
-- [ ] 4.4. Add `@vike-labs/data-access` path alias to root `tsconfig.base.json`
+- [ ] 4.4. Add `@rift/data-access` path alias to root `tsconfig.base.json`
 
 **Verify**: `pnpm nx run data-access:build` passes; domain types resolve without error
 
@@ -111,7 +111,7 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phase 3.
 
-- [ ] 5.1. Initialize Storybook 10 in `libs/storybook/` — configured to resolve `@vike-labs/ui`
+- [ ] 5.1. Initialize Storybook 10 in `libs/storybook/` — configured to resolve `@rift/ui`
 - [ ] 5.2. `libs/storybook/project.json` — NX targets: `storybook` (serve), `build-storybook`
 - [ ] 5.3. Placeholder story: `libs/storybook/stories/lol-champion-card.stories.tsx`
 
@@ -192,7 +192,7 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phases 2–9.
 
-- [ ] 10.1. Finalize all path aliases in `tsconfig.base.json` (`@vike-labs/champion`, `@vike-labs/player`, `@vike-labs/ui`, `@vike-labs/data-access`)
+- [ ] 10.1. Finalize all path aliases in `tsconfig.base.json` (`@rift/champion`, `@rift/player`, `@rift/ui`, `@rift/data-access`)
 - [ ] 10.2. Tag all `project.json` files: `type:app`/`type:lib` + `scope:*`
 - [ ] 10.3. Wire `nx.json` `targetDefaults` — apps depend on upstream lib `build`
 - [ ] 10.4. `pnpm install` from root to re-link all workspace packages
