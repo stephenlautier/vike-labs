@@ -1,9 +1,6 @@
 # lol-champion-card
 
-
-
 <!-- Auto Generated Below -->
-
 
 ## Overview
 
@@ -17,7 +14,6 @@ Stub — logic to be implemented in a later phase.
 | `name`         | `name`           | Champion name                  | `string` | `""`    |
 | `splashArtUrl` | `splash-art-url` | URL to the champion splash art | `string` | `""`    |
 
+---
 
-----------------------------------------------
-
-*Built with [StencilJS](https://stenciljs.com/)*
+_Built with [StencilJS](https://stenciljs.com/)_
