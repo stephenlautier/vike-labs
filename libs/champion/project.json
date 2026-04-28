@@ -24,7 +24,7 @@
       }
     },
     "test": {
-      "executor": "@nx/vite:test",
+      "executor": "@nx/vitest:test",
       "options": {
         "configFile": "libs/champion/vitest.config.ts"
       }
