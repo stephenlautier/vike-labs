@@ -1,6 +1,6 @@
 # vike-labs
 
-Experiment and testing monorepo for [Vike](https://vike.dev/). Domain theme: **League of Legends** — champions, abilities, tier lists, and skins.
+Experiment and testing monorepo for exploring [Vike](https://vike.dev/), micro-frontends (MFE), SSR/hydration strategies, and [StencilJS](https://stenciljs.com/) web components. Domain theme: **League of Legends** — champions, abilities, tier lists, and skins.
 
 ## Monorepo Structure
 
