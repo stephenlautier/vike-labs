@@ -25,6 +25,20 @@
       "options": {
         "configFile": "libs/player/vitest.config.ts"
       }
+    },
+    "fmt": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm oxfmt src/",
+        "cwd": "libs/player"
+      }
+    },
+    "fmt:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm oxfmt --check src/",
+        "cwd": "libs/player"
+      }
     }
   }
 }

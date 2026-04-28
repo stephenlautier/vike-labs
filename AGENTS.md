@@ -42,6 +42,8 @@ pnpm nx run <project>:<target>      # run a task (e.g. build, dev, test)
 pnpm nx run-many -t build           # build all projects
 pnpm nx run-many -t test            # run all unit tests
 pnpm nx run-many -t lint            # lint all projects
+pnpm nx run-many -t fmt             # format all projects
+pnpm nx run-many -t fmt:check       # check formatting (CI)
 pnpm nx affected -t build           # build only affected projects
 pnpm nx graph                       # visualize project dependency graph
 ```

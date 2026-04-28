@@ -21,6 +21,14 @@
       "cache": true,
       "inputs": ["default"]
     },
+    "fmt": {
+      "cache": true,
+      "inputs": ["default"]
+    },
+    "fmt:check": {
+      "cache": true,
+      "inputs": ["default"]
+    },
     "e2e": {
       "cache": true,
       "inputs": ["default", "^production"]

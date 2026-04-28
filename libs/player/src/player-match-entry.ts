@@ -1,6 +1,5 @@
-import * as v from "valibot";
-
 import { ChampionRoleSchema } from "@vike-labs/champion";
+import * as v from "valibot";
 
 // TODO: fill in all fields per AGENTS.md domain model
 export const PlayerMatchEntrySchema = v.object({
