@@ -19,8 +19,11 @@
 		"isolatedModules": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
+		"ignoreDeprecations": "6.0",
 		"baseUrl": ".",
-		"paths": {}
+		"paths": {
+			"@vike-labs/domain": ["libs/domain/src/index.ts"]
+		}
 	},
 	"exclude": ["node_modules", "dist", "build", ".vike", "coverage"]
 }

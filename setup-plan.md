@@ -64,12 +64,12 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phase 1.
 
-- [ ] 2.1. `libs/domain/package.json` — name `@vike-labs/domain`, dep: `valibot` (latest)
-- [ ] 2.2. `libs/domain/tsconfig.json` extending `../../tsconfig.base.json`
-- [ ] 2.3. `libs/domain/project.json` — NX targets: `build` (tsc), `lint` (oxlint), `test` (vitest)
-- [ ] 2.4. `libs/domain/src/index.ts` — barrel export placeholder
-- [ ] 2.5. 7 stub entity files in `libs/domain/src/entities/` — typed stubs + TODO (Champion, ChampionAbility, ChampionTier, ChampionSkin, Player, PlayerChampion, PlayerMatchEntry)
-- [ ] 2.6. Add `@vike-labs/domain` path alias to root `tsconfig.base.json`
+- [x] 2.1. `libs/domain/package.json` — name `@vike-labs/domain`, dep: `valibot` (latest)
+- [x] 2.2. `libs/domain/tsconfig.json` extending `../../tsconfig.base.json`
+- [x] 2.3. `libs/domain/project.json` — NX targets: `build` (tsc), `lint` (oxlint), `test` (vitest)
+- [x] 2.4. `libs/domain/src/index.ts` — barrel export placeholder
+- [x] 2.5. 7 stub entity files in `libs/domain/src/entities/` — typed stubs + TODO (Champion, ChampionAbility, ChampionTier, ChampionSkin, Player, PlayerChampion, PlayerMatchEntry)
+- [x] 2.6. Add `@vike-labs/domain` path alias to root `tsconfig.base.json`
 
 **Verify**: `pnpm nx run domain:build` + `pnpm nx run domain:lint` pass
 

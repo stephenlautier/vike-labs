@@ -140,7 +140,6 @@ export default defineConfig({
 		"unicorn/no-array-for-each": "off", // prefer for..of is too opinionated
 		"unicorn/prefer-module": "off", // not relevant with bundlers
 		"unicorn/no-null": "off",
-		"unicorn/prevent-abbreviations": "off",
 		"unicorn/filename-case": "off", // Vike uses +Page.tsx etc.
 		"unicorn/no-abusive-eslint-disable": "error",
 		"unicorn/no-nested-ternary": "off",
