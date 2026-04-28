@@ -111,9 +111,9 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phase 3.
 
-- [ ] 5.1. Initialize Storybook 10 in `libs/storybook/` — configured to resolve `@rift/ui`
-- [ ] 5.2. `libs/storybook/project.json` — NX targets: `storybook` (serve), `build-storybook`
-- [ ] 5.3. Placeholder story: `libs/storybook/stories/lol-champion-card.stories.tsx`
+- [x] 5.1. Initialize Storybook 10 in `libs/storybook/` — configured to resolve `@rift/ui`
+- [x] 5.2. `libs/storybook/project.json` — NX targets: `storybook` (serve), `build-storybook`
+- [x] 5.3. Placeholder story: `libs/storybook/stories/lol-champion-card.stories.tsx`
 
 **Verify**: `pnpm nx run storybook:storybook` opens and renders placeholder story
 

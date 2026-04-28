@@ -6,9 +6,23 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "es2017": "dist/esm/index.mjs",
-  "types": "dist/types/index.d.ts",
+  "types": "dist/types/components.d.ts",
   "collection": "dist/collection/collection-manifest.json",
   "collection:main": "dist/collection/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/types/components.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./dist/components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js"
+    },
+    "./loader": {
+      "import": "./loader/index.js"
+    }
+  },
   "files": [
     "dist/",
     "loader/"
