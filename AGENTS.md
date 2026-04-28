@@ -7,7 +7,8 @@ Experiment and testing monorepo for [Vike](https://vike.dev/). Domain theme: **L
 ```
 apps/
   mfe-champions/     # MFE 1 — champion browser, detail pages, abilities viewer
-  mfe-tier-list/     # MFE 2 — tier list rankings, meta builds
+  mfe-tier-list/     # MFE 2 — tier list rankings, meta builds (filterable by role/tier/patch)
+  mfe-player/        # MFE 3 — authenticated player profile, owned champions, match history
 libs/
   ui/                # StencilJS web components (core design system)
   domain/            # Shared TypeScript domain types & schemas
@@ -17,14 +18,17 @@ libs/
 
 ## Domain Entities
 
-| Entity          | Key Fields                                                       |
-| --------------- | ---------------------------------------------------------------- |
-| `Champion`      | id, name, roles, stats, splashArtUrl, lore                       |
-| `Ability`       | id, slot (Q/W/E/R/P), name, description, cooldown, championId    |
-| `TierListEntry` | id, championId, tier (S/A/B/C/D), role, patch, winRate, pickRate |
-| `Skin`          | id, championId, name, rpPrice, splashArtUrl, rarity              |
+| Entity             | Key Fields                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| `Champion`         | id, name, roles, difficulty (1–10), stats, splashArtUrl, lore                        |
+| `ChampionAbility`  | id, slot (Q/W/E/R/P), name, description, cooldown, championId                        |
+| `ChampionTier`     | id, championId, tier (S/A/B/C/D), role, patch, winRate, pickRate                     |
+| `ChampionSkin`     | id, championId, name, rpPrice, splashArtUrl, rarity                                  |
+| `Player`           | id, summonerName, accountId, profileIconId, summonerLevel, auth0Sub                  |
+| `PlayerChampion`   | playerId, championId, masteryLevel, masteryPoints, owned                             |
+| `PlayerMatchEntry` | id, playerId, championId, role, kills, deaths, assists, win, gameDuration, matchDate |
 
-All types live in `libs/domain/src/`. Zod schemas are co-located.
+All types live in `libs/domain/src/`. Valibot schemas are co-located.
 
 ## Package Manager & Task Runner
 
@@ -52,6 +56,7 @@ pnpm nx graph                       # visualize project dependency graph
 | [shadcn/ui](https://ui.shadcn.com/)                                   | Component library (within each app)                   |
 | [Hono](https://hono.dev/)                                             | API server (each app has its own `+server.ts`)        |
 | [Auth0](https://auth0.com/)                                           | Authentication via `vike-react-auth0`                 |
+| [Jotai](https://jotai.org/)                                           | Atomic client-side state management                   |
 | [Vitest](https://vitest.dev/)                                         | Unit testing                                          |
 | [Playwright](https://playwright.dev/)                                 | E2E testing (`e2e/` folder per app)                   |
 | [Storybook 10](https://storybook.js.org/)                             | Component explorer for `libs/ui`                      |
@@ -78,6 +83,23 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 - Layouts: `+Layout.tsx` at route segment roots
 - Config: `+config.ts` per page/layout for SSR toggles, head tags, etc.
 
+### Tier List Filters (`mfe-tier-list`)
+- Filter state lives in Jotai atoms: `tierAtom`, `roleAtom`, `patchAtom`
+- Supported filters: tier (S/A/B/C/D), role (Top/Jungle/Mid/ADC/Support), patch
+- URL search params are synced with filter atoms so filtered views are shareable/bookmarkable
+
+### Player Profile (`mfe-player`)
+- Requires Auth0 authentication — guard all pages with `+guard.ts`
+- Displays top 3 champions by mastery points (from `PlayerChampion`)
+- Owned champions grid links through to `mfe-champions` detail pages
+- Match history table shows K/D/A, role, champion, win/loss, duration per `PlayerMatchEntry`
+- Player data is fetched server-side using the Auth0 `sub` claim from `pageContext.user`
+
+### State Management (Jotai)
+- Use Jotai atoms for UI filter state, user preferences, and cross-component derived state
+- Atoms live co-located with the feature: `src/atoms/tierList.atoms.ts`
+- Do **not** use Jotai for server data — use `+data.ts` / React hooks in `libs/data-access`
+
 ### StencilJS Web Components (`libs/ui`)
 - All components are pure web components — no React-specific APIs inside `libs/ui`
 - Components consume a [React output target](https://stenciljs.com/docs/react) for use in Vike apps
@@ -85,7 +107,7 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 - Stories live in `libs/storybook/` as `*.stories.tsx`
 
 ### Shared Libs
-- `libs/domain` — pure types, Zod schemas, no framework code
+- `libs/domain` — pure types, Valibot schemas, no framework code
 - `libs/data-access` — React hooks + Hono fetch utilities; depends on `libs/domain`
 - `libs/ui` depends on nothing in the monorepo (it is the leaf node)
 - NX enforce-module-boundaries: `apps/*` may import `libs/*`; `libs/domain` may not import `libs/data-access`

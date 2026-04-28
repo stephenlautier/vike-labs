@@ -1,11 +1,11 @@
 ---
 name: add-domain-entity
-description: Add a new LoL domain entity (type, Zod schema, mock data, and API route) to libs/domain and libs/data-access
+description: Add a new LoL domain entity (type, Valibot schema, mock data, and API route) to libs/domain and libs/data-access
 ---
 
 # Add a Domain Entity
 
-Adds a typed entity to `libs/domain` with a Zod schema, mock seed data, and a Hono API route in `libs/data-access`.
+Adds a typed entity to `libs/domain` with a Valibot schema, mock seed data, and a Hono API route in `libs/data-access`.
 
 ## Steps
 
@@ -14,14 +14,14 @@ Adds a typed entity to `libs/domain` with a Zod schema, mock seed data, and a Ho
 Create `libs/domain/src/entities/${input:entityName}.ts`:
 
 ```ts
-import { z } from 'zod'
+import * as v from 'valibot'
 
-export const ${input:entityName}Schema = z.object({
-  id: z.string(),
+export const ${input:entityName}Schema = v.object({
+  id: v.string(),
   // ... add fields
 })
 
-export type ${input:EntityName} = z.infer<typeof ${input:entityName}Schema>
+export type ${input:EntityName} = v.InferOutput<typeof ${input:entityName}Schema>
 ```
 
 Export from `libs/domain/src/index.ts`.
@@ -45,16 +45,17 @@ Reference real LoL data from [Data Dragon](https://ddragon.leagueoflegends.com/c
 Create `libs/data-access/src/${input:entityName}.ts`:
 
 ```ts
+import * as v from 'valibot'
 import { ${input:entityName}Schema } from '@vike-labs/domain'
 
 export async function get${input:EntityName}s() {
   const res = await fetch('/api/${input:entityName}s')
-  return ${input:entityName}Schema.array().parse(await res.json())
+  return v.parse(v.array(${input:entityName}Schema), await res.json())
 }
 
 export async function get${input:EntityName}(id: string) {
   const res = await fetch(`/api/${input:entityName}s/${id}`)
-  return ${input:entityName}Schema.parse(await res.json())
+  return v.parse(${input:entityName}Schema, await res.json())
 }
 ```
 

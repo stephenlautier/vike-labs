@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "jotai-expert": {
+      "source": "s-hiraoku/skills-factory",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/jotai-expert/SKILL.md",
+      "computedHash": "a0688c8fdd10a4f5130fdf84d60aed533d90f276d83f9fbc66c97d4900617592"
+    },
     "playwright-best-practices": {
       "source": "currents-dev/playwright-best-practices-skill",
       "sourceType": "github",
@@ -36,6 +42,12 @@
       "sourceType": "github",
       "skillPath": "plugins/javascript-typescript/skills/typescript-advanced-types/SKILL.md",
       "computedHash": "ee8377c523a911be41c31037b477805773ca5ab5ade181e44ca7dd3cd8df6692"
+    },
+    "valibot": {
+      "source": "open-circle/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/valibot/SKILL.md",
+      "computedHash": "31d519d234d3af2cb44fb777f613abf9c187959791af172221af7d0b7af6e892"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
