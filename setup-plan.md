@@ -98,10 +98,10 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phase 2.
 
-- [ ] 4.1. `libs/data-access/package.json` — name `@rift/data-access`, deps: `hono` + `@rift/champion` + `@rift/player`; peerDep: `react`
-- [ ] 4.2. `libs/data-access/tsconfig.json` + `project.json` — NX targets: `build`, `lint`, `test`
-- [ ] 4.3. `libs/data-access/src/index.ts` — stub barrel with placeholder hook/client exports
-- [ ] 4.4. Add `@rift/data-access` path alias to root `tsconfig.base.json`
+- [x] 4.1. `libs/data-access/package.json` — name `@rift/data-access`, deps: `hono` + `@rift/champion` + `@rift/player`; peerDep: `react`
+- [x] 4.2. `libs/data-access/tsconfig.json` + `project.json` — NX targets: `build`, `lint`, `test`
+- [x] 4.3. `libs/data-access/src/index.ts` — stub barrel with placeholder hook/client exports
+- [x] 4.4. Add `@rift/data-access` path alias to root `tsconfig.base.json`
 
 **Verify**: `pnpm nx run data-access:build` passes; domain types resolve without error
 

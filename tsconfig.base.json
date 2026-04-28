@@ -1,23 +1,24 @@
 {
-	"compilerOptions": {
-		"target": "ES2022",
-		"module": "ESNext",
-		"lib": ["ES2022", "dom"],
-		"noUncheckedIndexedAccess": true,
-		"exactOptionalPropertyTypes": true,
-		"noImplicitOverride": true,
-		"sourceMap": true,
-		"declaration": true,
-		"declarationMap": true,
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"paths": {
-			"@rift/champion": ["libs/champion/src/index.ts"],
-			"@rift/player": ["libs/player/src/index.ts"],
-			"@rift/ui": ["libs/ui/src/index.ts"]
-		}
-	},
-	"exclude": ["node_modules", "dist", "build", ".vike", "coverage"]
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "dom"],
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@rift/champion": ["libs/champion/src/index.ts"],
+      "@rift/player": ["libs/player/src/index.ts"],
+      "@rift/ui": ["libs/ui/src/index.ts"],
+      "@rift/data-access": ["libs/data-access/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build", ".vike", "coverage"]
 }
