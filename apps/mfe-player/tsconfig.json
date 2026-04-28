@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "types": ["vite/client", "vike-react"],
+    "noEmit": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@rift/champion": ["../../libs/champion/src/index.ts"],
+      "@rift/player": ["../../libs/player/src/index.ts"],
+      "@rift/ui": ["../../libs/ui/src/index.ts"],
+      "@rift/data-access": ["../../libs/data-access/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist", ".vike"]
+}

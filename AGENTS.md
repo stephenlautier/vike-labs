@@ -6,6 +6,7 @@ Experiment and testing monorepo for exploring [Vike](https://vike.dev/), micro-f
 
 ```
 apps/
+  shell/             # Vike host — global nav, home, 404, auth state, MF host (Phase 2)
   mfe-champions/     # MFE 1 — champion browser, detail pages, abilities viewer
   mfe-tier-list/     # MFE 2 — tier list rankings, meta builds (filterable by role/tier/patch)
   mfe-player/        # MFE 3 — authenticated player profile, owned champions, match history
@@ -59,7 +60,7 @@ pnpm run nx:reset                   # clear NX cache (use when builds behave une
 | [Tailwind CSS v4](https://tailwindcss.com/)                           | Utility-first CSS                                     |
 | [shadcn/ui](https://ui.shadcn.com/)                                   | Component library (within each app)                   |
 | [Hono](https://hono.dev/)                                             | API server (each app has its own `+server.ts`)        |
-| [Auth0](https://auth0.com/)                                           | Authentication via `vike-react-auth0`                 |
+| [Auth.js](https://authjs.dev/) + [Auth0](https://auth0.com/)          | Authentication via `@auth/core` with Auth0 provider   |
 | [Module Federation](https://github.com/module-federation/vite)        | MFE runtime sharing via `@module-federation/vite`     |
 | [Jotai](https://jotai.org/)                                           | Atomic client-side state management                   |
 | [Vitest](https://vitest.dev/)                                         | Unit testing                                          |
@@ -75,10 +76,10 @@ Use [Bati](https://github.com/vikejs/bati) (the Vike scaffolder) to create apps,
 
 ```bash
 cd apps
-pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --hono --oxlint --storybook
+pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --hono --oxlint
 ```
 
-> After scaffolding, add a `project.json` to register the app with NX. See an existing app's `project.json` as reference.
+> After scaffolding: remove `.oxlintrc.json` (root `oxlint.config.ts` is used instead), remove nested `.git/`, update `tsconfig.json` to extend `../../tsconfig.base.json` and point `@/` at `./src/*`, update `vite.config.ts` to use `path.resolve(__dirname, "./src")` for the `@` alias, then add a `project.json` to register the app with NX. See an existing app's `project.json` as reference.
 
 ## Conventions
 
@@ -142,17 +143,18 @@ Each app uses `@/` as an alias for its own `src/` directory.
 
 ### Authentication & Route Access
 - **Public** (no auth required): `mfe-champions`, `mfe-tier-list`
-- **Private** (Auth0 login required): `mfe-player` — all pages guarded via `+guard.ts`
-- Auth provider: [Auth0](https://auth0.com/) via `vike-react-auth0`
-- Unauthenticated users hitting `mfe-player` routes are redirected to Auth0 login
-- Server-side: read `pageContext.user.sub` (Auth0 `sub` claim) to identify the player
+- **Private** (Auth0 login required): `apps/shell` + `mfe-player` — guarded via Auth.js session
+- Auth provider: [Auth.js](https://authjs.dev/) (`@auth/core`) with Auth0 provider — session accessible as `pageContext.session`
+- Unauthenticated users hitting `mfe-player` routes are rejected by `+guard.ts` (throws `render(401)`)
+- Server-side: read `pageContext.session?.user` to identify the player; Auth0 `sub` comes from `session.user.id`
+- Auth routes: `/api/auth/signin`, `/api/auth/signout`, `/api/auth/session` (handled by `server/authjs-handler.ts`)
 
 ### Player Profile (`mfe-player`)
-- Requires Auth0 authentication — guard all pages with `+guard.ts`
+- Requires Auth0 authentication — all pages guarded by `pages/+guard.ts`
 - Displays top 3 champions by mastery points (from `PlayerChampion`)
 - Owned champions grid links through to `mfe-champions` detail pages
 - Match history table shows K/D/A, role, champion, win/loss, duration per `PlayerMatchEntry`
-- Player data is fetched server-side using the Auth0 `sub` claim from `pageContext.user`
+- Player data is fetched server-side using the Auth0 `sub` from `pageContext.session?.user?.id`
 
 ### State Management (Jotai)
 - Use Jotai atoms for UI filter state, user preferences, and cross-component derived state
