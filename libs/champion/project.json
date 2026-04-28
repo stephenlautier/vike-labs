@@ -14,7 +14,7 @@
         "main": "{projectRoot}/src/index.ts",
         "assets": []
       },
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"]
     },
     "lint": {
       "executor": "nx:run-commands",

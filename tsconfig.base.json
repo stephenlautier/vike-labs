@@ -13,7 +13,11 @@
 		"isolatedModules": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"paths": {}
+		"paths": {
+			"@rift/champion": ["libs/champion/src/index.ts"],
+			"@rift/player": ["libs/player/src/index.ts"],
+			"@rift/ui": ["libs/ui/src/index.ts"]
+		}
 	},
 	"exclude": ["node_modules", "dist", "build", ".vike", "coverage"]
 }
