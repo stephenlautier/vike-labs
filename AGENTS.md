@@ -11,7 +11,8 @@ apps/
   mfe-player/        # MFE 3 — authenticated player profile, owned champions, match history
 libs/
   ui/                # StencilJS web components (core design system)
-  domain/            # Shared TypeScript domain types & schemas
+  champion/          # Champion domain: types & Valibot schemas (Champion, ChampionAbility, ChampionTier, ChampionSkin)
+  player/            # Player domain: types & Valibot schemas (Player, PlayerChampion, PlayerMatchEntry)
   data-access/       # API clients & React hooks (Hono backend)
   storybook/         # Storybook configuration for libs/ui components
 ```
@@ -28,7 +29,7 @@ libs/
 | `PlayerChampion`   | playerId, championId, masteryLevel, masteryPoints, owned                             |
 | `PlayerMatchEntry` | id, playerId, championId, role, kills, deaths, assists, win, gameDuration, matchDate |
 
-All types live in `libs/domain/src/`. Valibot schemas are co-located.
+Champion types live in `libs/champion/src/`. Player types live in `libs/player/src/`. Valibot schemas are co-located with their types.
 
 ## Package Manager & Task Runner
 
@@ -78,6 +79,52 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 
 ## Conventions
 
+### Vertical Slice Architecture
+
+Organize code **by feature/domain slice**, not by type. This applies to both `libs/` and within each `apps/` source tree.
+
+**Prefer** — feature-first:
+```
+src/
+  champion/
+    ChampionCard.tsx
+    useChampion.ts
+    champion.atoms.ts
+  tier-list/
+    TierBadge.tsx
+    useTierList.ts
+    tier-list.atoms.ts
+```
+
+**Avoid** — type-first:
+```
+src/
+  components/
+    ChampionCard.tsx
+    TierBadge.tsx
+  hooks/
+    useChampion.ts
+    useTierList.ts
+  atoms/
+    champion.atoms.ts
+    tier-list.atoms.ts
+```
+
+Rules:
+- Group code by what it **does** (champion, player, tier-list), not what it **is** (component, hook, atom)
+- Co-locate everything a feature needs: page, data-fetching, component, atom, test
+- Cross-cutting concerns belong in a `shared/` slice only when truly generic (e.g. error boundaries, layout primitives)
+- This mirrors the `libs/` split: `libs/champion` and `libs/player` are slices, not a monolithic `libs/domain`
+
+### App Imports (`@/`)
+
+Each app uses `@/` as an alias for its own `src/` directory.
+
+- Configured in the app's `tsconfig.json` paths: `"@/*": ["./src/*"]`
+- Configured in the app's `vite.config.ts` resolve alias: `"@": path.resolve(__dirname, "./src")`
+- Example: `import { TierBadge } from "@/tier-list/TierBadge"`
+- Use `@/` for **intra-app** imports only; use `@vike-labs/*` aliases for cross-lib imports
+
 ### File Routing (Vike)
 - Pages use [filesystem routing](https://vike.dev/filesystem-routing): `pages/index/+Page.tsx`, `pages/champions/@id/+Page.tsx`
 - Data fetching: `+data.ts` files alongside `+Page.tsx`
@@ -87,6 +134,7 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 ### Tier List Filters (`mfe-tier-list`)
 - Filter state lives in Jotai atoms: `tierAtom`, `roleAtom`, `patchAtom`
 - Supported filters: tier (S/A/B/C/D), role (Top/Jungle/Mid/ADC/Support), patch
+- Atoms are co-located with the feature slice: `src/tier-list/tier-list.atoms.ts`
 - URL search params are synced with filter atoms so filtered views are shareable/bookmarkable
 
 ### Authentication & Route Access
@@ -105,7 +153,7 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 
 ### State Management (Jotai)
 - Use Jotai atoms for UI filter state, user preferences, and cross-component derived state
-- Atoms live co-located with the feature: `src/atoms/tierList.atoms.ts`
+- Atoms are co-located with their feature slice: `src/tier-list/tier-list.atoms.ts` (not `src/atoms/`)
 - Do **not** use Jotai for server data — use `+data.ts` / React hooks in `libs/data-access`
 
 ### StencilJS Web Components (`libs/ui`)
@@ -115,10 +163,11 @@ pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --h
 - Stories live in `libs/storybook/` as `*.stories.tsx`
 
 ### Shared Libs
-- `libs/domain` — pure types, Valibot schemas, no framework code
-- `libs/data-access` — React hooks + Hono fetch utilities; depends on `libs/domain`
-- `libs/ui` depends on nothing in the monorepo (it is the leaf node)
-- NX enforce-module-boundaries: `apps/*` may import `libs/*`; `libs/domain` may not import `libs/data-access`
+- `libs/champion` — Champion domain: pure types + Valibot schemas; no framework code; leaf node within domain libs
+- `libs/player` — Player domain: pure types + Valibot schemas; depends on `libs/champion` for `ChampionRole`
+- `libs/data-access` — React hooks + Hono fetch utilities; depends on `libs/champion` + `libs/player`
+- `libs/ui` — depends on nothing in the monorepo (leaf node)
+- NX enforce-module-boundaries: `apps/*` may import `libs/*`; `libs/player` may import `libs/champion`; domain libs (`champion`, `player`) may not import `libs/data-access`
 
 ### Code Style
 - **Formatter**: oxfmt — config at `.oxfmtrc.json`, run `pnpm oxfmt .` to format

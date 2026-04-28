@@ -22,7 +22,8 @@
 		"ignoreDeprecations": "6.0",
 		"baseUrl": ".",
 		"paths": {
-			"@vike-labs/domain": ["libs/domain/src/index.ts"]
+			"@vike-labs/champion": ["libs/champion/src/index.ts"],
+			"@vike-labs/player": ["libs/player/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "dist", "build", ".vike", "coverage"]
