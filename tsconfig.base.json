@@ -21,10 +21,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"ignoreDeprecations": "6.0",
 		"baseUrl": ".",
-		"paths": {
-			"@vike-labs/champion": ["libs/champion/dist/src/index.d.ts"],
-			"@vike-labs/player": ["libs/player/dist/src/index.d.ts"]
-		}
+		"paths": {}
 	},
 	"exclude": ["node_modules", "dist", "build", ".vike", "coverage"]
 }
