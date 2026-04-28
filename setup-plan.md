@@ -1,0 +1,225 @@
+# vike-labs — Project Setup Plan
+
+**TL;DR**: Bootstrap from scratch. Architecture is **Vike Host Shell + 3 Vike MFE remotes**. StencilJS is the design system only (`libs/ui`). Module Federation is Phase 2. Each phase is an independently verifiable deliverable.
+
+---
+
+## Architecture
+
+```
+apps/
+  shell/           # Vike host — global nav, home, 404, auth state, MF host (Phase 2)
+  mfe-champions/   # Vike remote — SSR, own CI/CD, public
+  mfe-tier-list/   # Vike remote — SSR, own CI/CD, public
+  mfe-player/      # Vike remote — SSR, own CI/CD, Auth0-protected
+libs/
+  ui/              # StencilJS lol-* web components — design system, leaf node
+  domain/          # Types + Valibot schemas
+  data-access/     # React hooks + Hono fetch clients
+  storybook/       # Storybook for libs/ui components
+```
+
+Phase 1 navigation: full page loads between apps via `<a href>`.  
+Seamless SPA navigation via Module Federation is **Phase 2**.
+
+### Performance Strategy (LCP / INP / CLS)
+
+| Metric | Approach                                                                            |
+| ------ | ----------------------------------------------------------------------------------- |
+| LCP    | Each Vike app SSR-renders on direct URL hit — user always gets server-rendered HTML |
+| CLS    | Reserve layout slots for async content using skeleton dimensions                    |
+| INP    | React 19 concurrent mode + Jotai fine-grained atom subscriptions                    |
+
+---
+
+## Decisions
+
+| Decision          | Choice                                                                        |
+| ----------------- | ----------------------------------------------------------------------------- |
+| Module Federation | Phase 2 — apps first                                                          |
+| Storybook         | `libs/storybook` only — no `--storybook` Bati flag per app                    |
+| Libs scope        | Skeletons only (structure, tsconfig, project.json, placeholder exports)       |
+| Auth0             | `apps/shell` + `apps/mfe-player` only                                         |
+| StencilJS role    | Design system (`libs/ui`) only — Vike handles all page apps                   |
+| Shell pages       | Owns `/` (home) and `_error`/404; delegates all feature routes to MFE remotes |
+
+---
+
+## Phase 1 — Monorepo Root Infrastructure
+
+> No dependencies — start here.
+
+- [ ] 1.1. Create root `package.json` — `private: true`, devDeps: `nx`, `@nx/vite`, `@nx/playwright`, `typescript`, `@types/node`, `vitest`
+- [ ] 1.2. Create `pnpm-workspace.yaml` — packages: `apps/*`, `libs/*`
+- [ ] 1.3. Create `nx.json` — `build` cacheable + depends on upstream `build`; `test` depends on `build`; `lint` standalone
+- [ ] 1.4. Create `tsconfig.base.json` — strict, ES2022+, `paths: {}` placeholder for lib aliases
+- [ ] 1.5. Run `pnpm install` to bootstrap NX at root
+- [ ] 1.6. Run `pnpx nx configure-ai-agents` to configure NX AI agent integration
+
+**Verify**: `pnpm nx graph` renders without errors; `pnpm nx show projects` returns empty (valid)
+
+---
+
+## Phase 2 — libs/domain skeleton
+
+> Depends on Phase 1.
+
+- [ ] 2.1. `libs/domain/package.json` — name `@vike-labs/domain`, dep: `valibot` (latest)
+- [ ] 2.2. `libs/domain/tsconfig.json` extending `../../tsconfig.base.json`
+- [ ] 2.3. `libs/domain/project.json` — NX targets: `build` (tsc), `lint` (oxlint), `test` (vitest)
+- [ ] 2.4. `libs/domain/src/index.ts` — barrel export placeholder
+- [ ] 2.5. 7 stub entity files in `libs/domain/src/entities/` — typed stubs + TODO (Champion, ChampionAbility, ChampionTier, ChampionSkin, Player, PlayerChampion, PlayerMatchEntry)
+- [ ] 2.6. Add `@vike-labs/domain` path alias to root `tsconfig.base.json`
+
+**Verify**: `pnpm nx run domain:build` + `pnpm nx run domain:lint` pass
+
+---
+
+## Phase 3 — libs/ui skeleton (StencilJS)
+
+> Depends on Phase 1. Can run in parallel with Phase 2.
+
+- [ ] 3.1. `npm create stencil@latest` in `libs/ui/` — select `component` type
+- [ ] 3.2. Add `@stencil/react-output-target` to `libs/ui/package.json`
+- [ ] 3.3. Configure React output target in `libs/ui/stencil.config.ts`
+- [ ] 3.4. Stub `lol-champion-card` component — bare `@Component` decorator, `lol-` prefix, no logic
+- [ ] 3.5. Create `libs/ui/project.json` — NX targets: `build` (stencil build), `lint`
+- [ ] 3.6. Add `@vike-labs/ui` path alias to root `tsconfig.base.json`
+
+**Verify**: `pnpm nx run ui:build` generates web component output + React wrappers in `dist/`
+
+---
+
+## Phase 4 — libs/data-access skeleton
+
+> Depends on Phase 2.
+
+- [ ] 4.1. `libs/data-access/package.json` — name `@vike-labs/data-access`, deps: `hono` + `@vike-labs/domain`; peerDep: `react`
+- [ ] 4.2. `libs/data-access/tsconfig.json` + `project.json` — NX targets: `build`, `lint`, `test`
+- [ ] 4.3. `libs/data-access/src/index.ts` — stub barrel with placeholder hook/client exports
+- [ ] 4.4. Add `@vike-labs/data-access` path alias to root `tsconfig.base.json`
+
+**Verify**: `pnpm nx run data-access:build` passes; domain types resolve without error
+
+---
+
+## Phase 5 — libs/storybook skeleton
+
+> Depends on Phase 3.
+
+- [ ] 5.1. Initialize Storybook 10 in `libs/storybook/` — configured to resolve `@vike-labs/ui`
+- [ ] 5.2. `libs/storybook/project.json` — NX targets: `storybook` (serve), `build-storybook`
+- [ ] 5.3. Placeholder story: `libs/storybook/stories/lol-champion-card.stories.tsx`
+
+**Verify**: `pnpm nx run storybook:storybook` opens and renders placeholder story
+
+---
+
+## Phase 6 — apps/shell
+
+> Depends on Phase 1. Phases 6–9 can run in parallel.
+
+- [ ] 6.1. `pnpm create vike@latest shell --react --tailwindcss --shadcn-ui --auth0 --hono --oxlint`
+- [ ] 6.2. Replace scaffolded oxlint config — extend `../../oxlint.config.ts`
+- [ ] 6.3. Update `tsconfig.json` to reference `../../tsconfig.base.json`
+- [ ] 6.4. Set up Vike pages:
+  - `pages/+config.ts` — extends `vike-react`, `ssr: true`
+  - `pages/+Layout.tsx` — global nav, auth state display
+  - `pages/index/+Page.tsx` — home page (owned by shell)
+  - `pages/_error/+Page.tsx` — global 404/error page
+- [ ] 6.5. Wire `vike-react-auth0` provider at root layout
+- [ ] 6.6. Create `apps/shell/project.json` — tag `scope:shell`
+
+**Verify**: `pnpm nx run shell:dev`; `/` renders home; Auth0 login button visible in nav
+
+---
+
+## Phase 7 — apps/mfe-champions
+
+> Parallel with Phases 6, 8, 9.
+
+- [ ] 7.1. `pnpm create vike@latest mfe-champions --react --tailwindcss --shadcn-ui --hono --oxlint`
+- [ ] 7.2. Replace oxlint config + update tsconfig (same as Phase 6, steps 6.2–6.3)
+- [ ] 7.3. Set up Vike pages:
+  - `pages/+config.ts`, `pages/+Layout.tsx`
+  - `pages/index/+Page.tsx` — placeholder champion list
+  - `pages/champions/@id/+Page.tsx` — placeholder champion detail
+- [ ] 7.4. Create `apps/mfe-champions/project.json` — tag `scope:champions`
+
+**Verify**: `pnpm nx run mfe-champions:dev`; `/` and `/champions/:id` routes render
+
+---
+
+## Phase 8 — apps/mfe-tier-list
+
+> Parallel with Phases 6, 7, 9.
+
+- [ ] 8.1. `pnpm create vike@latest mfe-tier-list --react --tailwindcss --shadcn-ui --hono --oxlint`
+- [ ] 8.2. Replace oxlint config + update tsconfig
+- [ ] 8.3. Set up Vike pages:
+  - `pages/+config.ts`, `pages/+Layout.tsx`
+  - `pages/index/+Page.tsx` — placeholder tier list
+- [ ] 8.4. `src/atoms/tierList.atoms.ts` — `tierAtom`, `roleAtom`, `patchAtom` (typed Jotai primitive atoms, URL-sync placeholder)
+- [ ] 8.5. Create `apps/mfe-tier-list/project.json` — tag `scope:tier-list`
+
+**Verify**: `pnpm nx run mfe-tier-list:dev`; filter atoms importable
+
+---
+
+## Phase 9 — apps/mfe-player
+
+> Parallel with Phases 6, 7, 8.
+
+- [ ] 9.1. `pnpm create vike@latest mfe-player --react --tailwindcss --shadcn-ui --auth0 --hono --oxlint`
+- [ ] 9.2. Replace oxlint config + update tsconfig
+- [ ] 9.3. Set up Vike pages:
+  - `pages/+config.ts`, `pages/+Layout.tsx`
+  - `pages/+guard.ts` — `if (!pageContext.user) throw render(401)`
+  - `pages/index/+Page.tsx` — placeholder player profile
+  - `pages/match-history/+Page.tsx` — placeholder match history
+- [ ] 9.4. Create `apps/mfe-player/project.json` — tag `scope:player`
+
+**Verify**: `pnpm nx run mfe-player:dev`; unauthenticated request redirects to Auth0
+
+---
+
+## Phase 10 — Cross-cutting Integration
+
+> Depends on Phases 2–9.
+
+- [ ] 10.1. Finalize all path aliases in `tsconfig.base.json` (`@vike-labs/domain`, `@vike-labs/ui`, `@vike-labs/data-access`)
+- [ ] 10.2. Tag all `project.json` files: `type:app`/`type:lib` + `scope:*`
+- [ ] 10.3. Wire `nx.json` `targetDefaults` — apps depend on upstream lib `build`
+- [ ] 10.4. `pnpm install` from root to re-link all workspace packages
+- [ ] 10.5. Update `AGENTS.md` — reflect `apps/shell` + 3 MFE remote structure and Phase 2 Module Federation plan
+
+**Verify**:
+- `pnpm nx run-many -t build` passes all projects
+- `pnpm nx run-many -t lint` passes all projects
+- `pnpm nx graph` shows: `shell/mfe-* → data-access → domain`; `mfe-* → ui`; `storybook → ui`
+
+---
+
+## Relevant Files
+
+| File                                     | Status                                     |
+| ---------------------------------------- | ------------------------------------------ |
+| `pnpm-workspace.yaml`                    | To create                                  |
+| `nx.json`                                | To create                                  |
+| `tsconfig.base.json`                     | To create                                  |
+| `oxlint.config.ts`                       | Exists — all packages extend it            |
+| `.oxfmtrc.json`                          | Exists — applies to all files              |
+| `.github/prompts/scaffold-mfe.prompt.md` | Exists — `project.json` template reference |
+| `AGENTS.md`                              | Exists — architecture source of truth      |
+
+---
+
+## Open Decisions (Resolve Before Phase 10)
+
+1. **NX module boundary enforcement**: `enforce-module-boundaries` requires ESLint; Oxlint has no equivalent. Options:
+   - **(A)** Add a minimal root ESLint config with only `@nx/eslint-plugin` alongside Oxlint
+   - **(B)** Rely on TypeScript path aliases + `pnpm nx graph` for visualization only (no enforcement)
+
+2. **TypeScript 6**: AGENTS.md specifies TypeScript 6 — verify `typescript@6` is stable on npm before Phase 1; fall back to `typescript@latest` if still in pre-release.
+
+3. **Bati flag names**: Run `pnpm create vike@latest --help` before Phase 6 — CLI evolves and flag names like `--shadcn-ui` vs `--shadcn` can differ across releases.
