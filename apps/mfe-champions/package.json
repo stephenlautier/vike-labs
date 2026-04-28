@@ -1,6 +1,7 @@
 {
+  "type": "module",
   "scripts": {
-    "dev": "vike dev",
+    "dev": "vike dev --port 3001",
     "build": "vike build",
     "preview": "vike build && vike preview",
     "lint": "oxlint --type-aware .",
@@ -33,6 +34,5 @@
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
     "vite": "^8.0.8"
-  },
-  "type": "module"
+  }
 }

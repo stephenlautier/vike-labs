@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "vike dev",
+    "dev": "vike dev --port 3002",
     "build": "vike build",
     "preview": "vike build && vike preview",
     "lint": "oxlint --type-aware .",

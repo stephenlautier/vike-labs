@@ -3,10 +3,17 @@
   "defaultBase": "main",
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "production": ["default", "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)", "!{projectRoot}/tsconfig.spec.json"],
+    "production": [
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json"
+    ],
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/*.yml"]
   },
   "targetDefaults": {
+    "dev": {
+      "continuous": true
+    },
     "build": {
       "cache": true,
       "dependsOn": ["^build"],
