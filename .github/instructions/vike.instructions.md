@@ -54,7 +54,7 @@ export default { ssr: false };
 ```ts
 // pages/champions/@id/+data.ts
 import type { PageContextServer } from "vike/types";
-import { getChampion } from "../../../libs/data-access/src";
+import { getChampion } from "@vike-labs/data-access";
 
 export async function data(pageContext: PageContextServer) {
 	const { id } = pageContext.routeParams;
@@ -120,3 +120,6 @@ export async function guard(pageContext: PageContextServer) {
 - Use `.server.ts` suffix for files that must never be bundled for the client
 - Layouts at `pages/+Layout.tsx` wrap ALL pages — use nested `+Layout.tsx` for sub-trees
 - `pageContext.data` is serialized to JSON — keep it plain; no class instances
+- Use `@/` for intra-app imports (maps to the app's own `src/`); never use relative `../../../` for cross-lib imports
+- Use `@vike-labs/champion`, `@vike-labs/player`, `@vike-labs/data-access` for cross-lib imports
+- Follow vertical slice architecture within `src/` — group by feature (e.g. `src/champion/`), not by type (`src/components/`)

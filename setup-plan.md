@@ -14,7 +14,8 @@ apps/
   mfe-player/      # Vike remote — SSR, own CI/CD, Auth0-protected
 libs/
   ui/              # StencilJS lol-* web components — design system, leaf node
-  domain/          # Types + Valibot schemas
+  champion/        # Champion domain: types & Valibot schemas (Champion, ChampionAbility, ChampionTier, ChampionSkin)
+  player/          # Player domain: types & Valibot schemas (Player, PlayerChampion, PlayerMatchEntry)
   data-access/     # React hooks + Hono fetch clients
   storybook/       # Storybook for libs/ui components
 ```
@@ -60,18 +61,21 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 ---
 
-## Phase 2 — libs/domain skeleton
+## Phase 2 — libs/champion + libs/player skeletons
 
-> Depends on Phase 1.
+> Depends on Phase 1. libs/player depends on libs/champion (for `ChampionRole`).
 
-- [ ] 2.1. `libs/domain/package.json` — name `@vike-labs/domain`, dep: `valibot` (latest)
-- [ ] 2.2. `libs/domain/tsconfig.json` extending `../../tsconfig.base.json`
-- [ ] 2.3. `libs/domain/project.json` — NX targets: `build` (tsc), `lint` (oxlint), `test` (vitest)
-- [ ] 2.4. `libs/domain/src/index.ts` — barrel export placeholder
-- [ ] 2.5. 7 stub entity files in `libs/domain/src/entities/` — typed stubs + TODO (Champion, ChampionAbility, ChampionTier, ChampionSkin, Player, PlayerChampion, PlayerMatchEntry)
-- [ ] 2.6. Add `@vike-labs/domain` path alias to root `tsconfig.base.json`
+- [x] 2.1. `libs/champion/package.json` — name `@vike-labs/champion`, dep: `valibot`
+- [x] 2.2. `libs/champion/tsconfig.json` + `project.json` — NX targets: `build` (tsc), `lint` (oxlint), `test` (vitest)
+- [x] 2.3. 4 entity files in `libs/champion/src/` — champion, champion-ability, champion-tier, champion-skin
+- [x] 2.4. `libs/champion/src/index.ts` — barrel export
+- [x] 2.5. `libs/player/package.json` — name `@vike-labs/player`, deps: `valibot` + `@vike-labs/champion`
+- [x] 2.6. `libs/player/tsconfig.json` + `project.json` — NX targets: `build` (tsc), `lint` (oxlint), `test` (vitest)
+- [x] 2.7. 3 entity files in `libs/player/src/` — player, player-champion, player-match-entry (imports `ChampionRoleSchema` from `@vike-labs/champion`)
+- [x] 2.8. `libs/player/src/index.ts` — barrel export
+- [x] 2.9. Add `@vike-labs/champion` + `@vike-labs/player` path aliases to root `tsconfig.base.json`
 
-**Verify**: `pnpm nx run domain:build` + `pnpm nx run domain:lint` pass
+**Verify**: `pnpm nx run champion:build` + `pnpm nx run player:build` + both lint pass
 
 ---
 
@@ -94,7 +98,7 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phase 2.
 
-- [ ] 4.1. `libs/data-access/package.json` — name `@vike-labs/data-access`, deps: `hono` + `@vike-labs/domain`; peerDep: `react`
+- [ ] 4.1. `libs/data-access/package.json` — name `@vike-labs/data-access`, deps: `hono` + `@vike-labs/champion` + `@vike-labs/player`; peerDep: `react`
 - [ ] 4.2. `libs/data-access/tsconfig.json` + `project.json` — NX targets: `build`, `lint`, `test`
 - [ ] 4.3. `libs/data-access/src/index.ts` — stub barrel with placeholder hook/client exports
 - [ ] 4.4. Add `@vike-labs/data-access` path alias to root `tsconfig.base.json`
@@ -121,14 +125,15 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 - [ ] 6.1. `pnpm create vike@latest shell --react --tailwindcss --shadcn-ui --auth0 --hono --oxlint`
 - [ ] 6.2. Replace scaffolded oxlint config — extend `../../oxlint.config.ts`
-- [ ] 6.3. Update `tsconfig.json` to reference `../../tsconfig.base.json`
-- [ ] 6.4. Set up Vike pages:
+- [ ] 6.3. Update `tsconfig.json` to reference `../../tsconfig.base.json`; add `@/` alias: `"@/*": ["./src/*"]`
+- [ ] 6.4. Configure `@/` Vite alias in `vite.config.ts`: `"@": path.resolve(__dirname, "./src")`
+- [ ] 6.5. Set up Vike pages:
   - `pages/+config.ts` — extends `vike-react`, `ssr: true`
   - `pages/+Layout.tsx` — global nav, auth state display
   - `pages/index/+Page.tsx` — home page (owned by shell)
   - `pages/_error/+Page.tsx` — global 404/error page
-- [ ] 6.5. Wire `vike-react-auth0` provider at root layout
-- [ ] 6.6. Create `apps/shell/project.json` — tag `scope:shell`
+- [ ] 6.6. Wire `vike-react-auth0` provider at root layout
+- [ ] 6.7. Create `apps/shell/project.json` — tag `scope:shell`
 
 **Verify**: `pnpm nx run shell:dev`; `/` renders home; Auth0 login button visible in nav
 
@@ -139,7 +144,7 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 > Parallel with Phases 6, 8, 9.
 
 - [ ] 7.1. `pnpm create vike@latest mfe-champions --react --tailwindcss --shadcn-ui --hono --oxlint`
-- [ ] 7.2. Replace oxlint config + update tsconfig (same as Phase 6, steps 6.2–6.3)
+- [ ] 7.2. Replace oxlint config; update `tsconfig.json` (extends base + `@/` alias); add `@/` Vite alias
 - [ ] 7.3. Set up Vike pages:
   - `pages/+config.ts`, `pages/+Layout.tsx`
   - `pages/index/+Page.tsx` — placeholder champion list
@@ -155,11 +160,11 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 > Parallel with Phases 6, 7, 9.
 
 - [ ] 8.1. `pnpm create vike@latest mfe-tier-list --react --tailwindcss --shadcn-ui --hono --oxlint`
-- [ ] 8.2. Replace oxlint config + update tsconfig
+- [ ] 8.2. Replace oxlint config; update `tsconfig.json` (extends base + `@/` alias); add `@/` Vite alias
 - [ ] 8.3. Set up Vike pages:
   - `pages/+config.ts`, `pages/+Layout.tsx`
   - `pages/index/+Page.tsx` — placeholder tier list
-- [ ] 8.4. `src/atoms/tierList.atoms.ts` — `tierAtom`, `roleAtom`, `patchAtom` (typed Jotai primitive atoms, URL-sync placeholder)
+- [ ] 8.4. `src/tier-list/tier-list.atoms.ts` — `tierAtom`, `roleAtom`, `patchAtom` (typed Jotai primitive atoms, URL-sync placeholder)
 - [ ] 8.5. Create `apps/mfe-tier-list/project.json` — tag `scope:tier-list`
 
 **Verify**: `pnpm nx run mfe-tier-list:dev`; filter atoms importable
@@ -171,7 +176,7 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 > Parallel with Phases 6, 7, 8.
 
 - [ ] 9.1. `pnpm create vike@latest mfe-player --react --tailwindcss --shadcn-ui --auth0 --hono --oxlint`
-- [ ] 9.2. Replace oxlint config + update tsconfig
+- [ ] 9.2. Replace oxlint config; update `tsconfig.json` (extends base + `@/` alias); add `@/` Vite alias
 - [ ] 9.3. Set up Vike pages:
   - `pages/+config.ts`, `pages/+Layout.tsx`
   - `pages/+guard.ts` — `if (!pageContext.user) throw render(401)`
@@ -187,7 +192,7 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phases 2–9.
 
-- [ ] 10.1. Finalize all path aliases in `tsconfig.base.json` (`@vike-labs/domain`, `@vike-labs/ui`, `@vike-labs/data-access`)
+- [ ] 10.1. Finalize all path aliases in `tsconfig.base.json` (`@vike-labs/champion`, `@vike-labs/player`, `@vike-labs/ui`, `@vike-labs/data-access`)
 - [ ] 10.2. Tag all `project.json` files: `type:app`/`type:lib` + `scope:*`
 - [ ] 10.3. Wire `nx.json` `targetDefaults` — apps depend on upstream lib `build`
 - [ ] 10.4. `pnpm install` from root to re-link all workspace packages
