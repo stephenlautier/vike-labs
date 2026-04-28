@@ -17,6 +17,8 @@
       "@rift/champion": ["libs/champion/src/index.ts"],
       "@rift/player": ["libs/player/src/index.ts"],
       "@rift/ui": ["libs/ui/src/index.ts"],
+      "@rift/ui/loader": ["libs/ui/loader/index.d.ts"],
+      "@rift/ui/components/*": ["libs/ui/dist/components/*.d.ts"],
       "@rift/data-access": ["libs/data-access/src/index.ts"]
     }
   },

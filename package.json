@@ -14,6 +14,7 @@
     "lint": "nx run-many -t lint",
     "fmt": "nx run-many -t fmt",
     "fmt:check": "nx run-many -t fmt:check",
+    "storybook": "nx run storybook:storybook",
     "nx:reset": "nx reset"
   },
   "devDependencies": {

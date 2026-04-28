@@ -158,6 +158,13 @@ export default defineConfig({
 			},
 		},
 		{
+			// Storybook config — not a test environment; suppress vitest/jest rules
+			files: ["**/.storybook/**/*.ts", "**/.storybook/**/*.tsx"],
+			rules: {
+				"vitest/require-hook": "off",
+			},
+		},
+		{
 			// Storybook stories — allow default exports
 			files: ["**/*.stories.tsx", "**/*.stories.ts"],
 			rules: {
