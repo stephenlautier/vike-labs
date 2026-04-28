@@ -49,12 +49,12 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > No dependencies — start here.
 
-- [ ] 1.1. Create root `package.json` — `private: true`, devDeps: `nx`, `@nx/vite`, `@nx/playwright`, `typescript`, `@types/node`, `vitest`
-- [ ] 1.2. Create `pnpm-workspace.yaml` — packages: `apps/*`, `libs/*`
-- [ ] 1.3. Create `nx.json` — `build` cacheable + depends on upstream `build`; `test` depends on `build`; `lint` standalone
-- [ ] 1.4. Create `tsconfig.base.json` — strict, ES2022+, `paths: {}` placeholder for lib aliases
-- [ ] 1.5. Run `pnpm install` to bootstrap NX at root
-- [ ] 1.6. Run `pnpx nx configure-ai-agents` to configure NX AI agent integration
+- [x] 1.1. Create root `package.json` — `private: true`, devDeps: `nx`, `@nx/vite`, `@nx/playwright`, `typescript`, `@types/node`, `vitest`
+- [x] 1.2. Create `pnpm-workspace.yaml` — packages: `apps/*`, `libs/*`
+- [x] 1.3. Create `nx.json` — `build` cacheable + depends on upstream `build`; `test` depends on `build`; `lint` standalone
+- [x] 1.4. Create `tsconfig.base.json` — strict, ES2022+, `paths: {}` placeholder for lib aliases
+- [x] 1.5. Run `pnpm install` to bootstrap NX at root
+- [x] 1.6. Run `pnpx nx configure-ai-agents` to configure NX AI agent integration
 
 **Verify**: `pnpm nx graph` renders without errors; `pnpm nx show projects` returns empty (valid)
 
