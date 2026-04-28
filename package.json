@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "nx run-many -t build",
-    "test": "nx run-many -t test",
+    "test": "nx run-many -t test --if-present",
     "lint": "nx run-many -t lint",
     "fmt": "nx run-many -t fmt",
     "fmt:check": "nx run-many -t fmt:check",

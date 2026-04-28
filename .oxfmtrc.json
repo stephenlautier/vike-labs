@@ -24,7 +24,9 @@
     "*.lock",
     "pnpm-lock.yaml",
     "*.min.js",
-    "*.min.css"
+    "*.min.css",
+    // stencil
+    "components.d.ts"
   ],
   "overrides": [
     {

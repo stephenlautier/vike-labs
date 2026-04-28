@@ -83,12 +83,12 @@ Seamless SPA navigation via Module Federation is **Phase 2**.
 
 > Depends on Phase 1. Can run in parallel with Phase 2.
 
-- [ ] 3.1. `npm create stencil@latest` in `libs/ui/` — select `component` type
-- [ ] 3.2. Add `@stencil/react-output-target` to `libs/ui/package.json`
-- [ ] 3.3. Configure React output target in `libs/ui/stencil.config.ts`
-- [ ] 3.4. Stub `lol-champion-card` component — bare `@Component` decorator, `lol-` prefix, no logic
-- [ ] 3.5. Create `libs/ui/project.json` — NX targets: `build` (stencil build), `lint`
-- [ ] 3.6. Add `@rift/ui` path alias to root `tsconfig.base.json`
+- [x] 3.1. `npm create stencil@latest` in `libs/ui/` — select `component` type
+- [x] 3.2. Add `@stencil/react-output-target` to `libs/ui/package.json`
+- [x] 3.3. Configure React output target in `libs/ui/stencil.config.ts`
+- [x] 3.4. Stub `lol-champion-card` component — bare `@Component` decorator, `lol-` prefix, no logic
+- [x] 3.5. Create `libs/ui/project.json` — NX targets: `build` (stencil build), `lint`
+- [x] 3.6. Add `@rift/ui` path alias to root `tsconfig.base.json`
 
 **Verify**: `pnpm nx run ui:build` generates web component output + React wrappers in `dist/`
 
