@@ -1,0 +1,38 @@
+{
+  "type": "module",
+  "scripts": {
+    "dev": "vike dev --port 3001",
+    "build": "vike build",
+    "preview": "vike build && vike preview",
+    "lint": "oxlint --type-aware .",
+    "shadcn": "npx shadcn@latest",
+    "prod": "vike build && node ./dist/server/index.mjs"
+  },
+  "dependencies": {
+    "@radix-ui/react-icons": "^1.3.2",
+    "@universal-middleware/core": "^0.4.17",
+    "@vikejs/hono": "^0.2.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "hono": "^4.12.12",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tailwind-merge": "^3.5.0",
+    "tw-animate-css": "^1.4.0",
+    "vike": "0.4.257",
+    "vike-react": "^0.6.21"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^20.19.37",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "oxlint": "^1.59.0",
+    "oxlint-tsgolint": "^0.20.0",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.8"
+  }
+}
