@@ -1,12 +1,12 @@
 import { Config } from "@stencil/core";
-// import { reactOutputTarget } from "@stencil/react-output-target";
+import { reactOutputTarget } from "@stencil/react-output-target";
 
 export const config: Config = {
 	namespace: "rift-ui",
 	outputTargets: [
-		// reactOutputTarget({
-		// 	outDir: "src/react",
-		// }),
+		reactOutputTarget({
+			outDir: "src/react",
+		}),
 		{
 			type: "dist",
 			esmLoaderPath: "../loader",
@@ -20,8 +20,8 @@ export const config: Config = {
 			type: "docs-readme",
 		},
 		{
-			type: 'www',
-			serviceWorker: null, // disable service workers
+			type: "www",
+			serviceWorker: null,
 		},
 	],
 };

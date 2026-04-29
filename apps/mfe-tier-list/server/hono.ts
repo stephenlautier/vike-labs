@@ -1,12 +1,13 @@
 import vike from "@vikejs/hono";
 import { Hono } from "hono";
 
-import { createTodoHandler } from "./create-todo-handler";
+import { registerTierListRoutes } from "./tier-list-handler";
 
 function getApp() {
 	const app = new Hono();
 
-	vike(app, [createTodoHandler]);
+	registerTierListRoutes(app);
+	vike(app);
 
 	return app;
 }

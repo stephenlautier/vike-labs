@@ -15,7 +15,19 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs.js"
     },
+    "./react": {
+      "types": "./src/react/components.ts",
+      "import": "./src/react/components.ts"
+    },
     "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js"
+    },
+    "./dist/components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
+    },
+    "./dist/components/*": {
       "types": "./dist/components/*.d.ts",
       "import": "./dist/components/*.js"
     },

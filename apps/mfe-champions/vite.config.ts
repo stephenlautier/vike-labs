@@ -9,6 +9,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
+			"@rift/ui/dist/components": path.resolve(__dirname, "../../libs/ui/dist/components"),
 		},
 	},
 });
