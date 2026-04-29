@@ -19,7 +19,8 @@
         "cwd": "apps/mfe-champions"
       },
       "outputs": ["{projectRoot}/dist"],
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "cache": false
     },
     "preview": {
       "executor": "nx:run-commands",
