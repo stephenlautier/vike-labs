@@ -49,15 +49,20 @@ export async function getSession(req: Request, config: Omit<AuthConfig, "raw">):
 	const url = createActionURL("session", requestURL.protocol, req.headers, process.env, config);
 
 	const response = await Auth(new Request(url, { headers: { cookie: req.headers.get("cookie") ?? "" } }), config);
-	const data = await response.json();
+	const data: unknown = await response.json();
 
-	if (!data || Object.keys(data).length === 0) {
+	if (!data || typeof data !== "object" || Object.keys(data).length === 0) {
 		return null;
 	}
 	if (response.status === 200) {
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Auth.js session response validated by status code
 		return data as Session;
 	}
-	throw new Error(typeof data === "object" && "message" in data ? (data.message as string) : undefined);
+	const message =
+		"message" in data && typeof (data as { message: unknown }).message === "string"
+			? String((data as { message: unknown }).message)
+			: undefined;
+	throw new Error(message);
 }
 
 // Note: You can directly define a server middleware instead of defining a Universal Middleware. (You can remove @universal-middleware/* — Vike's scaffolder uses it only to simplify its internal logic, see https://github.com/vikejs/vike/discussions/3116)

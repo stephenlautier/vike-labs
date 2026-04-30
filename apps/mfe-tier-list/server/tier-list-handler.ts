@@ -1,6 +1,7 @@
 import type { Champion, ChampionRole, ChampionTier, Tier } from "@rift/champion";
-import { SEED_CHAMPIONS, SEED_TIERS } from "@rift/champion";
+import { ChampionRoleSchema, SEED_CHAMPIONS, SEED_TIERS, TierSchema } from "@rift/champion";
 import type { Hono } from "hono";
+import * as v from "valibot";
 
 export type EnrichedTierEntry = ChampionTier & {
 	champion: Pick<Champion, "id" | "name" | "splashArtUrl" | "squareIconUrl" | "roles">;
@@ -41,8 +42,10 @@ export function buildEnrichedTiers(tierFilter?: Tier, roleFilter?: ChampionRole,
 
 export function registerTierListRoutes(app: Hono): void {
 	app.get("/api/tier-list", c => {
-		const tier = c.req.query("tier") as Tier | undefined;
-		const role = c.req.query("role") as ChampionRole | undefined;
+		const tierResult = v.safeParse(TierSchema, c.req.query("tier"));
+		const roleResult = v.safeParse(ChampionRoleSchema, c.req.query("role"));
+		const tier = tierResult.success ? tierResult.output : undefined;
+		const role = roleResult.success ? roleResult.output : undefined;
 		const patch = c.req.query("patch");
 		return c.json(buildEnrichedTiers(tier, role, patch));
 	});

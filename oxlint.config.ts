@@ -35,6 +35,12 @@ export default defineConfig({
 		"no-duplicate-imports": ["error", { allowSeparateTypeImports: true }],
 		"init-declarations": "off",
 		"max-statements": ["warn", { max: 40 }],
+		"no-undefined": "off", // undefined is idiomatic TypeScript — use null for "no value"
+		"no-warning-comments": "off", // TODO/FIXME comments are valid dev markers
+		"func-style": "off", // function declarations are idiomatic for React components
+		"new-cap": "off", // PascalCase React components used in JSX aren't constructor calls
+		"require-await": "off", // Vike/Auth.js lifecycle callbacks are async by contract
+		"eslint/max-lines": "off", // seed/data files can legitimately be long
 
 		"id-length": "off",
 		"capitalized-comments": "off",
@@ -55,6 +61,7 @@ export default defineConfig({
 		"import/no-relative-parent-imports": "off",
 		"import/exports-last": "off",
 		"import/no-nodejs-modules": "off",
+		"import/no-unassigned-import": ["error", { allow: ["**/*.css"] }], // allow CSS side-effect imports
 		"import/extensions": [
 			"error",
 			{
@@ -83,6 +90,10 @@ export default defineConfig({
 		"typescript/prefer-nullish-coalescing": "warn",
 		"typescript/prefer-optional-chain": "warn",
 		"typescript/explicit-member-accessibility": "off",
+		"typescript/explicit-module-boundary-types": "off", // redundant with explicit-function-return-type
+		"typescript/prefer-readonly-parameter-types": "off", // overly strict — forces readonly on all params
+		"typescript/require-await": "off", // lifecycle callbacks and handlers must be async by contract
+		"typescript/strict-boolean-expressions": "off", // common React patterns like `user &&` are idiomatic
 		"typescript/no-floating-promises": "error",
 		"typescript/await-thenable": "error",
 		"typescript/no-misused-promises": "error",
@@ -91,6 +102,10 @@ export default defineConfig({
 		"typescript/no-wrapper-object-types": "error",
 
 		// ── React ──────────────────────────────────────────────────────────────
+		"react/react-in-jsx-scope": "off", // React 17+ new JSX transform — no import needed
+		"react/jsx-filename-extension": "off", // .tsx IS the correct extension for JSX
+		"react/no-multi-comp": "off", // co-located helper components are fine
+		"react/jsx-max-depth": "off", // JSX nesting limit is too prescriptive
 		"react/jsx-key": "error",
 		"react/jsx-no-duplicate-props": "error",
 		"react/jsx-no-undef": "error",

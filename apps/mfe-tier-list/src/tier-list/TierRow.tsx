@@ -1,9 +1,10 @@
+import type { Tier } from "@rift/champion";
 import { LolTierBadge } from "@rift/ui/react";
 
 import type { EnrichedTierEntry } from "../../server/tier-list-handler";
 
 type Props = {
-	tier: string;
+	tier: Tier;
 	entries: EnrichedTierEntry[];
 };
 
@@ -16,7 +17,7 @@ export function TierRow({ tier, entries }: Props) {
 		<div className="flex gap-4 items-start">
 			{/* Tier badge column */}
 			<div className="flex-shrink-0 w-12 flex flex-col items-center pt-3">
-				<LolTierBadge tier={tier as "S" | "A" | "B" | "C" | "D"} />
+				<LolTierBadge tier={tier} />
 			</div>
 
 			{/* Champion cards */}

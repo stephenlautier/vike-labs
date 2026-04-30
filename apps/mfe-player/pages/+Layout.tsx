@@ -3,7 +3,7 @@ import { usePageContext } from "vike-react/usePageContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	const pageContext = usePageContext();
-	const session = pageContext.session as { user?: { name?: string } } | null | undefined;
+	const session = pageContext.session;
 	const user = session?.user;
 
 	return (
