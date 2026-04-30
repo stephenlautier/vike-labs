@@ -1,7 +1,7 @@
 import type { Tier } from "@rift/champion";
 import { LolTierBadge } from "@rift/ui/react";
 
-import type { EnrichedTierEntry } from "../../pages/index/+data";
+import type { EnrichedTierEntry } from "../pages/tier-list/data";
 
 type Props = {
 	tier: Tier;
@@ -25,7 +25,7 @@ export function TierRow({ tier, entries }: Props) {
 				{entries.map(entry => (
 					<a
 						key={entry.id}
-						href={`http://localhost:3001/champions/${entry.champion.id}`}
+						href={`/champions/${entry.champion.id}`}
 						className="group rounded-lg border border-border bg-card hover:border-primary/50 transition-colors overflow-hidden">
 						<div className="aspect-video overflow-hidden">
 							<img

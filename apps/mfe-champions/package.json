@@ -1,40 +1,32 @@
 {
   "name": "@rift/mfe-champions",
+  "private": true,
+  "files": [
+    "src"
+  ],
   "type": "module",
+  "exports": {
+    "./pages/champions-list": "./src/pages/champions-list/Page.tsx",
+    "./pages/champions-list/data": "./src/pages/champions-list/data.ts",
+    "./pages/champion-detail": "./src/pages/champion-detail/Page.tsx",
+    "./pages/champion-detail/data": "./src/pages/champion-detail/data.ts"
+  },
   "scripts": {
-    "dev": "vike dev --port 3001",
-    "build": "vike build",
-    "preview": "vike build && vike preview",
-    "lint": "oxlint --type-aware .",
-    "shadcn": "npx shadcn@latest",
-    "prod": "vike build && node ./dist/server/index.mjs"
+    "lint": "oxlint --type-aware ."
   },
   "dependencies": {
-    "@radix-ui/react-icons": "catalog:",
     "@rift/champion": "workspace:^",
     "@rift/data-access": "workspace:^",
-    "@rift/styles": "workspace:^",
     "@rift/ui": "workspace:^",
-    "class-variance-authority": "catalog:",
-    "clsx": "catalog:",
-    "lucide-react": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "tailwind-merge": "catalog:",
-    "tw-animate-css": "catalog:",
     "vike": "catalog:",
     "vike-react": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
-    "tailwindcss": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:"
+    "typescript": "catalog:"
   }
 }

@@ -204,42 +204,18 @@ importers:
 
   apps/mfe-champions:
     dependencies:
-      '@radix-ui/react-icons':
-        specifier: 'catalog:'
-        version: 1.3.2(react@19.2.5)
       '@rift/champion':
         specifier: workspace:^
         version: link:../../libs/champion
       '@rift/data-access':
         specifier: workspace:^
         version: link:../../libs/data-access
-      '@rift/styles':
-        specifier: workspace:^
-        version: link:../../libs/styles
       '@rift/ui':
         specifier: workspace:^
         version: link:../../libs/ui
-      class-variance-authority:
-        specifier: 'catalog:'
-        version: 0.7.1
-      clsx:
-        specifier: 'catalog:'
-        version: 2.1.1
-      lucide-react:
-        specifier: 'catalog:'
-        version: 1.11.0(react@19.2.5)
       react:
         specifier: 'catalog:'
         version: 19.2.5
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.5(react@19.2.5)
-      tailwind-merge:
-        specifier: 'catalog:'
-        version: 3.5.0
-      tw-animate-css:
-        specifier: 'catalog:'
-        version: 1.4.0
       vike:
         specifier: 'catalog:'
         version: 0.4.257(hono@4.12.15)(react-streaming@0.4.17(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(srvx@0.11.15)(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0))
@@ -247,36 +223,21 @@ importers:
         specifier: 'catalog:'
         version: 0.6.21(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vike@0.4.257(hono@4.12.15)(react-streaming@0.4.17(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(srvx@0.11.15)(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0)))
     devDependencies:
-      '@tailwindcss/vite':
-        specifier: 'catalog:'
-        version: 4.2.4(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0))
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.17
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.14)
-      '@vitejs/plugin-react':
-        specifier: 'catalog:'
-        version: 6.0.1(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0))
       oxlint:
         specifier: 'catalog:'
         version: 1.62.0(oxlint-tsgolint@0.20.0)
       oxlint-tsgolint:
         specifier: 'catalog:'
         version: 0.20.0
-      tailwindcss:
-        specifier: 'catalog:'
-        version: 4.2.4
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0)
 
   apps/mfe-player:
     dependencies:
@@ -353,45 +314,21 @@ importers:
 
   apps/mfe-tier-list:
     dependencies:
-      '@radix-ui/react-icons':
-        specifier: 'catalog:'
-        version: 1.3.2(react@19.2.5)
       '@rift/champion':
         specifier: workspace:^
         version: link:../../libs/champion
       '@rift/data-access':
         specifier: workspace:^
         version: link:../../libs/data-access
-      '@rift/styles':
+      '@rift/ui':
         specifier: workspace:^
-        version: link:../../libs/styles
-      class-variance-authority:
-        specifier: 'catalog:'
-        version: 0.7.1
-      clsx:
-        specifier: 'catalog:'
-        version: 2.1.1
+        version: link:../../libs/ui
       jotai:
         specifier: 'catalog:'
         version: 2.19.1(@babel/core@7.29.0)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5)
-      lucide-react:
-        specifier: 'catalog:'
-        version: 1.11.0(react@19.2.5)
       react:
         specifier: 'catalog:'
         version: 19.2.5
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.5(react@19.2.5)
-      tailwind-merge:
-        specifier: 'catalog:'
-        version: 3.5.0
-      tw-animate-css:
-        specifier: 'catalog:'
-        version: 1.4.0
-      valibot:
-        specifier: 'catalog:'
-        version: 1.3.1(typescript@6.0.3)
       vike:
         specifier: 'catalog:'
         version: 0.4.257(hono@4.12.15)(react-streaming@0.4.17(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(srvx@0.11.15)(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0))
@@ -399,36 +336,21 @@ importers:
         specifier: 'catalog:'
         version: 0.6.21(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vike@0.4.257(hono@4.12.15)(react-streaming@0.4.17(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(srvx@0.11.15)(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0)))
     devDependencies:
-      '@tailwindcss/vite':
-        specifier: 'catalog:'
-        version: 4.2.4(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0))
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.17
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.14
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.2.3(@types/react@19.2.14)
-      '@vitejs/plugin-react':
-        specifier: 'catalog:'
-        version: 6.0.1(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0))
       oxlint:
         specifier: 'catalog:'
         version: 1.62.0(oxlint-tsgolint@0.20.0)
       oxlint-tsgolint:
         specifier: 'catalog:'
         version: 0.20.0
-      tailwindcss:
-        specifier: 'catalog:'
-        version: 4.2.4
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
-      vite:
-        specifier: 'catalog:'
-        version: 8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0)
 
   apps/shell:
     dependencies:
@@ -441,9 +363,24 @@ importers:
       '@rift/auth':
         specifier: workspace:*
         version: link:../../libs/auth
+      '@rift/champion':
+        specifier: workspace:^
+        version: link:../../libs/champion
+      '@rift/data-access':
+        specifier: workspace:^
+        version: link:../../libs/data-access
+      '@rift/mfe-champions':
+        specifier: workspace:*
+        version: link:../mfe-champions
+      '@rift/mfe-tier-list':
+        specifier: workspace:*
+        version: link:../mfe-tier-list
       '@rift/styles':
         specifier: workspace:*
         version: link:../../libs/styles
+      '@rift/ui':
+        specifier: workspace:^
+        version: link:../../libs/ui
       '@vikejs/hono':
         specifier: 'catalog:'
         version: 0.2.0(hono@4.12.15)(srvx@0.11.15)(vike@0.4.257(hono@4.12.15)(react-streaming@0.4.17(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(srvx@0.11.15)(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.0)))
@@ -459,6 +396,9 @@ importers:
       hono:
         specifier: 'catalog:'
         version: 4.12.15
+      jotai:
+        specifier: 'catalog:'
+        version: 2.19.1(@babel/core@7.29.0)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5)
       lucide-react:
         specifier: 'catalog:'
         version: 1.11.0(react@19.2.5)

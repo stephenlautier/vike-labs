@@ -1,8 +1,0 @@
-/*
- * Per-app Tailwind entry. The Tailwind v4 engine scans this app's source for
- * utilities; design tokens + reset + components come from `libs/styles`.
- */
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "@rift/styles/tokens.css";
-@import "@rift/styles/components.css";
