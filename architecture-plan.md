@@ -13,25 +13,31 @@
 
 ### Goals
 
-1. **One server.** Only `apps/shell` runs a Node/Hono process. Per-MFE
-   `+server.ts` / `server/hono.ts` files are removed; per-MFE Hono routers are
-   imported and mounted by the shell.
-2. **Consistent header/auth in shell.** Header, nav, Auth.js session, and the
-   `user` object are owned by the shell and exposed to MFEs via `pageContext`
-   (SSR) and a small client-side context API (CSR).
-3. **SSR + hydration** for every MFE (horizontal and vertical).
-4. **Horizontal MFEs (`mfe-champions`, `mfe-tier-list`)**: same stack
+1. **One frontend server.** Only `apps/shell` runs the user-facing
+   Node/Hono process. Per-MFE `+server.ts` / `server/hono.ts` files are
+   removed. The shell server only does Auth.js + Vike SSR — it does **not**
+   own any business REST endpoints.
+2. **Standalone API.** A separate `apps/api` (`@rift/api`) is the only
+   business-data backend. All MFEs (server-side via Vike `+data` and
+   client-side via React/Stencil) consume it over HTTP. The frontend server
+   does not proxy or re-implement these endpoints.
+3. **Consistent header/auth in shell.** Header, nav, Auth.js session, and
+   the `user` object are owned by the shell and exposed to MFEs via
+   `pageContext` (SSR) and a small client-side context API (CSR). The API
+   independently verifies the session for protected endpoints.
+4. **SSR + hydration** for every MFE (horizontal and vertical).
+5. **Horizontal MFEs (`mfe-champions`, `mfe-tier-list`)**: same stack
    (Vite + React 19 + vike-react), share React/vike/jotai/`@rift/*` chunks,
    navigate between each other and shell **without full reload**.
-5. **Vertical MFE (`mfe-player`)**: different stack (StencilJS + custom
+6. **Vertical MFE (`mfe-player`)**: different stack (StencilJS + custom
    element). Full-page reload across the vertical boundary is acceptable.
-6. **Routes own themselves.** Each horizontal MFE owns its sub-routes; shell
+7. **Routes own themselves.** Each horizontal MFE owns its sub-routes; shell
    only declares the namespace entry (`/champions/*`, `/tier-list/*`,
    `/player/*`).
-7. **Independently deployable.** Each MFE produces its own remote bundle (and
-   for horizontal MFEs, its own Hono router package) that can be republished
-   without rebuilding the shell.
-8. **Performance first**: shared chunks, link prefetch, streamed HTML, no
+8. **Independently deployable.** Each MFE produces its own remote bundle
+   that can be republished without rebuilding the shell. The API deploys on
+   its own cadence too.
+9. **Performance first**: shared chunks, link prefetch, streamed HTML, no
    double-shipping of React.
 
 ### Non-Goals
@@ -86,54 +92,52 @@
 
 ### Decision
 
-| Concern               | Pick                                                             |
-| --------------------- | ---------------------------------------------------------------- |
-| Horizontal MFE bundle | **`@module-federation/vite`** with `shared: { singleton: true }` |
-| Vertical MFE delivery | **Stencil `dist-custom-elements` bundle**, loaded via `<script>` |
-| Server                | **Hono** in shell, mounting per-MFE routers as packages          |
-| Cross-MFE auth        | **Auth.js in shell**, `passToClient: ["user"]` via Vike          |
-| Cross-MFE navigation  | **Vike Client Routing** + MF-loaded remote pages                 |
+| Concern               | Pick                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Horizontal MFE bundle | **`@module-federation/vite`** with `shared: { singleton: true }`                                                       |
+| Vertical MFE delivery | Stencil **`dist-custom-elements`** + **`dist-hydrate-script`** + React wrapper, SSR via **`@stencil/ssr`** Vite plugin |
+| Server                | **Hono** in shell, mounting per-MFE routers as packages                                                                |
+| Cross-MFE auth        | **Auth.js in shell**, `passToClient: ["user"]` via Vike                                                                |
+| Cross-MFE navigation  | **Vike Client Routing** + MF-loaded remote pages                                                                       |
 
 ---
 
 ## 3. Target Architecture
 
 ```
-                           ┌──────────────────────────────────────────┐
-                           │                apps/shell                 │
-                           │  Hono server (the only Node process)      │
-                           │  ┌──────────────────────────────────────┐ │
-                           │  │ Auth.js (/api/auth/**)               │ │
-                           │  │ championsRouter   (/api/champions/*) │ │
-                           │  │ tierListRouter    (/api/tier-list/*) │ │
-                           │  │ playerRouter      (/api/player/*)    │ │
-                           │  │ Vike middleware   (catch-all)        │ │
-                           │  └──────────────────────────────────────┘ │
-                           │                                            │
-                           │  Vike pages (filesystem):                  │
-                           │    pages/index/+Page.tsx   (home)          │
-                           │    pages/champions/+route.ts → MF remote   │
-                           │    pages/tier-list/+route.ts → MF remote   │
-                           │    pages/player/+route.ts    → vertical    │
-                           │    pages/+Layout.tsx  (header, auth UI)    │
-                           └──────────────────────────────────────────┘
-                                           │
-            ┌──────────────────────────────┼─────────────────────────────┐
-            │                              │                             │
-   Module Federation             Module Federation              Custom-element bundle
-   (shared React, vike-react)    (shared React, vike-react)     (Stencil, no React)
-            │                              │                             │
-   ┌────────▼────────┐            ┌────────▼────────┐           ┌────────▼────────┐
-   │ mfe-champions   │            │ mfe-tier-list   │           │   mfe-player    │
-   │ (horizontal)    │            │ (horizontal)    │           │   (vertical)    │
-   │                 │            │                 │           │                 │
-   │ exposes:        │            │ exposes:        │           │ ships:          │
-   │  ./routes       │            │  ./routes       │           │  rift-player.js │
-   │  ./api (Hono)   │            │  ./api (Hono)   │           │  rift-player.css│
-   │  ./Pages/*      │            │  ./Pages/*      │           │                 │
-   │                 │            │                 │           │ exports Hono    │
-   │ no server.      │            │ no server.      │           │ router via npm  │
-   └─────────────────┘            └─────────────────┘           └─────────────────┘
+        +-------------------------------------------------+
+        |                  apps/shell                     |
+        |  Node/Hono - only the FRONTEND server           |
+        |  +-------------------------------------------+  |
+        |  | Auth.js (/api/auth/**)                    |  |
+        |  | Vike middleware (catch-all SSR)           |  |
+        |  | NO business REST endpoints                |  |
+        |  +-------------------------------------------+  |
+        |  Vike pages -> MF remotes + Stencil host        |
+        +--------+----------------+-------------------+---+
+                 |                |                   |
+            MF remote        MF remote        Stencil bundle
+                 |                |                   |
+        +--------v------+ +-------v-------+ +---------v----+
+        | mfe-champions | | mfe-tier-list | |  mfe-player  |
+        | (horizontal)  | | (horizontal)  | |  (vertical)  |
+        | NO server.    | | NO server.    | | NO server.   |
+        +-------+-------+ +-------+-------+ +------+-------+
+                |                 |                |
+                +--------+--------+----------------+
+                         v
+              fetch() / hc<ApiType>()  (cookie / Bearer)
+                         |
+                +--------v------------------------------+
+                |              apps/api                 |
+                |  Hono on Node - the only backend      |
+                |  - GET /champions, /champions/:id     |
+                |  - GET /tier-list                     |
+                |  - GET /player/me*       (guarded)    |
+                |  - Auth.js session verify (libs/auth) |
+                |  SQLite (better-sqlite3) + Drizzle    |
+                |  Seeded from libs/champion + player   |
+                +---------------------------------------+
 ```
 
 ### What "horizontal" means here
@@ -150,82 +154,256 @@
 
 ### What "vertical" means here
 
-- Different stack: StencilJS web component, no React.
-- Built once into a self-contained bundle (`rift-player.js`) that defines
-  `<rift-player-app>` and includes its own internal client router.
-- Shell `pages/player/+route.ts` is a Vike route that matches `/player/*` and
-  renders a thin React component which:
-  1. Loads the script (`<script type="module">` injected into `<head>`) on
-     server during SSR (via the `+Head` hook) so HTML ships ready.
-  2. Renders `<rift-player-app current-path={...} user={...}>`.
-  3. Listens for the element's `routechange` custom event and calls
-     `navigate()` to keep the URL in sync with Vike.
-- SSR: the Stencil app is pre-rendered to HTML using
-  `@stencil/core/internal/testing` server-side render or via the `www` output
-  target. Hydration happens via Stencil's built-in
-  `@stencil/core/internal/client` hydration runtime. (Acceptable trade-off:
-  initial transition into `/player/*` may be a full reload — explicitly
-  allowed by the requirements.)
+- Different stack: StencilJS web component, no React inside the component
+  itself. The component is consumed from a thin React wrapper (generated by
+  `@stencil/react-output-target`) so Vike's React renderer can mount it.
+- Built three artifacts (one Stencil build, three output targets):
+  1. **`dist-custom-elements`** — the actual `<rift-player-app>` custom
+     element + lazy-loadable child components. Browser-side runtime.
+  2. **`dist-hydrate-script`** — a Node-only `hydrate` module that exports
+     `renderToString`, `hydrateDocument`, `streamToString`,
+     `createWindowFromHtml`. Used during SSR.
+  3. **React output target** — a thin wrapper component (`<RiftPlayerApp />`)
+     that defines the custom element on mount and forwards props.
+- Shell `pages/player/+route.ts` claims `/player/*`. `pages/player/+Page.tsx`
+  renders `<RiftPlayerApp currentPath={...} user={...} />`. Inside the
+  Stencil app, a small hand-rolled router reacts to `currentPath` prop
+  changes and emits a `routechange` custom event the shell listens to in
+  order to call Vike's `navigate()` (so the URL stays in sync without a
+  full reload).
+- **SSR**: enabled by adding the **`@stencil/ssr`** plugin to the shell's
+  `vite.config.ts`, pointed at `@rift/mfe-player/react` (the wrapper) and
+  `@rift/mfe-player/hydrate` (the hydrate module). At build/SSR time the
+  plugin AST-rewrites the wrapper to render a Declarative Shadow DOM string
+  with all child Stencil components serialized. No `@stencil/core/internal/*`
+  imports needed.
+- **Hydration**: the browser bundle (`dist-custom-elements` loader) is
+  loaded as a `<script type="module">`. When the custom element registers,
+  Stencil picks up the existing Declarative Shadow DOM and hydrates without
+  re-rendering.
+- **Acceptable trade-off**: deep-linking into `/player/*` ships extra Stencil
+  runtime (~10 KB gz) on top of the React shell. Intra-player navigation
+  stays inside the custom element and never round-trips Vike. Cross-vertical
+  navigation (e.g. `/player` → `/champions`) goes through Vike client
+  routing — no full reload needed since the shell hosts both.
 
 ---
 
-## 4. Server Architecture (single-server)
+## 4. Server Architecture
 
 ### Today
 - 4 separate `+server.ts` files, 4 Hono apps, 4 ports (3000/3001/3002/3003).
-- `mfe-player` and `shell` both define their own Auth.js setup (duplication).
+- `mfe-player` and `shell` both define their own Auth.js setup.
+- Business endpoints (`/api/champions`, `/api/tier-list`) live in each MFE's
+  Hono app, mixed with Vike SSR.
 
 ### Target
 
-A single `apps/shell/server/hono.ts`:
+Two independent Node processes:
+
+| Process      | Responsibilities                                           |
+| ------------ | ---------------------------------------------------------- |
+| `apps/shell` | Auth.js (`/api/auth/**`) + Vike SSR. **No business REST.** |
+| `apps/api`   | All business endpoints. SQLite + Drizzle. Auth-aware.      |
+
+MFEs (`apps/mfe-*`) have **no servers at all** — they ship pure remote
+bundles (and, for the vertical, a custom-element bundle).
+
+Shell `apps/shell/server/hono.ts` becomes minimal:
 
 ```ts
 const app = new Hono();
-
-// auth always first
 vike(app, [
   authjsSessionMiddleware,
   authjsHandler,
-  championsRouter,    // from @rift/mfe-champions/server
-  tierListRouter,     // from @rift/mfe-tier-list/server
-  playerRouter,       // from @rift/mfe-player/server
 ]);
 ```
 
-To make this work, each MFE package exposes a server entrypoint:
+No MFE routers, no business REST mounted.
 
-```jsonc
-// apps/mfe-champions/package.json
-"exports": {
-  ".":         "./src/exposes/index.ts",   // MF remote entry (UI)
-  "./server":  "./server/router.ts"        // Hono router (mounted by shell)
-}
-```
+### Why a separate API process
 
-`apps/mfe-champions/server/router.ts`:
-
-```ts
-import { Hono } from "hono";
-export const championsRouter = new Hono()
-  .basePath("/api/champions")
-  .get("/", c => c.json(SEED_CHAMPIONS))
-  .get("/:id", c => { /* … */ });
-```
-
-Each MFE keeps its API code, but ownership of the **process** moves to shell.
+- Real architectures separate frontend SSR from backend data — this plan
+  reflects that for demonstration value.
+- Lets the API be deployed, scaled, and rebooted on its own cadence.
+- MFEs consume the API the **same way** from server (Vike `+data`) and
+  client (React effects / Stencil components) — one URL, one client.
+- Makes the auth boundary explicit: the API independently verifies the
+  caller's session for every request.
 
 ### Auth flow
 
-- Shell's session middleware sets `pageContext.session` and `pageContext.user`
-  for **all** Vike pages (own and remote).
-- `passToClient: ["user"]` ships a sanitized user object to the browser.
-- `useUser()` hook in `libs/data-access` reads it from `pageContext` (works in
-  every horizontal MFE because they share the same React context via MF).
-- Vertical MFE (Stencil): user is passed in as a JSON-serialized prop on the
-  custom element. Element exposes a `signOut` event.
-- Per-MFE `+guard.ts` continues to work (e.g. `mfe-player` requires
-  `pageContext.user`); shell's middleware populates the value, the guard
-  enforces it.
+- **Browser ↔ shell**: Auth.js (Auth0) sets a session cookie on the shell
+  origin. Shell middleware populates `pageContext.session` /
+  `pageContext.user`. `passToClient: ["user"]` ships the sanitized user to
+  every MFE.
+- **Browser ↔ API**: same-origin in dev (Vite proxies `/api/*` → API),
+  cross-origin in prod (CORS + cookie). API verifies the session itself
+  using the shared `libs/auth` config.
+- **Shell SSR → API**: Vike `+data` forwards the incoming `Cookie` header
+  on the API client so the API sees the same session.
+- **Per-MFE `+guard.ts`** still works (uses `pageContext.user`).
+- **Vertical MFE**: receives `user` as a JSON-serialized prop; `fetch()`
+  calls go to the API and rely on the same session cookie.
+
+---
+
+## 4b. The API App (`apps/api`, `@rift/api`)
+
+### Goals
+- Demonstrate a clean Vike/MFE → real backend integration.
+- Stay small, modern, easy to read.
+- Persistent local DB seeded from `libs/champion` + `libs/player`.
+- Guard player-specific routes; reject unauthenticated calls.
+
+### Stack
+
+| Concern          | Pick                                                        |
+| ---------------- | ----------------------------------------------------------- |
+| HTTP framework   | **Hono** on `@hono/node-server`                             |
+| Runtime          | Node 22 LTS                                                 |
+| Database         | **SQLite** via `better-sqlite3` (`apps/api/data/rift.db`)   |
+| ORM / migrations | **Drizzle ORM** + `drizzle-kit`                             |
+| Validation       | **Valibot** — reuse `libs/champion` + `libs/player` schemas |
+| Auth verify      | `@auth/core` `getSession()` from shared `libs/auth`         |
+| Logging          | `hono/logger`                                               |
+| Testing          | Vitest against `app.fetch`                                  |
+
+SQLite + Drizzle: one file, no docker, identical on dev & CI; Drizzle is
+modern, type-safe, no codegen step. Migrations: `drizzle-kit push` for dev,
+generated SQL for prod.
+
+### Structure
+
+```
+apps/api/
+  package.json          # @rift/api
+  drizzle.config.ts
+  src/
+    index.ts            # bootstrap
+    app.ts              # Hono composition (exports ApiType for hc<>)
+    db/
+      client.ts         # better-sqlite3 + drizzle()
+      schema.ts         # tables mirror Valibot schemas
+      seed.ts           # idempotent seed from @rift/champion + @rift/player
+    middleware/
+      auth.ts           # readSession / requireUser
+      cors.ts
+    routes/
+      champions.ts
+      tier-list.ts
+      player.ts         # mounted under requireUser
+      health.ts
+  data/                 # gitignored runtime DB
+  test/
+  project.json          # NX targets: build, dev, test, db:push, db:seed
+```
+
+### Endpoints (v1)
+
+| Method | Path                         | Auth      | Returns                           |
+| ------ | ---------------------------- | --------- | --------------------------------- |
+| GET    | `/health`                    | none      | `{ status: "ok" }`                |
+| GET    | `/champions`                 | none      | `Champion[]`                      |
+| GET    | `/champions/:id`             | none      | `Champion & { abilities, skins }` |
+| GET    | `/tier-list?tier&role&patch` | none      | `EnrichedTierEntry[]`             |
+| GET    | `/player/me`                 | **guard** | `Player`                          |
+| GET    | `/player/me/champions`       | **guard** | `PlayerChampion[]`                |
+| GET    | `/player/me/matches`         | **guard** | `PlayerMatchEntry[]`              |
+
+Responses are validated against the Valibot schemas in `libs/champion` /
+`libs/player` before being sent (catches DB-vs-contract drift in dev).
+
+### Database
+
+Drizzle tables mirror the Valibot schemas 1:1: champions, championAbilities,
+championSkins, championTiers, players (with `auth0Sub` unique linking to
+Auth.js identity), playerChampions, playerMatches.
+
+### Seeding
+
+`pnpm nx run api:db:seed`:
+1. Runs migrations (idempotent).
+2. Upserts `SEED_CHAMPIONS / ABILITIES / SKINS / TIERS` from `@rift/champion`.
+3. Creates a demo Player with a fixed `auth0Sub` so `mfe-player` works
+   end-to-end after a single Auth0 login.
+
+`dev` chains `db:push && db:seed && tsx watch src/index.ts`.
+
+### Auth on the API
+
+```ts
+// apps/api/src/middleware/auth.ts
+import { getSession } from "@auth/core";
+import { authjsConfig } from "@rift/auth";
+
+export const readSession: MiddlewareHandler = async (c, next) => {
+  c.set("session", await getSession(c.req.raw, authjsConfig));
+  await next();
+};
+
+export const requireUser: MiddlewareHandler = async (c, next) => {
+  if (!c.get("session")?.user) return c.json({ error: "unauthorized" }, 401);
+  await next();
+};
+```
+
+```ts
+// apps/api/src/app.ts
+const app = new Hono()
+  .use("*", logger())
+  .use("*", cors({ origin: [process.env.SHELL_ORIGIN!], credentials: true }))
+  .use("*", readSession)
+  .route("/champions", championsRoutes)
+  .route("/tier-list", tierListRoutes)
+  .route(
+    "/player",
+    new Hono().use("*", requireUser).route("/me", playerRoutes),
+  );
+
+export type ApiType = typeof app;
+```
+
+### Frontend consumption
+
+`libs/data-access` exposes a single `createApiClient(baseUrl, init?)` using
+Hono RPC and the type-only `ApiType` import:
+
+```ts
+// libs/data-access/src/api.ts
+import { hc } from "hono/client";
+import type { ApiType } from "@rift/api"; // type-only, no runtime dep
+
+export const createApiClient = (baseUrl: string, init?: RequestInit) =>
+  hc<ApiType>(baseUrl, { fetch: (i, r) => fetch(i, { ...init, ...r }) });
+```
+
+```ts
+// apps/mfe-champions/src/pages/champions/+data.ts
+export async function data(pageContext: PageContextServer) {
+  const api = createApiClient(process.env.API_URL!, {
+    headers: { cookie: pageContext.headers?.cookie ?? "" },
+  });
+  const res = await api.champions.$get();
+  return { champions: await res.json() };
+}
+```
+
+### Dev / prod URL wiring
+
+| Env       | Shell            | API              | Browser hits           | Vike SSR hits           |
+| --------- | ---------------- | ---------------- | ---------------------- | ----------------------- |
+| local dev | `localhost:3000` | `localhost:3100` | `/api/*` (Vite proxy)  | `http://localhost:3100` |
+| prod      | `app.rift.dev`   | `api.rift.dev`   | `https://api.rift.dev` | `https://api.rift.dev`  |
+
+Vite dev proxy keeps the browser same-origin in dev (no CORS); SSR calls
+the API directly.
+
+### Type sharing without runtime coupling
+
+`apps/api` exports `type ApiType = typeof app` so `libs/data-access` gets
+RPC-style type inference via `hc<ApiType>()` without bundling API code into
+the frontend (standard Hono RPC pattern).
 
 ---
 
@@ -459,11 +637,22 @@ Layout shape:
   - Hydration boot: the shell's HTML includes `<script>` tags for the remote
     entry; the client MF runtime resolves them and React hydrates seamlessly.
 - For `/player/*`:
-  - Server pre-renders the Stencil component using
-    `@stencil/core/internal/testing` (or a minimal hydrate script).
-  - HTML ships with the pre-rendered DOM and a `<script type="module"
-    src="rift-player.js">` tag; Stencil hydrates the custom element on
-    `connectedCallback`.
+  - Build-time: shell's Vite config includes the **`@stencil/ssr`** plugin
+    pointed at `@rift/mfe-player/react` (the React wrapper) and
+    `@rift/mfe-player/hydrate` (the hydrate module from
+    `dist-hydrate-script`). The plugin AST-rewrites uses of the wrapper into
+    a pre-serialized Declarative Shadow DOM at SSR.
+  - Runtime: HTML ships with the DSD already inline (no extra server call
+    per request), plus a `<script type="module">` for
+    `@rift/mfe-player/dist-custom-elements/loader`. Stencil registers the
+    custom element on `connectedCallback` and adopts the existing DSD
+    without re-rendering.
+  - Dynamic props (e.g. logged-in `user`) are handled by the `@stencil/ssr`
+    plugin via runtime serialization.
+  - For props/state that depend on per-request data the `@stencil/ssr`
+    plugin can't statically resolve, fall back to manual SSR via
+    `renderToString(html, { serializeShadowRoot: 'declarative-shadow-dom' })`
+    from a `+onRenderHtml.ts` hook.
 
 ### Streaming
 
@@ -478,90 +667,108 @@ Layout shape:
 > Each phase is independently shippable and verifiable. Stop at any phase if
 > ROI of the next is unclear.
 
-### Phase A — Consolidate the server (no MF yet)
+### Phase A — Stand up `apps/api` + remove API from MFEs
 
-Outcome: one Node process, one Auth.js, no behavioural change for users.
+Outcome: a working `@rift/api` process with persistent DB; MFEs fetch from
+it instead of their own routers.
 
-- A.1. Create `libs/styles/` with Tailwind preset + base CSS.
-- A.2. Move `authjs-handler.ts` from `apps/shell/server` and
-  `apps/mfe-player/server` into `libs/auth/` (new lib).
-- A.3. For each MFE, refactor `server/<mfe>-handler.ts` to export a `Hono`
-  sub-router (no `vike()` call inside). Add `"./server"` export to its
-  `package.json`.
-- A.4. Delete `+server.ts` and `server/hono.ts` from each MFE.
-- A.5. Update shell's `server/hono.ts` to mount all MFE routers.
-- A.6. Update shell's `+Layout.tsx` to render the canonical header (already
-  does, but using `<Link>` not `<a href>`).
-- A.7. Delete each MFE's local header from its `+Layout.tsx`; have it just
-  render `{children}`.
-- A.8. Update root `package.json` `dev`/`build` scripts: only `nx run
-  shell:dev` runs a server.
-- A.9. Verify: hit `/`, `/champions`, `/tier-list`, `/player` against the
-  shell's port (3000 only). Auth flows still work.
+- A.1. `libs/auth` lib (extract Auth.js config from shell + mfe-player).
+- A.2. `apps/api` scaffold: Hono + `@hono/node-server` + better-sqlite3 +
+  Drizzle + Vitest; `project.json` with `dev`, `build`, `test`, `db:push`,
+  `db:seed` targets.
+- A.3. Drizzle schema mirroring Valibot types; `db:push` + `db:seed`.
+- A.4. Endpoints from §4b table; Valibot response validation.
+- A.5. `apps/api` consumes `libs/auth` for `readSession` / `requireUser`.
+- A.6. `libs/data-access` rewritten on top of `hc<ApiType>()`; old per-MFE
+  fetch hooks removed.
+- A.7. Each MFE's `+data.ts` and React hooks switched to the new client.
+- A.8. Add Vite dev proxy `/api/*` → `localhost:3100` in shell + each MFE.
+- A.9. Verify: `pnpm nx run api:dev` + shell — full app works against API.
 
-> At this point we already have ONE server, consistent header, shared auth.
-> Navigation between top-level routes still works because they're all served
-> from the same Vike instance — but each MFE's pages still live in
-> `apps/<mfe>/pages/`. We migrate those next.
+### Phase B — Consolidate the frontend server
 
-### Phase B — Pull horizontal MFE pages into the shell's Vike app
+Outcome: only `apps/shell` runs Node for the frontend; all MFE servers gone.
+
+- B.1. Delete `+server.ts` and `server/hono.ts` from every MFE.
+- B.2. Delete each MFE's now-orphaned `server/<mfe>-handler.ts`.
+- B.3. Shell's header (`+Layout.tsx`) becomes canonical, uses `<Link>`.
+- B.4. Each MFE's local header markup deleted; `+Layout.tsx` becomes a
+  pass-through.
+- B.5. `libs/styles/` with Tailwind tokens + base CSS (per §6).
+- B.6. Update root `dev` script: only `nx run shell:dev` + `nx run api:dev`.
+- B.7. Verify: hit `/`, `/champions`, `/tier-list`, `/player` against
+  shell:3000; API at 3100; Auth flows still work.
+
+> At this point we already have TWO processes (shell + api), consistent
+> header, shared auth. Navigation between top-level routes still works
+> because they're all served from the same Vike instance — but each MFE's
+> pages still live in `apps/<mfe>/pages/`. We migrate those next.
+
+### Phase C — Pull horizontal MFE pages into the shell's Vike app
 
 Outcome: the shell is the sole Vike app for horizontal MFEs. Pages physically
 live in their own packages and are imported.
 
-- B.1. Move `apps/mfe-champions/pages/**` into
+- C.0. Move `apps/mfe-champions/pages/**` into
   `apps/mfe-champions/src/pages/**`. Add `"./pages": "./src/pages/index.ts"`
   to package exports (a manifest of page configs).
-- B.2. Repeat for `mfe-tier-list`.
-- B.3. Add a Vike custom config in shell that consumes those page manifests
-  via filesystem routing replacement (Vike supports
-  [external page modules](https://vike.dev/extensions) via `+config.ts`).
-- B.4. Verify: navigation between champions and tier-list uses Vike Client
+- C.0a. Repeat for `mfe-tier-list`.
+- C.0b. Add a Vike custom config in shell that consumes those page manifests
+  via filesystem routing replacement.
+- C.0c. Verify: navigation between champions and tier-list uses Vike Client
   Routing — no full reload.
 
-### Phase C — Introduce Module Federation for horizontal MFEs
+### Phase D — Introduce Module Federation for horizontal MFEs
 
 Outcome: horizontal MFEs are independently buildable & deployable; their
 bundles are loaded at runtime and **share** React/vike-react with shell.
 
-- C.1. Add `@module-federation/vite` to shell + horizontal MFE
+- D.1. Add `@module-federation/vite` to shell + horizontal MFE
   `vite.config.ts`.
-- C.2. Configure each horizontal MFE as a `remote` exposing `./routes` and
+- D.2. Configure each horizontal MFE as a `remote` exposing `./routes` and
   `./App`.
-- C.3. Configure shell as `host` with `shared: { singleton: true }` for the
+- D.3. Configure shell as `host` with `shared: { singleton: true }` for the
   list in §6.
-- C.4. Replace the in-tree imports from B.3 with `import("remote-champions/…")`
+- D.4. Replace the in-tree imports from C.0b with `import("remote-champions/…")`
   using Vite's `optimizeDeps.exclude` so dev mode hot-reload still works.
-- C.5. Add an env-driven manifest (`MFE_*_URL`) for prod.
-- C.6. Verify (dev): edit a champions page, see HMR in shell.
-- C.7. Verify (prod): build both apps separately, deploy mfe-champions to a
+- D.5. Add an env-driven manifest (`MFE_*_URL`) for prod.
+- D.6. Verify (dev): edit a champions page, see HMR in shell.
+- D.7. Verify (prod): build both apps separately, deploy mfe-champions to a
   test URL, point shell at it, redeploy only the MFE → change visible without
   shell rebuild.
 
-### Phase D — Convert mfe-player to vertical (Stencil)
+### Phase E — Convert mfe-player to vertical (Stencil)
 
 Outcome: a working example of a different-stack MFE.
 
-- D.1. Add `apps/mfe-player/stencil.config.ts` with `dist-custom-elements` +
-  `hydrate` output targets.
-- D.2. Author `<rift-player-app>` as a Stencil component using
-  `@stencil/router` (or a small hand-rolled router) for sub-routes.
-- D.3. Move data fetching to inside the component using
-  `@rift/data-access` clients (which are vanilla `fetch`-based already).
-- D.4. Add shell `pages/player/+Page.tsx` that mounts the element.
-- D.5. SSR via Stencil's `hydrate` runtime invoked from
-  `pages/player/+onRenderHtml.ts`.
-- D.6. Verify: deep-link to `/player/match-history` returns server-rendered
-  HTML; client takes over; intra-player navigation does not call the shell.
+- E.1. Update `apps/mfe-player/stencil.config.ts` with **three** output
+  targets: `dist-custom-elements` (browser), `dist-hydrate-script`
+  (Node SSR), and `reactOutputTarget()` (the wrapper React imports).
+- E.2. Author `<rift-player-app>` as a Stencil component using a small
+  hand-rolled router for sub-routes; emit a `routechange` custom event so
+  the shell can sync `navigate()`.
+- E.3. Move data fetching to inside the component using `@rift/data-access`
+  clients (vanilla `fetch`-based, no React hooks needed).
+- E.4. Add `@stencil/ssr` to shell's `vite.config.ts`, pointed at
+  `@rift/mfe-player/react` + `@rift/mfe-player/hydrate`.
+- E.5. Shell `pages/player/+Page.tsx` renders `<RiftPlayerApp />` (the React
+  wrapper from the `react` output target). No `+onRenderHtml.ts` needed for
+  the static-prop case.
+- E.6. Shell `pages/player/+Head.tsx` injects a `<script type="module">` for
+  `@rift/mfe-player/dist-custom-elements/loader.js` (or whatever the loader
+  output path resolves to in dev/prod).
+- E.7. Verify: deep-link to `/player/match-history` returns server-rendered
+  HTML containing the Declarative Shadow DOM; client takes over;
+  intra-player navigation does not call the shell.
 
-### Phase E — Performance polish
+### Phase F — Performance polish
 
-- E.1. Audit shared chunks with `mf-stats.json`; ensure no duplicate React.
-- E.2. Add `<Link prefetch>` on header nav so MF remote entries are prefetched
+- F.1. Audit shared chunks with `mf-stats.json`; ensure no duplicate React.
+- F.2. Add `<Link prefetch>` on header nav so MF remote entries are prefetched
   on hover.
-- E.3. Add Lighthouse CI checks for LCP/INP per route.
-- E.4. Add a tiny "skeleton" while a remote is loading the first time.
-- E.5. Consider `vike-react-query` for client-cached subsequent loads.
+- F.3. Add Lighthouse CI checks for LCP/INP per route.
+- F.4. Add a tiny "skeleton" while a remote is loading the first time.
+- F.5. Consider `vike-react-query` for client-cached subsequent loads.
 
 ---
 
@@ -624,32 +831,35 @@ Outcome: a working example of a different-stack MFE.
 ## 12. Files / Packages Affected
 
 New:
-- `libs/styles/` (Tailwind preset + base CSS)
-- `libs/auth/` (Auth.js shared config and middleware)
-- `libs/mfe-runtime/` (helpers: `createRemoteRoute`, `useUser`, `<Link>`)
+- `apps/api/`               (Hono + Drizzle + SQLite — new package `@rift/api`)
+- `libs/auth/`              (shared Auth.js config + middleware + helpers)
+- `libs/styles/`            (Tailwind tokens + components.css)
+- `libs/mfe-runtime/`       (createRemoteRoute, useUser, <Link>)
 
 Modified:
-- `apps/shell/vite.config.ts` (+ MF host plugin)
-- `apps/shell/server/hono.ts` (mount all MFE routers)
-- `apps/shell/pages/+Layout.tsx` (canonical header, Vike `<Link>`)
-- `apps/shell/pages/{champions,tier-list,player}/{+route.ts,+Page.tsx,+data.ts}` (new)
-- `apps/mfe-champions/vite.config.ts` (+ MF remote plugin, removed Vike server)
-- `apps/mfe-champions/package.json` (added `./server`, `./routes`, `./App` exports)
-- Same for `apps/mfe-tier-list`
-- `apps/mfe-player/stencil.config.ts` (new), `apps/mfe-player/src/components/**`
+- `apps/shell/server/hono.ts`   (only auth + Vike; no MFE/API routers)
+- `apps/shell/vite.config.ts`   (+ MF host plugin, dev proxy /api → :3100)
+- `apps/shell/pages/+Layout.tsx`(canonical header, Vike `<Link>`)
+- `apps/shell/pages/{champions,tier-list,player}/{+route.ts,+Page.tsx,+data.ts}`
+- `apps/mfe-champions/vite.config.ts`  (+ MF remote plugin, no Vike server)
+- `apps/mfe-tier-list/vite.config.ts`  (+ MF remote plugin, no Vike server)
+- `apps/mfe-player/stencil.config.ts`  (vertical bundle config)
+- `libs/data-access/src/`              (rewritten on top of hc<ApiType>())
 
 Removed:
-- `apps/mfe-champions/+server.ts`, `apps/mfe-champions/server/hono.ts`
-- `apps/mfe-tier-list/+server.ts`, `apps/mfe-tier-list/server/hono.ts`
-- `apps/mfe-player/+server.ts`, `apps/mfe-player/server/hono.ts`
-- `apps/mfe-player/server/authjs-handler.ts` (moved to `libs/auth`)
-- `apps/shell/server/authjs-handler.ts` (moved to `libs/auth`)
+- `apps/{mfe-champions,mfe-tier-list,mfe-player}/+server.ts`
+- `apps/{mfe-champions,mfe-tier-list,mfe-player}/server/`  (entire folders)
+- `apps/shell/server/authjs-handler.ts`               (→ libs/auth)
 - Per-MFE local header markup in `+Layout.tsx`
 
 ---
 
 ## 13. Recommendations Summary
 
+0. **Stand up `apps/api` (`@rift/api`) as the only backend** — Hono + SQLite
+   (better-sqlite3) + Drizzle + Valibot. Frontend servers carry no business
+   REST. MFEs use a single typed `hc<ApiType>()` client from
+   `libs/data-access` for both SSR and CSR.
 1. **Adopt `@module-federation/vite`** for the two horizontal MFEs. Skip
    OpenComponents — wrong fit for this monorepo's scale and dev model.
 2. **Collapse to one Hono server in shell**; mount MFE routers as packages.
