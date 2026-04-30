@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
 
-import { sessionMiddleware, type AuthVariables } from "./middleware/auth";
+import { sessionMiddleware } from "./middleware/auth";
+import type { AuthVariables } from "./middleware/auth";
 import { corsMiddleware } from "./middleware/cors";
 import { championsRoute } from "./routes/champions";
 import { healthRoute } from "./routes/health";

@@ -13,7 +13,7 @@ export type MockSession = {
 };
 
 export type AuthVariables = {
-	session: MockSession | null;
+	session: MockSession;
 };
 
 /**

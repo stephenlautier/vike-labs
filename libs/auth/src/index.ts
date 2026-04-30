@@ -84,7 +84,7 @@ export const authjsSessionMiddleware: UniversalMiddleware = enhance(
 				session: await getSession(request, authjsConfig),
 			};
 		} catch (error) {
-			console.debug("authjsSessionMiddleware:", error);
+			console.warn("authjsSessionMiddleware:", error);
 			return {
 				...context,
 				session: null,

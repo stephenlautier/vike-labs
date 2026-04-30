@@ -33,16 +33,22 @@ export const useChampions = (baseUrl = ""): UseChampionsResult => {
 		client.champions
 			.$get()
 			.then(async res => {
-				if (!res.ok) throw new Error(`HTTP ${res.status}`);
+				if (!res.ok) {
+					throw new Error(`HTTP ${res.status}`);
+				}
 				return res.json();
 			})
 			.then(json => {
-				if (cancelled) return;
+				if (cancelled) {
+					return;
+				}
 				setData(json);
 				setIsLoading(false);
 			})
 			.catch((error: unknown) => {
-				if (cancelled) return;
+				if (cancelled) {
+					return;
+				}
 				setFetchError(error instanceof Error ? error : new Error(String(error)));
 				setIsLoading(false);
 			});
@@ -62,25 +68,33 @@ export const useChampion = (id: string, baseUrl = ""): UseChampionResult => {
 	const [fetchError, setFetchError] = useState<Error | null>(null);
 
 	useEffect(() => {
-		if (!id) return;
+		if (!id) {
+			return;
+		}
 		let cancelled = false;
 		const client = createApiClient(`${baseUrl}/api`);
 		setIsLoading(true);
 		client.champions[":id"]
 			.$get({ param: { id } })
 			.then(async res => {
-				if (!res.ok) throw new Error(`HTTP ${res.status}`);
+				if (!res.ok) {
+					throw new Error(`HTTP ${res.status}`);
+				}
 				return res.json();
 			})
 			.then(({ champion, abilities: ab, skins: sk }) => {
-				if (cancelled) return;
+				if (cancelled) {
+					return;
+				}
 				setData(champion);
 				setAbilities(ab);
 				setSkins(sk);
 				setIsLoading(false);
 			})
 			.catch((error: unknown) => {
-				if (cancelled) return;
+				if (cancelled) {
+					return;
+				}
 				setFetchError(error instanceof Error ? error : new Error(String(error)));
 				setIsLoading(false);
 			});

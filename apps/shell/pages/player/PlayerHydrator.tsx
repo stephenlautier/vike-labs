@@ -6,9 +6,11 @@ import { useEffect } from "react";
  * `import()` is tree-shaken from the SSR bundle and only fetched in the
  * browser. The loader self-defines all custom elements on import.
  */
-export function PlayerHydrator() {
+export function PlayerHydrator(): null {
 	useEffect(() => {
-		void import("@rift/mfe-player/loader");
+		import("@rift/mfe-player/loader").catch((error: unknown) => {
+			console.error("Failed to load @rift/mfe-player loader", error);
+		});
 	}, []);
 	return null;
 }

@@ -5,13 +5,6 @@
   "sourceRoot": "libs/styles/src",
   "tags": ["type:lib", "scope:styles"],
   "targets": {
-    "lint": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm oxlint src/",
-        "cwd": "libs/styles"
-      }
-    },
     "fmt": {
       "executor": "nx:run-commands",
       "options": {

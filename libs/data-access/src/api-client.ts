@@ -1,3 +1,4 @@
+// oxlint-disable typescript/explicit-function-return-type
 import type { ApiType } from "@rift/api";
 import { hc } from "hono/client";
 

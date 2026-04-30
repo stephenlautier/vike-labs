@@ -7,9 +7,9 @@
 
 ## Properties
 
-| Property | Attribute | Description | Type            | Default     |
-| -------- | --------- | ----------- | --------------- | ----------- |
-| `user`   | --        |             | `PlayerSummary` | `undefined` |
+| Property | Attribute | Description | Type                                                                                  | Default     |
+| -------- | --------- | ----------- | ------------------------------------------------------------------------------------- | ----------- |
+| `user`   | --        |             | `{ id: string; summonerName: string; profileIconId: number; summonerLevel: number; }` | `undefined` |
 
 
 ## Dependencies

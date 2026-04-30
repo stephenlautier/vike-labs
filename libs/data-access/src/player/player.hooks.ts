@@ -18,50 +18,58 @@ function useFetchedJson<T>(load: (signal: AbortSignal) => Promise<T>, deps: unkn
 	const [isLoading, setIsLoading] = useState(true);
 	const [fetchError, setFetchError] = useState<Error | null>(null);
 
+	// oxlint-disable react-hooks/exhaustive-deps -- deps array is controlled by the caller of this generic helper
 	useEffect(() => {
 		const ctrl = new AbortController();
 		setIsLoading(true);
 		load(ctrl.signal)
 			.then(result => {
-				if (ctrl.signal.aborted) return;
+				if (ctrl.signal.aborted) {
+					return;
+				}
 				setData(result);
 				setIsLoading(false);
 			})
 			.catch((error: unknown) => {
-				if (ctrl.signal.aborted) return;
+				if (ctrl.signal.aborted) {
+					return;
+				}
 				setFetchError(error instanceof Error ? error : new Error(String(error)));
 				setIsLoading(false);
 			});
 		return () => ctrl.abort();
-		// oxlint-disable-next-line react-hooks/exhaustive-deps -- deps controlled by caller
 	}, deps);
+	// oxlint-enable react-hooks/exhaustive-deps
 
 	return { data, isLoading, error: fetchError };
 }
 
-export const usePlayer = (baseUrl = ""): UsePlayerResult => {
-	return useFetchedJson<Player>(async () => {
+export const usePlayer = (baseUrl = ""): UsePlayerResult =>
+	useFetchedJson<Player>(async () => {
 		const client = createApiClient(`${baseUrl}/api`);
 		const res = await client.player.me.$get();
-		if (!res.ok) throw new Error(`HTTP ${res.status}`);
+		if (!res.ok) {
+			throw new Error(`HTTP ${res.status}`);
+		}
 		return res.json();
 	}, [baseUrl]);
-};
 
-export const usePlayerChampions = (baseUrl = ""): UsePlayerChampionsResult => {
-	return useFetchedJson<PlayerChampion[]>(async () => {
+export const usePlayerChampions = (baseUrl = ""): UsePlayerChampionsResult =>
+	useFetchedJson<PlayerChampion[]>(async () => {
 		const client = createApiClient(`${baseUrl}/api`);
 		const res = await client.player.me.champions.$get();
-		if (!res.ok) throw new Error(`HTTP ${res.status}`);
+		if (!res.ok) {
+			throw new Error(`HTTP ${res.status}`);
+		}
 		return res.json();
 	}, [baseUrl]);
-};
 
-export const useMatchHistory = (baseUrl = ""): UseMatchHistoryResult => {
-	return useFetchedJson<PlayerMatchEntry[]>(async () => {
+export const useMatchHistory = (baseUrl = ""): UseMatchHistoryResult =>
+	useFetchedJson<PlayerMatchEntry[]>(async () => {
 		const client = createApiClient(`${baseUrl}/api`);
 		const res = await client.player.me.matches.$get();
-		if (!res.ok) throw new Error(`HTTP ${res.status}`);
+		if (!res.ok) {
+			throw new Error(`HTTP ${res.status}`);
+		}
 		return res.json();
 	}, [baseUrl]);
-};

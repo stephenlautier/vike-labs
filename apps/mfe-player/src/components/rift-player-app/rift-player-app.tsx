@@ -40,16 +40,21 @@ export class RiftPlayerApp {
 		this.route = this.initialRoute;
 	}
 
-	private go = (next: SubRoute) => {
-		if (next === this.route) return;
+	private readonly go = (next: SubRoute) => {
+		if (next === this.route) {
+			return;
+		}
 		this.route = next;
 		this.routeChange.emit({ path: ROUTE_TO_PATH[next], route: next });
 	};
 
 	private renderTab(label: string, target: SubRoute) {
 		const active = this.route === target;
+		const handleClick = () => {
+			this.go(target);
+		};
 		return (
-			<button type="button" class="tab" aria-current={active ? "page" : undefined} onClick={() => this.go(target)}>
+			<button type="button" class="tab" aria-current={active ? "page" : undefined} onClick={handleClick}>
 				{label}
 			</button>
 		);
@@ -58,12 +63,15 @@ export class RiftPlayerApp {
 	private renderActive() {
 		const user = this.user;
 		switch (this.route) {
-			case "champions":
-				return <rift-player-champions></rift-player-champions>;
-			case "matches":
-				return <rift-player-matches></rift-player-matches>;
-			default:
-				return <rift-player-overview user={user}></rift-player-overview>;
+			case "champions": {
+				return <rift-player-champions />;
+			}
+			case "matches": {
+				return <rift-player-matches />;
+			}
+			default: {
+				return <rift-player-overview user={user} />;
+			}
 		}
 	}
 

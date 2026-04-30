@@ -1,6 +1,7 @@
 import { Component, Prop, h } from "@stencil/core";
 
-import { MOCK_TOP_MASTERY, type PlayerSummary, formatPoints } from "../../data/mock";
+import { MOCK_TOP_MASTERY, formatPoints } from "../../data/mock";
+import type { PlayerSummary } from "../../data/mock";
 
 @Component({
 	tag: "rift-player-overview",

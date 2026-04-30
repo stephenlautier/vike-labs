@@ -4,22 +4,22 @@
  * (hydration). Real-world: replace with a fetch in `componentWillLoad`.
  */
 
-export interface PlayerSummary {
+export type PlayerSummary = {
 	id: string;
 	summonerName: string;
 	profileIconId: number;
 	summonerLevel: number;
-}
+};
 
-export interface PlayerChampionEntry {
+export type PlayerChampionEntry = {
 	championId: string;
 	championName: string;
 	masteryLevel: number;
 	masteryPoints: number;
 	owned: boolean;
-}
+};
 
-export interface MatchEntry {
+export type MatchEntry = {
 	id: string;
 	championName: string;
 	role: "Top" | "Jungle" | "Mid" | "ADC" | "Support";
@@ -29,7 +29,7 @@ export interface MatchEntry {
 	win: boolean;
 	gameDurationSec: number;
 	matchDate: string;
-}
+};
 
 export const MOCK_TOP_MASTERY: PlayerChampionEntry[] = [
 	{
@@ -63,7 +63,7 @@ export const MOCK_OWNED_CHAMPIONS: PlayerChampionEntry[] = [
 	{ championId: "yasuo", championName: "Yasuo", masteryLevel: 4, masteryPoints: 38_205, owned: true },
 	{ championId: "zed", championName: "Zed", masteryLevel: 3, masteryPoints: 22_150, owned: true },
 	{ championId: "ezreal", championName: "Ezreal", masteryLevel: 3, masteryPoints: 18_400, owned: true },
-	{ championId: "morgana", championName: "Morgana", masteryLevel: 2, masteryPoints: 9_120, owned: true },
+	{ championId: "morgana", championName: "Morgana", masteryLevel: 2, masteryPoints: 9120, owned: true },
 ];
 
 export const MOCK_MATCH_HISTORY: MatchEntry[] = [
