@@ -3,12 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "description": "StencilJS web components design system (lol-* prefix)",
+  "files": [
+    "dist/",
+    "loader/"
+  ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
-  "es2017": "dist/esm/index.mjs",
   "types": "dist/types/index.d.ts",
-  "collection": "dist/collection/collection-manifest.json",
-  "collection:main": "dist/collection/index.js",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
@@ -35,23 +36,22 @@
       "import": "./loader/index.js"
     }
   },
-  "files": [
-    "dist/",
-    "loader/"
-  ],
   "scripts": {
     "build": "stencil build",
-    "dev": "stencil build --dev --watch --serve",
+    "devx": "stencil build --dev --watch --serve",
     "generate": "stencil generate"
   },
   "dependencies": {
     "@stencil/core": "4.43.4",
     "@stencil/react-output-target": "1.5.2"
   },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  },
   "peerDependencies": {
     "react": ">=18.0.0"
   },
-  "devDependencies": {
-    "@types/node": "^22.0.0"
-  }
+  "collection": "dist/collection/collection-manifest.json",
+  "collection:main": "dist/collection/index.js",
+  "es2017": "dist/esm/index.mjs"
 }
