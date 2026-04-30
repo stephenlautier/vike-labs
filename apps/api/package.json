@@ -21,7 +21,6 @@
   "dependencies": {
     "@hono/node-server": "catalog:",
     "@hono/valibot-validator": "catalog:",
-    "@rift/auth": "workspace:*",
     "@rift/champion": "workspace:*",
     "@rift/player": "workspace:*",
     "better-sqlite3": "catalog:",

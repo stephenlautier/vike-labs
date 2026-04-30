@@ -16,12 +16,15 @@ Domain theme: **League of Legends** — champions, abilities, tier lists, skins,
 
 ## Apps
 
-| App             | Port    | Auth   | Description                                                      |
-| --------------- | ------- | ------ | ---------------------------------------------------------------- |
-| `shell`         | `:3000` | Auth0  | Host shell — global nav, home page, auth state                   |
-| `mfe-champions` | `:3001` | Public | Champion browser with detail pages and abilities viewer          |
-| `mfe-tier-list` | `:3002` | Public | Tier list rankings filterable by tier, role, and patch           |
-| `mfe-player`    | `:3003` | Auth0  | Authenticated player profile — owned champions and match history |
+| App             | Port    | Auth                | Description                                                |
+| --------------- | ------- | ------------------- | ---------------------------------------------------------- |
+| `shell`         | `:3000` | —                   | Host shell — global nav, home page                         |
+| `mfe-champions` | `:3001` | Public              | Champion browser with detail pages and abilities viewer    |
+| `mfe-tier-list` | `:3002` | Public              | Tier list rankings filterable by tier, role, and patch     |
+| `mfe-player`    | `:3003` | Mocked demo session | Player profile — owned champions and match history         |
+| `api`           | `:3100` | Mocked demo session | Hono backend (SQLite via Drizzle) — serves all domain data |
+
+> **Auth note**: Auth0/Auth.js is currently disabled. The API injects a mock session for the seeded demo player (`auth0|rift-demo`) so guarded `/player/*` routes work without a login flow.
 
 ## Shared Libraries
 
@@ -35,7 +38,7 @@ Domain theme: **League of Legends** — champions, abilities, tier lists, skins,
 
 ## Tech Stack
 
-[Vike](https://vike.dev/) · [React 19](https://react.dev/) · [StencilJS](https://stenciljs.com/) · [Tailwind CSS v4](https://tailwindcss.com/) · [shadcn/ui](https://ui.shadcn.com/) · [Hono](https://hono.dev/) · [Auth.js](https://authjs.dev/) + [Auth0](https://auth0.com/) · [Jotai](https://jotai.org/) · [Valibot](https://valibot.dev/) · [Vitest](https://vitest.dev/) · [Playwright](https://playwright.dev/) · [Storybook 10](https://storybook.js.org/) · [NX](https://nx.dev/) · [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) · [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) · TypeScript 6
+[Vike](https://vike.dev/) · [React 19](https://react.dev/) · [StencilJS](https://stenciljs.com/) · [Tailwind CSS v4](https://tailwindcss.com/) · [shadcn/ui](https://ui.shadcn.com/) · [Hono](https://hono.dev/) · [Drizzle ORM](https://orm.drizzle.team/) + SQLite · [Jotai](https://jotai.org/) · [Valibot](https://valibot.dev/) · [Vitest](https://vitest.dev/) · [Playwright](https://playwright.dev/) · [Storybook 10](https://storybook.js.org/) · [NX](https://nx.dev/) · [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) · [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) · TypeScript 6
 
 ---
 
@@ -49,6 +52,21 @@ Domain theme: **League of Legends** — champions, abilities, tier lists, skins,
 ```bash
 pnpm install
 ```
+
+### Seed the database
+
+The API uses SQLite (file at `apps/api/data/rift.db`) and ships with seed data
+for champions, abilities, skins, tier entries, and a single demo player with
+match history. **Run this once before starting dev**:
+
+```bash
+pnpm nx run api:db:push   # create / migrate the SQLite schema
+pnpm nx run api:db:seed   # populate champions, tiers, demo player + matches
+```
+
+Re-run `api:db:seed` any time you change the seed sources in
+`libs/champion/src/seed.ts` or `apps/api/src/db/seed.ts` — it clears and
+repopulates all tables.
 
 ### Running apps in dev mode
 
@@ -65,6 +83,12 @@ pnpm dev:shell        # http://localhost:3000
 pnpm dev:champions    # http://localhost:3001
 pnpm dev:tier-list    # http://localhost:3002
 pnpm dev:player       # http://localhost:3003
+```
+
+The API runs separately:
+
+```bash
+pnpm nx run api:dev       # http://localhost:3100
 ```
 
 Via NX directly:
@@ -104,37 +128,17 @@ pnpm nx:reset            # clear NX cache (use when builds behave unexpectedly)
 
 ---
 
-## Post-Setup — Required Configuration
+## Authentication
 
-### 1. Auth0 (shell + mfe-player)
+Auth0/Auth.js is **disabled** in this experiment. The API middleware
+([apps/api/src/middleware/auth.ts](apps/api/src/middleware/auth.ts))
+injects a mock session for the seeded demo player on every request, so
+`/player/*` routes resolve to that player without any login flow.
 
-Both `apps/shell` and `apps/mfe-player` require Auth0 credentials. See each app's `TODO.md` for step-by-step setup, then populate their `.env` files:
-
-**`apps/shell/.env`** and **`apps/mfe-player/.env`**:
-
-```env
-AUTH0_CLIENT_SECRET=<your-client-secret>
-AUTH0_CLIENT_ID=<your-client-id>
-AUTH0_ISSUER_BASE_URL=https://<your-domain>.auth0.com
-```
-
-Auth0 app settings:
-- **Allowed Callback URL**: `http://localhost:3000/api/auth/callback/auth0` (shell), `http://localhost:3003/api/auth/callback/auth0` (mfe-player)
-- **Allowed Logout URLs**: `http://localhost:3000`, `http://localhost:3003`
-
-> Sign in: `/api/auth/signin` · Sign out: `/api/auth/signout`
-
-### 2. Auth.js Secret
-
-Replace the placeholder secret in `server/authjs-handler.ts` for both auth apps:
-
-```ts
-secret: process.env.AUTH_SECRET, // generate with: openssl rand -base64 32
-```
-
-### 3. Stub data / API
-
-`libs/data-access` hooks currently return placeholder data. Wire up real Hono route handlers in each app's `server/` directory and implement the fetch clients in `libs/data-access/src/`.
+To re-enable Auth0 later: restore `getSession`/`requireUser` from
+`@rift/auth`, add the dependency back to [apps/api/package.json](apps/api/package.json),
+and provide `AUTH0_*` + `AUTH_SECRET` env vars to whichever app issues the
+Auth.js cookie.
 
 ---
 
