@@ -1,6 +1,8 @@
 import type { Champion, ChampionAbility, ChampionSkin } from "@rift/champion";
 import { useEffect, useState } from "react";
 
+import { createApiClient } from "../api-client";
+
 export type UseChampionsResult = {
 	data: Champion[] | null;
 	isLoading: boolean;
@@ -15,6 +17,10 @@ export type UseChampionResult = {
 	error: Error | null;
 };
 
+/**
+ * `baseUrl` defaults to `""` so calls hit the same origin (the per-MFE
+ * Vite/Hono dev server proxies `/api/*` to the standalone `@rift/api`).
+ */
 export const useChampions = (baseUrl = ""): UseChampionsResult => {
 	const [data, setData] = useState<Champion[] | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -22,25 +28,29 @@ export const useChampions = (baseUrl = ""): UseChampionsResult => {
 
 	useEffect(() => {
 		let cancelled = false;
+		const client = createApiClient(`${baseUrl}/api`);
 		setIsLoading(true);
-		fetch(`${baseUrl}/api/champions`)
-			.then(res => {
+		client.champions
+			.$get()
+			.then(async res => {
 				if (!res.ok) {
 					throw new Error(`HTTP ${res.status}`);
 				}
-				return res.json() as Promise<Champion[]>;
+				return res.json();
 			})
 			.then(json => {
-				if (!cancelled) {
-					setData(json);
-					setIsLoading(false);
+				if (cancelled) {
+					return;
 				}
+				setData(json);
+				setIsLoading(false);
 			})
 			.catch((error: unknown) => {
-				if (!cancelled) {
-					setFetchError(error instanceof Error ? error : new Error(String(error)));
-					setIsLoading(false);
+				if (cancelled) {
+					return;
 				}
+				setFetchError(error instanceof Error ? error : new Error(String(error)));
+				setIsLoading(false);
 			});
 		return () => {
 			cancelled = true;
@@ -49,8 +59,6 @@ export const useChampions = (baseUrl = ""): UseChampionsResult => {
 
 	return { data, isLoading, error: fetchError };
 };
-
-type ChampionDetailResponse = Champion & { abilities: ChampionAbility[]; skins: ChampionSkin[] };
 
 export const useChampion = (id: string, baseUrl = ""): UseChampionResult => {
 	const [data, setData] = useState<Champion | null>(null);
@@ -64,27 +72,31 @@ export const useChampion = (id: string, baseUrl = ""): UseChampionResult => {
 			return;
 		}
 		let cancelled = false;
+		const client = createApiClient(`${baseUrl}/api`);
 		setIsLoading(true);
-		fetch(`${baseUrl}/api/champions/${encodeURIComponent(id)}`)
-			.then(res => {
+		client.champions[":id"]
+			.$get({ param: { id } })
+			.then(async res => {
 				if (!res.ok) {
 					throw new Error(`HTTP ${res.status}`);
 				}
-				return res.json() as Promise<ChampionDetailResponse>;
+				return res.json();
 			})
-			.then(({ abilities: ab, skins: sk, ...champion }) => {
-				if (!cancelled) {
-					setData(champion);
-					setAbilities(ab);
-					setSkins(sk);
-					setIsLoading(false);
+			.then(({ champion, abilities: ab, skins: sk }) => {
+				if (cancelled) {
+					return;
 				}
+				setData(champion);
+				setAbilities(ab);
+				setSkins(sk);
+				setIsLoading(false);
 			})
 			.catch((error: unknown) => {
-				if (!cancelled) {
-					setFetchError(error instanceof Error ? error : new Error(String(error)));
-					setIsLoading(false);
+				if (cancelled) {
+					return;
 				}
+				setFetchError(error instanceof Error ? error : new Error(String(error)));
+				setIsLoading(false);
 			});
 		return () => {
 			cancelled = true;

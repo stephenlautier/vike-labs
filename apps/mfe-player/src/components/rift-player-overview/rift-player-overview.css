@@ -1,0 +1,50 @@
+.wrap {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 1rem;
+}
+
+.card {
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.name {
+	font-weight: 600;
+	font-size: 1rem;
+	color: rgb(244 244 245);
+}
+
+.mastery {
+	font-size: 0.75rem;
+	color: rgb(161 161 170);
+}
+
+.points {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: rgb(196 181 253);
+	font-variant-numeric: tabular-nums;
+}
+
+:host {
+	display: block;
+	font-family: inherit;
+}
+
+.heading {
+	font-size: 1rem;
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+	color: rgb(244 244 245);
+}
+
+.muted {
+	color: rgb(161 161 170);
+	font-size: 0.875rem;
+}

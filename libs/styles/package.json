@@ -1,0 +1,13 @@
+{
+  "name": "@rift/styles",
+  "version": "0.0.1",
+  "private": true,
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./src/tokens.css",
+    "./components.css": "./src/components.css"
+  }
+}

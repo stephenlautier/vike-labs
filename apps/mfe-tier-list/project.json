@@ -1,17 +1,10 @@
 {
   "name": "mfe-tier-list",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "application",
-  "sourceRoot": "apps/mfe-tier-list",
-  "tags": ["type:app", "scope:tier-list"],
+  "projectType": "library",
+  "sourceRoot": "apps/mfe-tier-list/src",
+  "tags": ["type:lib", "scope:tier-list"],
   "targets": {
-    "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm dev",
-        "cwd": "apps/mfe-tier-list"
-      }
-    },
     "build": {
       "executor": "nx:run-commands",
       "options": {
@@ -32,21 +25,21 @@
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm oxlint --type-aware pages/ src/ server/ components/ lib/",
+        "command": "pnpm oxlint --type-aware src/",
         "cwd": "apps/mfe-tier-list"
       }
     },
     "fmt": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm oxfmt pages/ src/ server/ components/ lib/ *.ts *.tsx",
+        "command": "pnpm oxfmt src/",
         "cwd": "apps/mfe-tier-list"
       }
     },
     "fmt:check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm oxfmt --check pages/ src/ server/ components/ lib/ *.ts *.tsx",
+        "command": "pnpm oxfmt --check src/",
         "cwd": "apps/mfe-tier-list"
       }
     }

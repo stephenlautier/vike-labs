@@ -6,8 +6,8 @@ import type { ChampionTier } from "./champion-tier";
 // Riot Data Dragon base — patch 14.10 (stable)
 const DDR = "https://ddragon.leagueoflegends.com/cdn";
 const PATCH = "14.10.1";
-const splash = (name: string, num = 0) => `${DDR}/img/champion/splash/${name}_${num}.jpg`;
-const square = (name: string) => `${DDR}/${PATCH}/img/champion/${name}.png`;
+const splash = (name: string, num = 0): string => `${DDR}/img/champion/splash/${name}_${num}.jpg`;
+const square = (name: string): string => `${DDR}/${PATCH}/img/champion/${name}.png`;
 
 export const SEED_CHAMPIONS: Champion[] = [
 	{

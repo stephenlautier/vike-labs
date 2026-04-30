@@ -46,6 +46,7 @@ export class LolChampionCard {
 					)}
 					<div class="difficulty" aria-label={`Difficulty ${this.difficulty} of 10`}>
 						{difficultyPips.map((active, i) => (
+							// oxlint-disable-next-line react/no-array-index-key -- fixed-position immutable pip array; index IS the stable identity
 							<span class={`pip ${active ? "pip--active" : ""}`} key={i} />
 						))}
 					</div>

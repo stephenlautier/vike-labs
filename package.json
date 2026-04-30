@@ -3,17 +3,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "nx run-many -t dev --parallel",
+    "dev": "pnpm kill-ports && nx run-many -t dev --projects=shell,api --parallel",
     "dev:shell": "nx run shell:dev",
-    "dev:champions": "nx run mfe-champions:dev",
-    "dev:tier-list": "nx run mfe-tier-list:dev",
-    "dev:player": "nx run mfe-player:dev",
+    "dev:api": "nx run api:dev",
+    "preview": "pnpm kill-ports && nx run-many -t preview --projects=shell,api --parallel",
+    "preview:shell": "nx run shell:preview",
+    "preview:api": "nx run api:preview",
     "build": "nx run-many -t build",
     "test": "nx run-many -t test --if-present",
     "lint": "nx run-many -t lint",
     "fmt": "nx run-many -t fmt",
     "fmt:check": "nx run-many -t fmt:check",
     "storybook": "nx run storybook:storybook",
+    "kill-ports": "bash scripts/kill-ports.sh",
     "nx:reset": "nx reset"
   },
   "devDependencies": {

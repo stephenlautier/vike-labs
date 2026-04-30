@@ -1,20 +1,24 @@
-// ── Champion ────────────────────────────────────────────────────────────────
-export { createChampionsClient } from "./champion/champion.client";
-export type { ChampionsClient } from "./champion/champion.client";
+// ── Typed API client ────────────────────────────────────────────────────────
+export { createApiClient } from "./api-client";
+export type { ApiClient } from "./api-client";
 
+// ── Champion ────────────────────────────────────────────────────────────────
 export { useChampion, useChampions } from "./champion/champion.hooks";
 export type { UseChampionResult, UseChampionsResult } from "./champion/champion.hooks";
 
 // ── Tier List ────────────────────────────────────────────────────────────────
-export { createTierListClient } from "./tier-list/tier-list.client";
-export type { TierListClient } from "./tier-list/tier-list.client";
-
 export { useTierList } from "./tier-list/tier-list.hooks";
 export type { TierListFilters, UseTierListResult } from "./tier-list/tier-list.hooks";
 
 // ── Player ───────────────────────────────────────────────────────────────────
-export { createPlayerClient } from "./player/player.client";
-export type { PlayerClient } from "./player/player.client";
-
 export { useMatchHistory, usePlayer, usePlayerChampions } from "./player/player.hooks";
 export type { UseMatchHistoryResult, UsePlayerChampionsResult, UsePlayerResult } from "./player/player.hooks";
+
+// Framework-agnostic helper for non-React consumers (Stencil, vanilla JS).
+export { fetchPlayerSummary } from "./player/player-summary";
+export type {
+	PlayerSummary,
+	PlayerSummaryChampion,
+	PlayerSummaryMatch,
+	PlayerSummaryUser,
+} from "./player/player-summary";

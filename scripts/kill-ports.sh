@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
-# Kill all processes listening on ports 3000–3020
+# Kill all processes listening on the dev/preview port ranges:
+#   3000–3002  shell + MFEs (vike dev/preview servers)
+#   3100–3104  api (Hono)
 
-START_PORT=3000
-END_PORT=3020
+RANGES=("3000-3002" "3100-3102" )
 
 killed=0
+ports=()
+for range in "${RANGES[@]}"; do
+  start="${range%-*}"
+  end="${range#*-}"
+  while IFS= read -r p; do ports+=("$p"); done < <(seq "$start" "$end")
+done
 
-for port in $(seq "$START_PORT" "$END_PORT"); do
+for port in "${ports[@]}"; do
   if command -v lsof &>/dev/null; then
     # macOS / Linux / Git Bash with lsof
     pids=$(lsof -ti tcp:"$port" 2>/dev/null)
@@ -33,7 +40,7 @@ for port in $(seq "$START_PORT" "$END_PORT"); do
 done
 
 if [[ $killed -eq 0 ]]; then
-  echo "No processes found on ports $START_PORT–$END_PORT"
+  echo "No processes found on ports ${RANGES[*]}"
 else
   echo "Done — killed $killed process(es)"
 fi

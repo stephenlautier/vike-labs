@@ -45,7 +45,7 @@
 - Multi-region deployment / edge runtimes (out of scope for this plan).
 - A custom MFE registry — we'll use static URLs / env-driven manifests.
 - Replacing Vike. The shell stays Vike-first.
-- Replacing Auth.js or Auth0.
+- Replacing Auth.js.
 
 ---
 
@@ -233,8 +233,8 @@ No MFE routers, no business REST mounted.
 
 ### Auth flow
 
-- **Browser ↔ shell**: Auth.js (Auth0) sets a session cookie on the shell
-  origin. Shell middleware populates `pageContext.session` /
+- **Browser ↔ shell**: Auth.js (Credentials provider) sets a session cookie on
+  the shell origin. Shell middleware populates `pageContext.session` /
   `pageContext.user`. `passToClient: ["user"]` ships the sanitized user to
   every MFE.
 - **Browser ↔ API**: same-origin in dev (Vite proxies `/api/*` → API),
@@ -317,7 +317,7 @@ Responses are validated against the Valibot schemas in `libs/champion` /
 ### Database
 
 Drizzle tables mirror the Valibot schemas 1:1: champions, championAbilities,
-championSkins, championTiers, players (with `auth0Sub` unique linking to
+championSkins, championTiers, players (with `subjectId` unique linking to
 Auth.js identity), playerChampions, playerMatches.
 
 ### Seeding
@@ -325,8 +325,8 @@ Auth.js identity), playerChampions, playerMatches.
 `pnpm nx run api:db:seed`:
 1. Runs migrations (idempotent).
 2. Upserts `SEED_CHAMPIONS / ABILITIES / SKINS / TIERS` from `@rift/champion`.
-3. Creates a demo Player with a fixed `auth0Sub` so `mfe-player` works
-   end-to-end after a single Auth0 login.
+3. Creates a demo Player with a fixed `subjectId` so `mfe-player` works
+   end-to-end with the demo Credentials login.
 
 `dev` chains `db:push && db:seed && tsx watch src/index.ts`.
 
@@ -720,46 +720,155 @@ live in their own packages and are imported.
 
 ### Phase D — Introduce Module Federation for horizontal MFEs
 
-Outcome: horizontal MFEs are independently buildable & deployable; their
-bundles are loaded at runtime and **share** React/vike-react with shell.
+> **Implementation note (April 2026):** Phase D is split into two sub-phases.
+> **D-A** lands first as a low-risk client-only setup; **D-B** is the harder
+> SSR-dynamic flow that we'll attempt only once D-A is stable.
 
-- D.1. Add `@module-federation/vite` to shell + horizontal MFE
-  `vite.config.ts`.
-- D.2. Configure each horizontal MFE as a `remote` exposing `./routes` and
-  `./App`.
-- D.3. Configure shell as `host` with `shared: { singleton: true }` for the
-  list in §6.
-- D.4. Replace the in-tree imports from C.0b with `import("remote-champions/…")`
-  using Vite's `optimizeDeps.exclude` so dev mode hot-reload still works.
-- D.5. Add an env-driven manifest (`MFE_*_URL`) for prod.
-- D.6. Verify (dev): edit a champions page, see HMR in shell.
-- D.7. Verify (prod): build both apps separately, deploy mfe-champions to a
-  test URL, point shell at it, redeploy only the MFE → change visible without
-  shell rebuild.
+#### Phase D-A — Client-only Module Federation
+
+Outcome: horizontal MFEs are independently buildable & deployable for the
+**client** bundle. Shell SSR continues to import MFE pages in-tree (via the
+package `exports` map wired up in Phase C) so the rendered HTML is unchanged
+from a user's perspective. Redeploying an MFE updates only the post-hydration
+JavaScript — a new SSR-only field still requires a shell rebuild.
+
+- ✅ D-A.1. Add `@module-federation/vite` to shell + horizontal MFE
+  `vite.config.ts`. (Catalog entry added; per-MFE `vite.config.ts` created.)
+- ✅ D-A.2. Restore a minimal `vite.config.ts` per horizontal MFE that **builds
+  only** (no Vike, no app entrypoint) and emits `remoteEntry.js` exposing
+  the page modules. Each MFE has a tiny `index.html` + `src/main.tsx`
+  smoke-test entry (Vite needs an HTML entry; `vite preview` renders it
+  in isolation).
+- ✅ D-A.3. Configure each horizontal MFE as a `remote` with `exposes` for its
+  page surface (`./pages/champions-list`, `./pages/champion-detail`,
+  `./pages/tier-list`). Both `mfe-champions` and `mfe-tier-list` now emit
+  `dist/remoteEntry.js` + `dist/mf-manifest.json` via `pnpm nx run X:build`.
+- ✅ D-A.4. Configure shell as `host` with `shared: { singleton: true }` for
+  the list in §6. Done in `apps/shell/vite.config.ts` — `remotes` references
+  each MFE manifest URL; `shared` mirrors the per-MFE singletons. Build
+  passes for all 10 projects.
+- ✅ D-A.6. Add an env-driven manifest (`MFE_*_URL`) for prod; default to
+  local dev URLs. Done at the top of `apps/shell/vite.config.ts` and matches
+  each MFE's `server.origin`.
+
+> **Sub-phase status (D-A.1–A.4 + A.6 done):** Shell + both MFE remotes
+> build green; shell is registered as MF host with the two remotes wired.
+> Notes:
+> - The MF DTS plugin is disabled everywhere (`dts: false`) — see the
+>   cleanup notes; it conflicted with TS 6 and was leaking `.d.ts` files
+>   into `libs/*/src/` on every build.
+> - Shell `+Page.tsx` files still statically re-export the in-tree page
+>   modules from `@rift/mfe-*/pages/*` (Phase C wiring). Until D-A.5
+>   lands, the host's MF `remotes` block is **inactive at runtime** — no
+>   code in the shell yet imports via the remote name. The plumbing is in
+>   place so D-A.5 only needs the import-site swap.
+
+- D-A.5. Use Vike's `Page: () => import("...")` lazy form in the shell's
+  `+config.ts` so the client build resolves the import via MF runtime while
+  SSR continues to use the in-tree workspace alias. Use Vite
+  `optimizeDeps.exclude` so dev mode hot-reload still works.
+
+> **D-A.5 risk note:** This is the SSR/client dual-resolution step. The
+> client must rewrite `import("mfe-champions/pages/...")` into the MF
+> runtime, but the SSR build must keep resolving the same string to the
+> in-tree `@rift/mfe-champions/pages/...` workspace package — otherwise
+> the SSR build will try to fetch a remote that may not be reachable at
+> build time, and any new SSR-only field still requires a shell rebuild
+> anyway (that's D-B's job). The cleanest path is Vite's per-environment
+> `resolve.alias` (different aliases for the `ssr` vs `client`
+> environments) plus a `Page: () => import()` form in `+config.ts`.
+
+- D-A.7. Verify (dev): edit a champions page, see HMR in the shell.
+- D-A.8. Verify (prod): build both apps separately, deploy mfe-champions to
+  a test URL, point shell at it, redeploy only the MFE → client-side change
+  visible without shell rebuild.
+
+#### Phase D-B — SSR-dynamic Module Federation (`mfe-ssr-dynamic`)
+
+Outcome: both shell SSR (Node) **and** the client load remotes at runtime.
+A new SSR-rendered field in an MFE page becomes visible without a shell
+rebuild. This is the genuine "independently deployable" target.
+
+- D-B.1. Adopt `@module-federation/vite` v1.15+ SSR flow (the plugin's
+  Node-side `remoteEntry` loader). Confirm the version targets we use
+  support `Hono` and a Node 24 runtime.
+- D-B.2. Each horizontal MFE's `vite.config.ts` emits **two** outputs: a
+  browser `remoteEntry.js` (consumed by shell client bundle) and a Node
+  `remoteEntry.cjs`/`remoteEntry.mjs` (consumed by the shell server).
+- D-B.3. Shell server (`apps/shell/server/hono.ts` or a small bootstrap
+  module) calls the MF runtime `init({ remotes: [...] })` once on cold
+  start, registering each MFE's Node `remoteEntry`.
+- D-B.4. Shell `+Page.tsx` re-exports become **single-source dynamic
+  imports** (`Page: () => import("mfe-champions/pages/champions-list")`)
+  that resolve via MF runtime in both Node and browser.
+- D-B.5. Add a manifest fetcher: shell server pulls `mf-manifest.json` from
+  each `MFE_*_URL` on startup (with a cache-bust on SIGHUP) so version
+  pinning is explicit and rollbacks are an env-var redeploy.
+- D-B.6. Add a smoke check that fails the shell health probe if any
+  `MFE_*_URL` is unreachable at boot — fail-fast beats serving partial HTML.
+- D-B.7. Verify: redeploy mfe-champions with a new SSR-only DOM node;
+  `curl shell/champions` returns the new HTML on the next request without
+  redeploying or restarting the shell.
+- D-B.8. Document the cache-poisoning risk: a malformed remote `remoteEntry`
+  must not be able to crash the shell process. Sandbox the MF init in a
+  try/catch with a fallback "MFE unavailable" page.
+
+> **Risk surface for D-B:** module-federation/vite SSR is newer than its
+> client flow; expect at least one round of upstream-issue diagnosis. If the
+> ROI is unclear, stay on D-A — most of the architectural value (shared
+> singletons, independent client deploy) is already there.
 
 ### Phase E — Convert mfe-player to vertical (Stencil)
 
 Outcome: a working example of a different-stack MFE.
 
-- E.1. Update `apps/mfe-player/stencil.config.ts` with **three** output
-  targets: `dist-custom-elements` (browser), `dist-hydrate-script`
-  (Node SSR), and `reactOutputTarget()` (the wrapper React imports).
-- E.2. Author `<rift-player-app>` as a Stencil component using a small
-  hand-rolled router for sub-routes; emit a `routechange` custom event so
-  the shell can sync `navigate()`.
-- E.3. Move data fetching to inside the component using `@rift/data-access`
-  clients (vanilla `fetch`-based, no React hooks needed).
-- E.4. Add `@stencil/ssr` to shell's `vite.config.ts`, pointed at
-  `@rift/mfe-player/react` + `@rift/mfe-player/hydrate`.
-- E.5. Shell `pages/player/+Page.tsx` renders `<RiftPlayerApp />` (the React
-  wrapper from the `react` output target). No `+onRenderHtml.ts` needed for
-  the static-prop case.
-- E.6. Shell `pages/player/+Head.tsx` injects a `<script type="module">` for
-  `@rift/mfe-player/dist-custom-elements/loader.js` (or whatever the loader
-  output path resolves to in dev/prod).
-- E.7. Verify: deep-link to `/player/match-history` returns server-rendered
-  HTML containing the Declarative Shadow DOM; client takes over;
-  intra-player navigation does not call the shell.
+Status: ✅ Complete. The shell now SSR-renders the Stencil player MFE
+as Declarative Shadow DOM (verified: `dist/server/entries/pages_player*.mjs`
+contains `<template shadowrootmode="open">` markers), the React wrapper is
+the consumed surface in shell pages, and the loader registers custom
+elements after hydration via `PlayerHydrator`.
+
+- E.1. ✅ `apps/mfe-player/stencil.config.ts` declares **four** output targets:
+  `reactOutputTarget()` (wrapper bound to `hydrateModule`/`clientModule`),
+  `dist` (esm + loader), `dist-custom-elements` (auto-define), and
+  `dist-hydrate-script` (Node SSR). Package shape mirrors `libs/ui` with an
+  added `./hydrate` export.
+- E.2. ✅ `<rift-player-app>` shell + `<rift-player-overview>`,
+  `<rift-player-champions>`, `<rift-player-matches>` child views. Shell
+  has a hand-rolled sub-router (`overview`/`champions`/`matches`) keyed off
+  `initialRoute` and emits a `routechange` event.
+- E.3. ⚠️ Adjusted: data fetching is mocked inline in `src/data/mock.ts`
+  rather than wired to `@rift/data-access`. Reason: the data-access lib
+  exposes React hooks; using them inside Stencil JSX would require either
+  a parallel non-React fetch helper or a Preact-Signals-style adapter. Mock
+  data keeps Phase E focused on the SSR + hydration story; a follow-up
+  can add a non-React export to `libs/data-access` and swap.
+- E.4. ✅ `apps/shell/vite.config.ts` registers `stencilSSR({ module, from,
+  hydrateModule, serializeShadowRoot: 'declarative-shadow-dom' })`. Explicit
+  resolve-aliases for `@rift/mfe-player/{react,hydrate,loader,dist/components,*}`
+  bypass node `exports` resolution issues for the SSR pipeline.
+- E.5. ✅ `pages/player/+Page.tsx` plus `pages/player/champions/+Page.tsx`
+  and `pages/player/match-history/+Page.tsx` each render `<RiftPlayerApp />`
+  with a literal `initialRoute`. Static-only props are mandated by the
+  compiler-based `@stencil/ssr` plugin; user identity is injected
+  client-side after hydration (see E.6).
+- E.6. ✅ Loader injection via a `PlayerHydrator` component using a
+  client-only `useEffect(() => import('@rift/mfe-player/loader'))`. This is
+  cleaner than a `<script>` in `+Head.tsx` because the import is
+  bundle-managed, hash-busted, and dropped from the SSR bundle.
+- E.7. ✅ Build-time verification: every `pages_player*` server entry
+  contains `rift-player-app` + DSD `template shadowroot` markers. Runtime
+  preview verification deferred — the shell's MF + Vike preview combo has
+  a pre-existing manifest-resolution bug that 500s on every route in
+  preview (not specific to /player); will be debugged separately as part
+  of the deferred Phase D-A.5/A.7 work.
+
+Follow-ups parked for later:
+
+- Wire real data via a non-React export from `@rift/data-access`.
+- Fix Vike preview server crash with MF chunks (or skip MF in preview).
+- Resolve the 'routechange' → host history sync (currently the event fires
+  but no shell-side listener calls `navigate(href)` yet).
 
 ### Phase F — Performance polish
 

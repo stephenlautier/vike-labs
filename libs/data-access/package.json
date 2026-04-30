@@ -17,6 +17,7 @@
     "hono": "catalog:"
   },
   "devDependencies": {
+    "@rift/api": "workspace:*",
     "@types/react": "catalog:"
   },
   "peerDependencies": {

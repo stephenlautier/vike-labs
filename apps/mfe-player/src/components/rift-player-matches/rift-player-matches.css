@@ -1,0 +1,43 @@
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.875rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+	text-align: left;
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.table th {
+	font-weight: 600;
+	color: rgb(212 212 216);
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.win {
+	color: rgb(134 239 172);
+	font-weight: 600;
+}
+
+.loss {
+	color: rgb(252 165 165);
+	font-weight: 600;
+}
+
+:host {
+	display: block;
+	font-family: inherit;
+}
+
+.heading {
+	font-size: 1rem;
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+	color: rgb(244 244 245);
+}

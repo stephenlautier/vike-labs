@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2023",
     "module": "ESNext",
-    "lib": ["ES2022", "dom"],
+    "lib": ["ES2023", "dom"],
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
@@ -14,15 +14,16 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@rift/champion": ["libs/champion/src/index.ts"],
-      "@rift/player": ["libs/player/src/index.ts"],
-      "@rift/ui": ["libs/ui/src/index.ts"],
-      "@rift/ui/react": ["libs/ui/src/react/components.ts"],
-      "@rift/ui/loader": ["libs/ui/loader/index.d.ts"],
-      "@rift/ui/components/*": ["libs/ui/dist/components/*.d.ts"],
-      "@rift/ui/dist/components": ["libs/ui/dist/components/index.d.ts"],
-      "@rift/ui/dist/components/*": ["libs/ui/dist/components/*"],
-      "@rift/data-access": ["libs/data-access/src/index.ts"]
+      "@rift/auth": ["./libs/auth/src/index.ts"],
+      "@rift/champion": ["./libs/champion/src/index.ts"],
+      "@rift/player": ["./libs/player/src/index.ts"],
+      "@rift/ui": ["./libs/ui/src/index.ts"],
+      "@rift/ui/react": ["./libs/ui/src/react/components.ts"],
+      "@rift/ui/loader": ["./libs/ui/loader/index.d.ts"],
+      "@rift/ui/components/*": ["./libs/ui/dist/components/*.d.ts"],
+      "@rift/ui/dist/components": ["./libs/ui/dist/components/index.d.ts"],
+      "@rift/ui/dist/components/*": ["./libs/ui/dist/components/*"],
+      "@rift/data-access": ["./libs/data-access/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "dist", "build", ".vike", "coverage"]

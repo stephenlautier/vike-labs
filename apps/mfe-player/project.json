@@ -1,54 +1,44 @@
 {
-  "name": "mfe-player",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "application",
-  "sourceRoot": "apps/mfe-player",
-  "tags": ["type:app", "scope:player"],
-  "targets": {
-    "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm dev",
-        "cwd": "apps/mfe-player"
-      }
-    },
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm build",
-        "cwd": "apps/mfe-player"
-      },
-      "outputs": ["{projectRoot}/dist"],
-      "dependsOn": ["^build"]
-    },
-    "preview": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm preview",
-        "cwd": "apps/mfe-player"
-      },
-      "dependsOn": ["build"]
-    },
-    "lint": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm oxlint --type-aware pages/ src/ server/ components/ lib/",
-        "cwd": "apps/mfe-player"
-      }
-    },
-    "fmt": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm oxfmt pages/ src/ server/ components/ lib/ *.ts *.tsx",
-        "cwd": "apps/mfe-player"
-      }
-    },
-    "fmt:check": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm oxfmt --check pages/ src/ server/ components/ lib/ *.ts *.tsx",
-        "cwd": "apps/mfe-player"
-      }
-    }
-  }
+	"name": "mfe-player",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"projectType": "library",
+	"sourceRoot": "apps/mfe-player/src",
+	"tags": ["type:lib", "scope:player"],
+	"targets": {
+		"build": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "pnpm stencil build",
+				"cwd": "apps/mfe-player"
+			},
+			"outputs": [
+				"{projectRoot}/dist",
+				"{projectRoot}/loader",
+				"{projectRoot}/hydrate",
+				"{projectRoot}/src/react"
+			],
+			"dependsOn": ["^build"]
+		},
+		"lint": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "pnpm oxlint src/",
+				"cwd": "apps/mfe-player"
+			}
+		},
+		"fmt": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "pnpm oxfmt src/",
+				"cwd": "apps/mfe-player"
+			}
+		},
+		"fmt:check": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "pnpm oxfmt --check src/",
+				"cwd": "apps/mfe-player"
+			}
+		}
+	}
 }

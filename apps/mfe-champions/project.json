@@ -1,17 +1,10 @@
 {
   "name": "mfe-champions",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "application",
-  "sourceRoot": "apps/mfe-champions",
-  "tags": ["type:app", "scope:champions"],
+  "projectType": "library",
+  "sourceRoot": "apps/mfe-champions/src",
+  "tags": ["type:lib", "scope:champions"],
   "targets": {
-    "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm dev",
-        "cwd": "apps/mfe-champions"
-      }
-    },
     "build": {
       "executor": "nx:run-commands",
       "options": {
@@ -32,21 +25,21 @@
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm oxlint --type-aware pages/ src/ server/ components/ lib/",
+        "command": "pnpm oxlint --type-aware src/",
         "cwd": "apps/mfe-champions"
       }
     },
     "fmt": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm oxfmt pages/ src/ server/ components/ lib/ *.ts *.tsx",
+        "command": "pnpm oxfmt src/",
         "cwd": "apps/mfe-champions"
       }
     },
     "fmt:check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm oxfmt --check pages/ src/ server/ components/ lib/ *.ts *.tsx",
+        "command": "pnpm oxfmt --check src/",
         "cwd": "apps/mfe-champions"
       }
     }

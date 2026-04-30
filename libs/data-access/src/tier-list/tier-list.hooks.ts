@@ -1,6 +1,8 @@
 import type { ChampionRole, ChampionTier, Tier } from "@rift/champion";
 import { useEffect, useState } from "react";
 
+import { createApiClient } from "../api-client";
+
 export type TierListFilters = {
 	tier?: Tier;
 	role?: ChampionRole;
@@ -17,47 +19,51 @@ export const useTierList = (filters: TierListFilters = {}, baseUrl = ""): UseTie
 	const [data, setData] = useState<ChampionTier[] | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [fetchError, setFetchError] = useState<Error | null>(null);
+	const { tier, role, patch } = filters;
 
 	useEffect(() => {
 		let cancelled = false;
+		const client = createApiClient(`${baseUrl}/api`);
 		setIsLoading(true);
 
-		const params = new URLSearchParams();
-		if (filters.tier) {
-			params.set("tier", filters.tier);
+		const query: { tier?: string; role?: string; patch?: string } = {};
+		if (tier !== undefined) {
+			query.tier = tier;
 		}
-		if (filters.role) {
-			params.set("role", filters.role);
+		if (role !== undefined) {
+			query.role = role;
 		}
-		if (filters.patch) {
-			params.set("patch", filters.patch);
+		if (patch !== undefined) {
+			query.patch = patch;
 		}
-		const query = params.toString();
 
-		fetch(`${baseUrl}/api/tier-list${query ? `?${query}` : ""}`)
-			.then(res => {
+		client["tier-list"]
+			.$get({ query })
+			.then(async res => {
 				if (!res.ok) {
 					throw new Error(`HTTP ${res.status}`);
 				}
-				return res.json() as Promise<ChampionTier[]>;
+				return res.json();
 			})
 			.then(json => {
-				if (!cancelled) {
-					setData(json);
-					setIsLoading(false);
+				if (cancelled) {
+					return;
 				}
+				setData(json);
+				setIsLoading(false);
 			})
 			.catch((error: unknown) => {
-				if (!cancelled) {
-					setFetchError(error instanceof Error ? error : new Error(String(error)));
-					setIsLoading(false);
+				if (cancelled) {
+					return;
 				}
+				setFetchError(error instanceof Error ? error : new Error(String(error)));
+				setIsLoading(false);
 			});
 
 		return () => {
 			cancelled = true;
 		};
-	}, [filters.tier, filters.role, filters.patch, baseUrl]);
+	}, [tier, role, patch, baseUrl]);
 
 	return { data, isLoading, error: fetchError };
 };
