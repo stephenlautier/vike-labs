@@ -27,6 +27,27 @@ Top-level player MFE shell. Hand-rolled sub-router (no
 | `routechange` | Emitted with `{ path }` so the host can update its URL. | `CustomEvent<{ path: string; route: SubRoute; }>` |
 
 
+## Methods
+
+### `setActiveRoute(route: SubRoute) => Promise<void>`
+
+Imperatively set the active sub-route. Hosts use this for browser
+back/forward sync where the `initialRoute` prop value may not have
+changed (and therefore wouldn't trigger `@Watch`).
+
+#### Parameters
+
+| Name    | Type                                     | Description |
+| ------- | ---------------------------------------- | ----------- |
+| `route` | `"matches" \| "overview" \| "champions"` |             |
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
+
 ## Dependencies
 
 ### Depends on

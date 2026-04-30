@@ -1,4 +1,4 @@
-import { Component, Element, Event, EventEmitter, Prop, State, h } from "@stencil/core";
+import { Component, Element, Event, EventEmitter, Method, Prop, State, Watch, h } from "@stencil/core";
 
 import type { MatchEntry, PlayerChampionEntry, PlayerSummary } from "../../data/mock";
 
@@ -47,6 +47,26 @@ export class RiftPlayerApp {
 
 	componentWillLoad() {
 		this.route = this.initialRoute;
+	}
+
+	/**
+	 * Sync the active sub-route when the host updates `initialRoute` (e.g.
+	 * after a `popstate` driven by browser back/forward). Does NOT re-emit
+	 * `routechange` to avoid feedback loops with the host's history sync.
+	 */
+	@Watch("initialRoute")
+	onInitialRouteChange(next: SubRoute) {
+		if (next !== this.route) this.route = next;
+	}
+
+	/**
+	 * Imperatively set the active sub-route. Hosts use this for browser
+	 * back/forward sync where the `initialRoute` prop value may not have
+	 * changed (and therefore wouldn't trigger `@Watch`).
+	 */
+	@Method()
+	async setActiveRoute(route: SubRoute): Promise<void> {
+		if (route !== this.route) this.route = route;
 	}
 
 	private go = (next: SubRoute) => {
