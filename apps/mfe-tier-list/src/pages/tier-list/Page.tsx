@@ -10,6 +10,7 @@ import { TierRow } from "../../tier-list/TierRow";
 import type { Data } from "./data";
 
 const TIER_ORDER = ["S", "A", "B", "C", "D"] as const;
+const EMPTY_ENTRIES: never[] = [];
 
 export default function Page() {
 	const { entries, patches } = useData<Data>();
@@ -65,7 +66,7 @@ export default function Page() {
 			) : (
 				<div className="space-y-6">
 					{TIER_ORDER.map(tier => (
-						<TierRow key={tier} tier={tier} entries={byTier.get(tier) ?? []} />
+						<TierRow key={tier} tier={tier} entries={byTier.get(tier) ?? EMPTY_ENTRIES} />
 					))}
 				</div>
 			)}

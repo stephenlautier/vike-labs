@@ -21,7 +21,9 @@ export const championsRoute = new Hono()
 	.get("/:id", async c => {
 		const id = c.req.param("id");
 		const champion = await db.select().from(schema.champions).where(eq(schema.champions.id, id)).get();
-		if (!champion) throw new HTTPException(404, { message: `Champion ${id} not found` });
+		if (!champion) {
+			throw new HTTPException(404, { message: `Champion ${id} not found` });
+		}
 
 		const abilities = await db
 			.select()

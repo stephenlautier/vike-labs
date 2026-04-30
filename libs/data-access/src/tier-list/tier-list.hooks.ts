@@ -19,25 +19,43 @@ export const useTierList = (filters: TierListFilters = {}, baseUrl = ""): UseTie
 	const [data, setData] = useState<ChampionTier[] | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [fetchError, setFetchError] = useState<Error | null>(null);
+	const { tier, role, patch } = filters;
 
 	useEffect(() => {
 		let cancelled = false;
 		const client = createApiClient(`${baseUrl}/api`);
 		setIsLoading(true);
 
+		const query: { tier?: string; role?: string; patch?: string } = {};
+		if (tier !== undefined) {
+			query.tier = tier;
+		}
+		if (role !== undefined) {
+			query.role = role;
+		}
+		if (patch !== undefined) {
+			query.patch = patch;
+		}
+
 		client["tier-list"]
-			.$get({ query: filters })
+			.$get({ query })
 			.then(async res => {
-				if (!res.ok) throw new Error(`HTTP ${res.status}`);
+				if (!res.ok) {
+					throw new Error(`HTTP ${res.status}`);
+				}
 				return res.json();
 			})
 			.then(json => {
-				if (cancelled) return;
+				if (cancelled) {
+					return;
+				}
 				setData(json);
 				setIsLoading(false);
 			})
 			.catch((error: unknown) => {
-				if (cancelled) return;
+				if (cancelled) {
+					return;
+				}
 				setFetchError(error instanceof Error ? error : new Error(String(error)));
 				setIsLoading(false);
 			});
@@ -45,7 +63,7 @@ export const useTierList = (filters: TierListFilters = {}, baseUrl = ""): UseTie
 		return () => {
 			cancelled = true;
 		};
-	}, [filters.tier, filters.role, filters.patch, baseUrl]);
+	}, [tier, role, patch, baseUrl]);
 
 	return { data, isLoading, error: fetchError };
 };

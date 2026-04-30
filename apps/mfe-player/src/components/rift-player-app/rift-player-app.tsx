@@ -77,8 +77,11 @@ export class RiftPlayerApp {
 
 	private renderTab(label: string, target: SubRoute) {
 		const active = this.route === target;
+		const handleClick = () => {
+			this.go(target);
+		};
 		return (
-			<button type="button" class="tab" aria-current={active ? "page" : undefined} onClick={() => this.go(target)}>
+			<button type="button" class="tab" aria-current={active ? "page" : undefined} onClick={handleClick}>
 				{label}
 			</button>
 		);

@@ -39,7 +39,7 @@ type RiftPlayerAppEl = HTMLElement & {
  *    inside `<rift-player-app>` update the URL (no Vike round-trip per the
  *    architecture plan), and back/forward navigation updates the active tab.
  */
-export function PlayerHydrator() {
+export function PlayerHydrator(): null {
 	useEffect(() => {
 		let cancelled = false;
 		const cleanups: Array<() => void> = [];

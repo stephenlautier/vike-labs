@@ -1,4 +1,3 @@
-export async function onPageTransitionEnd() {
-	console.log("Page transition end");
+export async function onPageTransitionEnd(): Promise<void> {
 	document.body.classList.remove("page-transition");
 }

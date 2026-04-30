@@ -124,6 +124,7 @@ export default defineConfig({
 		"react/iframe-missing-sandbox": "error",
 		"react/no-namespace": "error",
 		"react/jsx-props-no-spread-multi": "error",
+		"react/forbid-component-props": "off", // `className` pass-through to custom components is idiomatic React
 
 		// ── React Perf ─────────────────────────────────────────────────────────
 		"react-perf/jsx-no-new-array-as-prop": "warn",
@@ -156,6 +157,8 @@ export default defineConfig({
 		"vitest/valid-expect": "error",
 		"vitest/no-standalone-expect": "error",
 		"vitest/consistent-test-it": ["warn", { fn: "it" }],
+		// require-hook flags top-level statements as needing setup hooks — only meaningful in test files
+		"vitest/require-hook": "off",
 
 		// ── Unicorn ────────────────────────────────────────────────────────────
 		"unicorn/no-array-for-each": "off", // prefer for..of is too opinionated
@@ -198,11 +201,12 @@ export default defineConfig({
 				"typescript/no-explicit-any": "off",
 				"typescript/no-non-null-assertion": "off",
 				"max-statements": "off",
+				"vitest/require-hook": "warn",
 			},
 		},
 		{
 			// StencilJS components — class-based, uses h() not React, HTML attrs not React attrs
-			files: ["libs/ui/src/**/*.tsx"],
+			files: ["libs/ui/src/**/*.tsx", "apps/mfe-player/src/**/*.tsx", "apps/mfe-player/src/**/*.ts"],
 			rules: {
 				"react/prefer-function-component": "off",
 				// Stencil uses h() imported from @stencil/core, not React.createElement
@@ -220,6 +224,29 @@ export default defineConfig({
 				// render() return type is implicit JSX; Stencil convention omits it
 				"typescript/explicit-function-return-type": "off",
 				"typescript/explicit-module-boundary-types": "off",
+				// EventEmitter is referenced by emitDecoratorMetadata for @Event() — must be a runtime import
+				"typescript/consistent-type-imports": "off",
+				// Stencil's `h` JSX factory returns a loose type that the type-aware checker reads as `error`
+				"typescript/no-unsafe-return": "off",
+				// react-perf rules target React reconciliation; Stencil uses its own renderer
+				"react-perf/jsx-no-new-array-as-prop": "off",
+				"react-perf/jsx-no-new-object-as-prop": "off",
+				"react-perf/jsx-no-new-function-as-prop": "off",
+				"react-perf/jsx-no-jsx-as-prop": "off",
+			},
+		},
+		{
+			// Vike convention files — Page/Head/Layout/data always return JSX or specific shapes; explicit types are noise
+			files: ["**/pages/**/*.tsx", "**/pages/**/*.ts"],
+			rules: {
+				"typescript/explicit-function-return-type": "off",
+			},
+		},
+		{
+			// API server entry, db client, seed scripts: legitimate stdout logging
+			files: ["apps/api/src/index.ts", "apps/api/src/db/**/*.ts"],
+			rules: {
+				"no-console": "off",
 			},
 		},
 	],

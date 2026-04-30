@@ -20,7 +20,7 @@ const SAMPLE_PLAYER = {
 	auth0Sub: "auth0|rift-demo",
 };
 
-async function seed() {
+async function seed(): Promise<void> {
 	console.log("Clearing tables…");
 	db.delete(schema.playerMatches).run();
 	db.delete(schema.playerChampions).run();
@@ -57,7 +57,7 @@ async function seed() {
 		playerId: SAMPLE_PLAYER.id,
 		championId: c.id,
 		masteryLevel: ((i % 7) + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7,
-		masteryPoints: 50_000 - i * 6_000,
+		masteryPoints: 50_000 - i * 6000,
 		owned: true,
 	}));
 	db.insert(schema.playerChampions).values(ownedSample).run();
@@ -73,7 +73,7 @@ async function seed() {
 			deaths: 2 + (i % 3),
 			assists: 6 + i,
 			win: i % 2 === 0,
-			gameDuration: 1_500 + i * 120,
+			gameDuration: 1500 + i * 120,
 			matchDate: new Date(Date.now() - (i + 1) * 86_400_000).toISOString(),
 		};
 	});
@@ -82,7 +82,9 @@ async function seed() {
 	console.log("Seed complete.");
 }
 
-seed().catch(err => {
-	console.error(err);
+try {
+	await seed();
+} catch (error) {
+	console.error(error);
 	process.exit(1);
-});
+}

@@ -4,7 +4,7 @@ import { Hono } from "hono";
 
 const API_TARGET = process.env.RIFT_API_URL ?? "http://localhost:3100";
 
-function getApp() {
+function getApp(): Hono {
 	const app = new Hono();
 
 	// Proxy `/api/*` to `@rift/api` (mirrors the Vite dev-server proxy so the

@@ -2,7 +2,9 @@
 
 import type { ChampionRole, Tier } from "@rift/champion";
 import { useAtom } from "jotai";
+import type { ReactElement } from "react";
 
+import { FilterButton } from "./FilterButton";
 import { patchAtom, roleAtom, tierAtom } from "./tier-list.atoms";
 
 const TIERS: (Tier | "all")[] = ["all", "S", "A", "B", "C", "D"];
@@ -17,88 +19,81 @@ const TIER_COLORS: Record<string, string> = {
 	all: "border-border bg-muted/50 text-foreground",
 };
 
+const TIER_INACTIVE = "border-border text-muted-foreground hover:border-current hover:text-foreground";
+const ROLE_ACTIVE = "border-primary bg-primary/10 text-primary ring-1 ring-primary";
+const ROLE_INACTIVE = "border-border text-muted-foreground hover:border-foreground hover:text-foreground";
+
 type Props = {
 	patches: string[];
 };
 
-export function TierListFilters({ patches }: Props) {
+export function TierListFilters({ patches }: Props): ReactElement {
 	const [tier, setTier] = useAtom(tierAtom);
 	const [role, setRole] = useAtom(roleAtom);
 	const [patch, setPatch] = useAtom(patchAtom);
 
 	return (
 		<div className="space-y-3 mb-8 p-4 rounded-xl border border-border bg-card">
-			{/* Tier filter */}
 			<div>
 				<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Tier</p>
 				<div className="flex flex-wrap gap-2">
 					{TIERS.map(t => (
-						<button
+						<FilterButton
 							key={t}
-							onClick={() => {
-								setTier(t);
-							}}
+							value={t}
+							active={tier === t}
+							onSelect={setTier}
 							className={`px-3 py-1 rounded-md text-sm font-semibold border transition-colors ${
-								tier === t
-									? `${TIER_COLORS[t]} ring-1 ring-current`
-									: "border-border text-muted-foreground hover:border-current hover:text-foreground"
+								tier === t ? `${TIER_COLORS[t]} ring-1 ring-current` : TIER_INACTIVE
 							}`}>
 							{t === "all" ? "All Tiers" : t}
-						</button>
+						</FilterButton>
 					))}
 				</div>
 			</div>
 
-			{/* Role filter */}
 			<div>
 				<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Role</p>
 				<div className="flex flex-wrap gap-2">
 					{ROLES.map(r => (
-						<button
+						<FilterButton
 							key={r}
-							onClick={() => {
-								setRole(r);
-							}}
+							value={r}
+							active={role === r}
+							onSelect={setRole}
 							className={`px-3 py-1 rounded-md text-sm font-medium border transition-colors ${
-								role === r
-									? "border-primary bg-primary/10 text-primary ring-1 ring-primary"
-									: "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+								role === r ? ROLE_ACTIVE : ROLE_INACTIVE
 							}`}>
 							{r === "all" ? "All Roles" : r}
-						</button>
+						</FilterButton>
 					))}
 				</div>
 			</div>
 
-			{/* Patch filter */}
 			{patches.length > 1 && (
 				<div>
 					<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Patch</p>
 					<div className="flex flex-wrap gap-2">
-						<button
-							onClick={() => {
-								setPatch("latest");
-							}}
+						<FilterButton
+							value="latest"
+							active={patch === "latest"}
+							onSelect={setPatch}
 							className={`px-3 py-1 rounded-md text-sm font-medium border transition-colors ${
-								patch === "latest"
-									? "border-primary bg-primary/10 text-primary ring-1 ring-primary"
-									: "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+								patch === "latest" ? ROLE_ACTIVE : ROLE_INACTIVE
 							}`}>
 							Latest
-						</button>
+						</FilterButton>
 						{patches.map(p => (
-							<button
+							<FilterButton
 								key={p}
-								onClick={() => {
-									setPatch(p);
-								}}
+								value={p}
+								active={patch === p}
+								onSelect={setPatch}
 								className={`px-3 py-1 rounded-md text-sm font-medium border transition-colors ${
-									patch === p
-										? "border-primary bg-primary/10 text-primary ring-1 ring-primary"
-										: "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+									patch === p ? ROLE_ACTIVE : ROLE_INACTIVE
 								}`}>
 								{p}
-							</button>
+							</FilterButton>
 						))}
 					</div>
 				</div>

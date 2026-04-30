@@ -1,5 +1,6 @@
 import type { Tier } from "@rift/champion";
 import { LolTierBadge } from "@rift/ui/react";
+import type { ReactElement } from "react";
 
 import type { EnrichedTierEntry } from "../pages/tier-list/data";
 
@@ -8,7 +9,7 @@ type Props = {
 	entries: EnrichedTierEntry[];
 };
 
-export function TierRow({ tier, entries }: Props) {
+export function TierRow({ tier, entries }: Props): ReactElement | null {
 	if (entries.length === 0) {
 		return null;
 	}
