@@ -32,6 +32,14 @@
       },
       "dependsOn": ["build"]
     },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm start",
+        "cwd": "apps/api"
+      },
+      "dependsOn": ["build"]
+    },
     "db:push": {
       "executor": "nx:run-commands",
       "options": {

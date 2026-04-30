@@ -29,6 +29,14 @@
       },
       "dependsOn": ["build"]
     },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm preview",
+        "cwd": "apps/shell"
+      },
+      "dependsOn": ["build"]
+    },
     "lint": {
       "executor": "nx:run-commands",
       "options": {
