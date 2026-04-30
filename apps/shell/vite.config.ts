@@ -60,9 +60,16 @@ export default defineConfig(({ command }) => ({
 							"react/": {},
 							"react-dom": { singleton: true, requiredVersion: "^19.0.0" },
 							"react-dom/": {},
-							vike: { singleton: true },
-							"vike-react": { singleton: true },
 							jotai: { singleton: true },
+							// NOTE: do NOT add `vike` / `vike-react` here. The MF plugin
+							// rewrites every `shared` import to a virtual module, which
+							// replaces the Vike runtime entry's manifest id
+							// (`@@vike/dist/client/runtime-client-routing/entry.js`) with
+							// `node_modules/__mf__virtual/...vike__loadShare__.mjs`. Vike's
+							// production server then fails to look up its own entry and
+							// every route 500s with "You stumbled upon a Vike bug" in
+							// `getManifestEntry`. Vike is the host framework, not a
+							// remote-shared dep — let each MFE bundle its own copy.
 						},
 						// See note in MFE configs: peer-version mismatch with TS 6.
 						dts: false,
