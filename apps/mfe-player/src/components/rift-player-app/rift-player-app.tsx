@@ -96,13 +96,13 @@ export class RiftPlayerApp {
 	private renderActive() {
 		switch (this.route) {
 			case "champions": {
-				return <rift-player-champions ownedChampions={this.ownedChampions}></rift-player-champions>;
+				return <rift-player-champions ownedChampions={this.ownedChampions} />;
 			}
 			case "matches": {
-				return <rift-player-matches matchHistory={this.matchHistory}></rift-player-matches>;
+				return <rift-player-matches matchHistory={this.matchHistory} />;
 			}
 			default: {
-				return <rift-player-overview user={this.user} topMastery={this.topMastery}></rift-player-overview>;
+				return <rift-player-overview user={this.user} topMastery={this.topMastery} />;
 			}
 		}
 	}

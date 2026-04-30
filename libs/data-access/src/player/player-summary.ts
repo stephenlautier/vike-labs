@@ -83,7 +83,7 @@ export async function fetchPlayerSummary(baseUrl: string): Promise<PlayerSummary
 	]);
 
 	const nameById = new Map(champions.map(c => [c.id, c.name]));
-	const resolveName = (championId: string) => nameById.get(championId) ?? championId;
+	const resolveName = (championId: string): string => nameById.get(championId) ?? championId;
 
 	const ownedChampions: PlayerSummaryChampion[] = playerChampions.map(pc => ({
 		championId: pc.championId,

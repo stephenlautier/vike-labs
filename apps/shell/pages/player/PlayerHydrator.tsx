@@ -3,12 +3,6 @@ import { useEffect } from "react";
 
 type SubRoute = "overview" | "champions" | "matches";
 
-const ROUTE_TO_PATH: Record<SubRoute, string> = {
-	overview: "",
-	champions: "champions",
-	matches: "match-history",
-};
-
 const PATH_TO_ROUTE: Record<string, SubRoute> = {
 	"": "overview",
 	champions: "champions",
@@ -16,8 +10,24 @@ const PATH_TO_ROUTE: Record<string, SubRoute> = {
 };
 
 const subRouteFromUrl = (): SubRoute => {
-	const sub = window.location.pathname.replace(/^\/player\/?/, "");
+	const sub = globalThis.location.pathname.replace(/^\/player\/?/, "");
 	return PATH_TO_ROUTE[sub] ?? "overview";
+};
+
+type RouteChangeDetail = { path: string; route: SubRoute };
+
+const isRouteChangeEvent = (event: Event): event is CustomEvent<RouteChangeDetail> =>
+	"detail" in event && typeof event.detail === "object" && event.detail !== null;
+
+const onRouteChange: EventListener = event => {
+	if (!isRouteChangeEvent(event)) {
+		return;
+	}
+	const { detail } = event;
+	const next = `/player${detail.path ? `/${detail.path}` : ""}`;
+	if (next !== globalThis.location.pathname) {
+		globalThis.history.pushState({ riftPlayer: detail.route }, "", next);
+	}
 };
 
 type RiftPlayerAppEl = HTMLElement & {
@@ -57,13 +67,6 @@ export function PlayerHydrator(): null {
 			}
 
 			// 1. Forward Stencil routechange → history.pushState (no Vike round-trip).
-			const onRouteChange = (event: Event) => {
-				const detail = (event as CustomEvent<{ path: string; route: SubRoute }>).detail;
-				const next = `/player${detail.path ? `/${detail.path}` : ""}`;
-				if (next !== window.location.pathname) {
-					window.history.pushState({ riftPlayer: detail.route }, "", next);
-				}
-			};
 			el.addEventListener("routechange", onRouteChange);
 			cleanups.push(() => {
 				el.removeEventListener("routechange", onRouteChange);
@@ -72,12 +75,14 @@ export function PlayerHydrator(): null {
 			// 2. Browser back/forward → update the active tab via imperative method.
 			//    `setActiveRoute` (Stencil @Method) syncs internal state even when
 			//    the `initialRoute` prop value hasn't changed.
-			const onPopState = () => {
-				void el.setActiveRoute?.(subRouteFromUrl());
+			const onPopState = (): void => {
+				el.setActiveRoute?.(subRouteFromUrl()).catch((error: unknown) => {
+					console.warn("[PlayerHydrator] setActiveRoute failed", error);
+				});
 			};
-			window.addEventListener("popstate", onPopState);
+			globalThis.addEventListener("popstate", onPopState);
 			cleanups.push(() => {
-				window.removeEventListener("popstate", onPopState);
+				globalThis.removeEventListener("popstate", onPopState);
 			});
 
 			// 3. Fetch live data and hydrate props.
@@ -107,7 +112,3 @@ export function PlayerHydrator(): null {
 	}, []);
 	return null;
 }
-
-// Exported for tests / shell-internal reuse.
-export const playerRoutePath = (route: SubRoute): string =>
-	`/player${ROUTE_TO_PATH[route] ? `/${ROUTE_TO_PATH[route]}` : ""}`;
