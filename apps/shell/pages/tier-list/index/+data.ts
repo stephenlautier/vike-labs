@@ -1,1 +1,2 @@
-export { data } from "@rift/mfe-tier-list/pages/tier-list/data";
+// See `apps/shell/pages/champions/index/+data.ts`.
+export { data } from "mfe-tier-list/pages/tier-list/data";

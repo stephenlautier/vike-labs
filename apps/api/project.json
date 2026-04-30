@@ -29,16 +29,15 @@
       "options": {
         "command": "pnpm start",
         "cwd": "apps/api"
-      },
-      "dependsOn": ["build"]
+      }
     },
-    "serve": {
+    "preview": {
       "executor": "nx:run-commands",
+      "continuous": true,
       "options": {
         "command": "pnpm start",
         "cwd": "apps/api"
-      },
-      "dependsOn": ["build"]
+      }
     },
     "db:push": {
       "executor": "nx:run-commands",

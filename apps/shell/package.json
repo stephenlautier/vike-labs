@@ -3,10 +3,9 @@
   "scripts": {
     "dev": "vike dev --port 3000",
     "build": "vike build",
-    "preview": "vike build && vike preview",
+    "preview": "node ./dist/server/index.mjs",
     "lint": "oxlint --type-aware .",
-    "shadcn": "npx shadcn@latest",
-    "prod": "vike build && node ./dist/server/index.mjs"
+    "shadcn": "npx shadcn@latest"
   },
   "dependencies": {
     "@auth/core": "catalog:",

@@ -9,6 +9,8 @@ import { defineConfig } from "vite";
  * file is the same shape with a different `name` / `exposes`.
  */
 export default defineConfig({
+	// See `apps/mfe-champions/vite.config.ts` for the `base` rationale.
+	base: process.env.MFE_TIER_LIST_PUBLIC_PATH ?? "/static-assets/mfes/mfe-tier-list/",
 	plugins: [
 		react(),
 		federation({
@@ -50,12 +52,14 @@ export default defineConfig({
 		cssCodeSplit: false,
 	},
 	server: {
-		port: 3002,
+		// See `apps/mfe-champions/vite.config.ts` — primary preview is
+		// `pnpm mfes:serve` on :3010; this port is the standalone smoke test.
+		port: 3012,
 		strictPort: true,
-		origin: process.env.MFE_TIER_LIST_URL ?? "http://localhost:3002",
+		origin: process.env.MFE_TIER_LIST_URL ?? "http://localhost:3012",
 	},
 	preview: {
-		port: 3002,
+		port: 3012,
 		strictPort: true,
 	},
 });

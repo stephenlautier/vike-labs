@@ -16,6 +16,13 @@ import { defineConfig } from "vite";
  * production deploys.
  */
 export default defineConfig({
+	// `base` becomes the runtime `publicPath` for the built `remoteEntry.js`
+	// and asset chunks. The shell mounts each MFE's `dist/` under
+	// `/static-assets/mfes/<name>/*` (see `apps/shell/server/hono.ts`), so
+	// chunk URLs resolve against the shell's own origin in both preview
+	// and prod — no separate static host or CORS required. Override via
+	// `MFE_CHAMPIONS_PUBLIC_PATH` for prod CDNs.
+	base: process.env.MFE_CHAMPIONS_PUBLIC_PATH ?? "/static-assets/mfes/mfe-champions/",
 	plugins: [
 		react(),
 		federation({
@@ -57,13 +64,17 @@ export default defineConfig({
 		cssCodeSplit: false,
 	},
 	server: {
-		port: 3001,
+		// `vite dev` is rarely useful for an MFE remote (the shell consumes
+		// the source via workspace alias for HMR); `vite preview` is a smoke
+		// test for the built `remoteEntry.js`. The primary preview path is
+		// the unified static host: `pnpm mfes:serve` (see
+		// `scripts/serve-mfes.mjs`) which serves both MFEs from `:3010`.
+		port: 3011,
 		strictPort: true,
-		// Required so the shell can fetch this remote's manifest in dev/preview.
-		origin: process.env.MFE_CHAMPIONS_URL ?? "http://localhost:3001",
+		origin: process.env.MFE_CHAMPIONS_URL ?? "http://localhost:3011",
 	},
 	preview: {
-		port: 3001,
+		port: 3011,
 		strictPort: true,
 	},
 });
