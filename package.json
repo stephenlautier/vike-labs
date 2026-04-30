@@ -24,6 +24,7 @@
     "nx": "22.7.0",
     "oxfmt": "^0.47.0",
     "oxlint": "catalog:",
+    "type-fest": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
