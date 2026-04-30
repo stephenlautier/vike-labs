@@ -7,9 +7,10 @@
 
 ## Properties
 
-| Property | Attribute | Description | Type            | Default     |
-| -------- | --------- | ----------- | --------------- | ----------- |
-| `user`   | --        |             | `PlayerSummary` | `undefined` |
+| Property     | Attribute | Description                                                          | Type                    | Default     |
+| ------------ | --------- | -------------------------------------------------------------------- | ----------------------- | ----------- |
+| `topMastery` | --        | Top champions by mastery. Falls back to mock data when not provided. | `PlayerChampionEntry[]` | `undefined` |
+| `user`       | --        |                                                                      | `PlayerSummary`         | `undefined` |
 
 
 ## Dependencies

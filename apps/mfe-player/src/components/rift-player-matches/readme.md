@@ -5,6 +5,13 @@
 <!-- Auto Generated Below -->
 
 
+## Properties
+
+| Property       | Attribute | Description                                               | Type           | Default     |
+| -------------- | --------- | --------------------------------------------------------- | -------------- | ----------- |
+| `matchHistory` | --        | Match history. Falls back to mock data when not provided. | `MatchEntry[]` | `undefined` |
+
+
 ## Dependencies
 
 ### Used by

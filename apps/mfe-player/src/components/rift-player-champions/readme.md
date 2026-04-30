@@ -5,6 +5,13 @@
 <!-- Auto Generated Below -->
 
 
+## Properties
+
+| Property         | Attribute | Description                                                 | Type                    | Default     |
+| ---------------- | --------- | ----------------------------------------------------------- | ----------------------- | ----------- |
+| `ownedChampions` | --        | Owned champions. Falls back to mock data when not provided. | `PlayerChampionEntry[]` | `undefined` |
+
+
 ## Dependencies
 
 ### Used by

@@ -1,6 +1,6 @@
 import { Component, Prop, h } from "@stencil/core";
 
-import { MOCK_TOP_MASTERY, type PlayerSummary, formatPoints } from "../../data/mock";
+import { MOCK_TOP_MASTERY, type PlayerChampionEntry, type PlayerSummary, formatPoints } from "../../data/mock";
 
 @Component({
 	tag: "rift-player-overview",
@@ -9,15 +9,18 @@ import { MOCK_TOP_MASTERY, type PlayerSummary, formatPoints } from "../../data/m
 })
 export class RiftPlayerOverview {
 	@Prop() user?: PlayerSummary;
+	/** Top champions by mastery. Falls back to mock data when not provided. */
+	@Prop() topMastery?: PlayerChampionEntry[];
 
 	render() {
+		const top = this.topMastery && this.topMastery.length > 0 ? this.topMastery : MOCK_TOP_MASTERY;
 		return (
 			<div>
 				<h2 class="heading">
 					Top 3 Champions <span class="muted">by mastery</span>
 				</h2>
 				<div class="wrap">
-					{MOCK_TOP_MASTERY.map(c => (
+					{top.map(c => (
 						<article class="card" key={c.championId}>
 							<div class="name">{c.championName}</div>
 							<div class="points">{formatPoints(c.masteryPoints)}</div>
