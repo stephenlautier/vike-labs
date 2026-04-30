@@ -9,3 +9,5 @@ export { TierSchema, ChampionRoleSchema, ChampionTierSchema } from "./champion-t
 
 export type { Champion } from "./champion";
 export { ChampionSchema } from "./champion";
+
+export { SEED_CHAMPIONS, SEED_ABILITIES, SEED_SKINS, SEED_TIERS } from "./seed";

@@ -7,26 +7,44 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     /**
-     * Displays a League of Legends champion card with name and splash art.
-     * Stub — logic to be implemented in a later phase.
+     * Displays a League of Legends champion card with splash art, name, roles and difficulty.
      */
     interface LolChampionCard {
+        /**
+          * Difficulty rating 1–10
+          * @default 1
+         */
+        "difficulty": number;
         /**
           * Champion name
           * @default ""
          */
         "name": string;
         /**
+          * Comma-separated list of roles (e.g. "Mid,Support")
+          * @default ""
+         */
+        "roles": string;
+        /**
           * URL to the champion splash art
           * @default ""
          */
         "splashArtUrl": string;
     }
+    /**
+     * Displays a color-coded tier badge (S / A / B / C / D) for LoL champion rankings.
+     */
+    interface LolTierBadge {
+        /**
+          * Tier value — S, A, B, C, or D
+          * @default "B"
+         */
+        "tier": "S" | "A" | "B" | "C" | "D";
+    }
 }
 declare global {
     /**
-     * Displays a League of Legends champion card with name and splash art.
-     * Stub — logic to be implemented in a later phase.
+     * Displays a League of Legends champion card with splash art, name, roles and difficulty.
      */
     interface HTMLLolChampionCardElement extends Components.LolChampionCard, HTMLStencilElement {
     }
@@ -34,35 +52,70 @@ declare global {
         prototype: HTMLLolChampionCardElement;
         new (): HTMLLolChampionCardElement;
     };
+    /**
+     * Displays a color-coded tier badge (S / A / B / C / D) for LoL champion rankings.
+     */
+    interface HTMLLolTierBadgeElement extends Components.LolTierBadge, HTMLStencilElement {
+    }
+    var HTMLLolTierBadgeElement: {
+        prototype: HTMLLolTierBadgeElement;
+        new (): HTMLLolTierBadgeElement;
+    };
     interface HTMLElementTagNameMap {
         "lol-champion-card": HTMLLolChampionCardElement;
+        "lol-tier-badge": HTMLLolTierBadgeElement;
     }
 }
 declare namespace LocalJSX {
     /**
-     * Displays a League of Legends champion card with name and splash art.
-     * Stub — logic to be implemented in a later phase.
+     * Displays a League of Legends champion card with splash art, name, roles and difficulty.
      */
     interface LolChampionCard {
+        /**
+          * Difficulty rating 1–10
+          * @default 1
+         */
+        "difficulty"?: number;
         /**
           * Champion name
           * @default ""
          */
         "name"?: string;
         /**
+          * Comma-separated list of roles (e.g. "Mid,Support")
+          * @default ""
+         */
+        "roles"?: string;
+        /**
           * URL to the champion splash art
           * @default ""
          */
         "splashArtUrl"?: string;
     }
+    /**
+     * Displays a color-coded tier badge (S / A / B / C / D) for LoL champion rankings.
+     */
+    interface LolTierBadge {
+        /**
+          * Tier value — S, A, B, C, or D
+          * @default "B"
+         */
+        "tier"?: "S" | "A" | "B" | "C" | "D";
+    }
 
     interface LolChampionCardAttributes {
         "name": string;
         "splashArtUrl": string;
+        "roles": string;
+        "difficulty": number;
+    }
+    interface LolTierBadgeAttributes {
+        "tier": "S" | "A" | "B" | "C" | "D";
     }
 
     interface IntrinsicElements {
         "lol-champion-card": Omit<LolChampionCard, keyof LolChampionCardAttributes> & { [K in keyof LolChampionCard & keyof LolChampionCardAttributes]?: LolChampionCard[K] } & { [K in keyof LolChampionCard & keyof LolChampionCardAttributes as `attr:${K}`]?: LolChampionCardAttributes[K] } & { [K in keyof LolChampionCard & keyof LolChampionCardAttributes as `prop:${K}`]?: LolChampionCard[K] };
+        "lol-tier-badge": Omit<LolTierBadge, keyof LolTierBadgeAttributes> & { [K in keyof LolTierBadge & keyof LolTierBadgeAttributes]?: LolTierBadge[K] } & { [K in keyof LolTierBadge & keyof LolTierBadgeAttributes as `attr:${K}`]?: LolTierBadgeAttributes[K] } & { [K in keyof LolTierBadge & keyof LolTierBadgeAttributes as `prop:${K}`]?: LolTierBadge[K] };
     }
 }
 export { LocalJSX as JSX };
@@ -70,10 +123,13 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             /**
-             * Displays a League of Legends champion card with name and splash art.
-             * Stub — logic to be implemented in a later phase.
+             * Displays a League of Legends champion card with splash art, name, roles and difficulty.
              */
             "lol-champion-card": LocalJSX.IntrinsicElements["lol-champion-card"] & JSXBase.HTMLAttributes<HTMLLolChampionCardElement>;
+            /**
+             * Displays a color-coded tier badge (S / A / B / C / D) for LoL champion rankings.
+             */
+            "lol-tier-badge": LocalJSX.IntrinsicElements["lol-tier-badge"] & JSXBase.HTMLAttributes<HTMLLolTierBadgeElement>;
         }
     }
 }

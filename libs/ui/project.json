@@ -11,7 +11,7 @@
         "command": "pnpm stencil build",
         "cwd": "libs/ui"
       },
-      "outputs": ["{workspaceRoot}/dist/{projectRoot}", "{workspaceRoot}/loader", "{workspaceRoot}/www/{projectRoot}"]
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/loader", "{projectRoot}/src/react", "{projectRoot}/www"]
     },
     "lint": {
       "executor": "nx:run-commands",

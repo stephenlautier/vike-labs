@@ -1,7 +1,8 @@
+import type { JSX } from "react";
 import "./tailwind.css";
 import { usePageContext } from "vike-react/usePageContext";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }): JSX.Element {
 	return (
 		<div className="min-h-screen flex flex-col">
 			<Nav />
@@ -10,9 +11,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function Nav() {
+function Nav(): JSX.Element {
 	const pageContext = usePageContext();
-	const session = pageContext.session as { user?: { name?: string } } | null | undefined;
+	const session = pageContext.session;
 	const user = session?.user;
 
 	return (

@@ -5,4 +5,4 @@ export const tierAtom = atom<Tier | "all">("all");
 
 export const roleAtom = atom<ChampionRole | "all">("all");
 
-export const patchAtom = atom<string>("latest");
+export const patchAtom = atom("latest");

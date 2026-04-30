@@ -26,7 +26,8 @@
     "*.min.js",
     "*.min.css",
     // stencil
-    "components.d.ts"
+    "components.d.ts",
+    "libs/ui/**/*.md"
   ],
   "overrides": [
     {

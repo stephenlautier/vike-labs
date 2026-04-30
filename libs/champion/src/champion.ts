@@ -1,13 +1,15 @@
 import * as v from "valibot";
 
-// TODO: fill in all fields per AGENTS.md domain model
+import { ChampionRoleSchema } from "./champion-tier";
+
 export const ChampionSchema = v.object({
 	id: v.string(),
 	name: v.string(),
-	roles: v.array(v.string()),
+	roles: v.array(ChampionRoleSchema),
 	difficulty: v.pipe(v.number(), v.minValue(1), v.maxValue(10)),
 	stats: v.record(v.string(), v.number()),
 	splashArtUrl: v.string(),
+	squareIconUrl: v.string(),
 	lore: v.string(),
 });
 

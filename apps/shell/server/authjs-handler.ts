@@ -1,10 +1,12 @@
-import { Auth, type AuthConfig, createActionURL, setEnvDefaults } from "@auth/core";
+import { Auth, createActionURL, setEnvDefaults } from "@auth/core";
+import type { AuthConfig } from "@auth/core";
 import Auth0 from "@auth/core/providers/auth0";
 import CredentialsProvider from "@auth/core/providers/credentials";
 import type { Session } from "@auth/core/types";
-import { enhance, type UniversalHandler, type UniversalMiddleware } from "@universal-middleware/core";
+import { enhance } from "@universal-middleware/core";
+import type { UniversalHandler, UniversalMiddleware } from "@universal-middleware/core";
 
-const env: Record<string, string | undefined> = typeof process?.env !== "undefined" ? process.env : {};
+const env: Record<string, string | undefined> = process?.env ?? {};
 
 const authjsConfig = {
 	basePath: "/api/auth",
@@ -47,11 +49,20 @@ export async function getSession(req: Request, config: Omit<AuthConfig, "raw">):
 	const url = createActionURL("session", requestURL.protocol, req.headers, process.env, config);
 
 	const response = await Auth(new Request(url, { headers: { cookie: req.headers.get("cookie") ?? "" } }), config);
-	const data = await response.json();
+	const data: unknown = await response.json();
 
-	if (!data || !Object.keys(data).length) return null;
-	if (response.status === 200) return data as Session;
-	throw new Error(typeof data === "object" && "message" in data ? (data.message as string) : undefined);
+	if (!data || typeof data !== "object" || Object.keys(data).length === 0) {
+		return null;
+	}
+	if (response.status === 200) {
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Auth.js session response validated by status code
+		return data as Session;
+	}
+	const message =
+		"message" in data && typeof (data as { message: unknown }).message === "string"
+			? String((data as { message: unknown }).message)
+			: undefined;
+	throw new Error(message);
 }
 
 // Note: You can directly define a server middleware instead of defining a Universal Middleware. (You can remove @universal-middleware/* — Vike's scaffolder uses it only to simplify its internal logic, see https://github.com/vikejs/vike/discussions/3116)
@@ -87,14 +98,9 @@ export const authjsSessionMiddleware: UniversalMiddleware = enhance(
  * Auth.js route
  * @link {@see https://authjs.dev/getting-started/installation}
  **/
-export const authjsHandler = enhance(
-	async request => {
-		return Auth(request, authjsConfig);
-	},
-	{
-		name: "my-app:authjs-handler",
-		path: "/api/auth/**",
-		method: ["GET", "POST"],
-		immutable: false,
-	},
-) satisfies UniversalHandler;
+export const authjsHandler = enhance(async request => Auth(request, authjsConfig), {
+	name: "my-app:authjs-handler",
+	path: "/api/auth/**",
+	method: ["GET", "POST"],
+	immutable: false,
+}) satisfies UniversalHandler;

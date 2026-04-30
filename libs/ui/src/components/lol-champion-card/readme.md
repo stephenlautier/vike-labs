@@ -5,15 +5,16 @@
 
 ## Overview
 
-Displays a League of Legends champion card with name and splash art.
-Stub — logic to be implemented in a later phase.
+Displays a League of Legends champion card with splash art, name, roles and difficulty.
 
 ## Properties
 
-| Property       | Attribute        | Description                    | Type     | Default |
-| -------------- | ---------------- | ------------------------------ | -------- | ------- |
-| `name`         | `name`           | Champion name                  | `string` | `""`    |
-| `splashArtUrl` | `splash-art-url` | URL to the champion splash art | `string` | `""`    |
+| Property       | Attribute        | Description                                        | Type     | Default |
+| -------------- | ---------------- | -------------------------------------------------- | -------- | ------- |
+| `difficulty`   | `difficulty`     | Difficulty rating 1–10                             | `number` | `1`     |
+| `name`         | `name`           | Champion name                                      | `string` | `""`    |
+| `roles`        | `roles`          | Comma-separated list of roles (e.g. "Mid,Support") | `string` | `""`    |
+| `splashArtUrl` | `splash-art-url` | URL to the champion splash art                     | `string` | `""`    |
 
 
 ----------------------------------------------
