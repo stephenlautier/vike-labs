@@ -33,12 +33,12 @@ export function SignOutButton(): JSX.Element {
 				const body = new URLSearchParams();
 				body.set("csrfToken", csrfPayload.csrfToken);
 				body.set("callbackUrl", "/");
-				body.set("json", "true");
 				await fetch("/api/auth/signout", {
 					method: "POST",
 					headers: {
 						"content-type": "application/x-www-form-urlencoded",
 						accept: "application/json",
+						"x-auth-return-redirect": "1",
 					},
 					body,
 					credentials: "include",

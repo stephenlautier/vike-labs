@@ -37,21 +37,24 @@ async function submitCredentials(form: HTMLFormElement, callbackUrl: string): Pr
 	}
 	body.set("csrfToken", csrfPayload.csrfToken);
 	body.set("callbackUrl", callbackUrl);
-	body.set("json", "true");
 
 	const res = await fetch("/api/auth/callback/credentials", {
 		method: "POST",
 		headers: {
 			"content-type": "application/x-www-form-urlencoded",
 			accept: "application/json",
+			// Tells Auth.js to respond with `{ url }` JSON instead of issuing
+			// a 302 redirect — so we don't end up following the redirect to
+			// the callbackUrl page (which would return HTML and break `.json()`).
+			"x-auth-return-redirect": "1",
 		},
 		body,
 		credentials: "include",
 		redirect: "follow",
 	});
 
-	// With `json=true` Auth.js responds JSON `{ url }` on success, or
-	// `{ url: ".../login?error=..." }` on failure — no redirect to follow.
+	// Auth.js (with the `x-auth-return-redirect` header) responds with JSON
+	// `{ url }` — callbackUrl on success, or `.../login?error=...` on failure.
 	if (!res.ok) {
 		throw new Error(`callback HTTP ${res.status}`);
 	}
