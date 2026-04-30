@@ -1,6 +1,6 @@
 import { Component, Element, Event, EventEmitter, Prop, State, h } from "@stencil/core";
 
-import type { PlayerSummary } from "../../data/mock";
+import type { MatchEntry, PlayerChampionEntry, PlayerSummary } from "../../data/mock";
 
 type SubRoute = "overview" | "champions" | "matches";
 
@@ -26,6 +26,15 @@ export class RiftPlayerApp {
 
 	/** Authenticated user. JSON-serializable so SSR/DSD can roundtrip it. */
 	@Prop() user?: PlayerSummary;
+
+	/** Top champions by mastery, forwarded to `<rift-player-overview>`. */
+	@Prop() topMastery?: PlayerChampionEntry[];
+
+	/** Owned champions, forwarded to `<rift-player-champions>`. */
+	@Prop() ownedChampions?: PlayerChampionEntry[];
+
+	/** Match history, forwarded to `<rift-player-matches>`. */
+	@Prop() matchHistory?: MatchEntry[];
 
 	/** Initial sub-route, used by the host to deep-link e.g. /player/match-history. */
 	@Prop({ mutable: true }) initialRoute: SubRoute = "overview";
@@ -61,17 +70,13 @@ export class RiftPlayerApp {
 	}
 
 	private renderActive() {
-		const user = this.user;
 		switch (this.route) {
-			case "champions": {
-				return <rift-player-champions />;
-			}
-			case "matches": {
-				return <rift-player-matches />;
-			}
-			default: {
-				return <rift-player-overview user={user} />;
-			}
+			case "champions":
+				return <rift-player-champions ownedChampions={this.ownedChampions}></rift-player-champions>;
+			case "matches":
+				return <rift-player-matches matchHistory={this.matchHistory}></rift-player-matches>;
+			default:
+				return <rift-player-overview user={this.user} topMastery={this.topMastery}></rift-player-overview>;
 		}
 	}
 

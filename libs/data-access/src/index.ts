@@ -13,3 +13,12 @@ export type { TierListFilters, UseTierListResult } from "./tier-list/tier-list.h
 // ── Player ───────────────────────────────────────────────────────────────────
 export { useMatchHistory, usePlayer, usePlayerChampions } from "./player/player.hooks";
 export type { UseMatchHistoryResult, UsePlayerChampionsResult, UsePlayerResult } from "./player/player.hooks";
+
+// Framework-agnostic helper for non-React consumers (Stencil, vanilla JS).
+export { fetchPlayerSummary } from "./player/player-summary";
+export type {
+	PlayerSummary,
+	PlayerSummaryChampion,
+	PlayerSummaryMatch,
+	PlayerSummaryUser,
+} from "./player/player-summary";

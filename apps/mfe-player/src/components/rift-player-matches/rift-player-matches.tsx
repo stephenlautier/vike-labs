@@ -1,6 +1,6 @@
-import { Component, h } from "@stencil/core";
+import { Component, Prop, h } from "@stencil/core";
 
-import { MOCK_MATCH_HISTORY, formatDuration } from "../../data/mock";
+import { MOCK_MATCH_HISTORY, type MatchEntry, formatDuration } from "../../data/mock";
 
 @Component({
 	tag: "rift-player-matches",
@@ -8,7 +8,11 @@ import { MOCK_MATCH_HISTORY, formatDuration } from "../../data/mock";
 	shadow: true,
 })
 export class RiftPlayerMatches {
+	/** Match history. Falls back to mock data when not provided. */
+	@Prop() matchHistory?: MatchEntry[];
+
 	render() {
+		const rows = this.matchHistory && this.matchHistory.length > 0 ? this.matchHistory : MOCK_MATCH_HISTORY;
 		return (
 			<div>
 				<h2 class="heading">Match History</h2>
@@ -23,7 +27,7 @@ export class RiftPlayerMatches {
 						</tr>
 					</thead>
 					<tbody>
-						{MOCK_MATCH_HISTORY.map(m => (
+						{rows.map(m => (
 							<tr key={m.id}>
 								<td>{m.championName}</td>
 								<td>{m.role}</td>
