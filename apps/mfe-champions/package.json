@@ -12,6 +12,7 @@
   "dependencies": {
     "@radix-ui/react-icons": "catalog:",
     "@rift/champion": "workspace:^",
+    "@rift/data-access": "workspace:^",
     "@rift/ui": "workspace:^",
     "@universal-middleware/core": "catalog:",
     "@vikejs/hono": "catalog:",

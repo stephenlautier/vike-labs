@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth/core": "catalog:",
     "@radix-ui/react-icons": "catalog:",
+    "@rift/auth": "workspace:*",
     "@universal-middleware/core": "catalog:",
     "@vikejs/hono": "catalog:",
     "class-variance-authority": "catalog:",

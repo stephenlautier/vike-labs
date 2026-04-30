@@ -8,13 +8,18 @@ import type { UniversalHandler, UniversalMiddleware } from "@universal-middlewar
 
 const env: Record<string, string | undefined> = process?.env ?? {};
 
-const authjsConfig = {
+/**
+ * Shared Auth.js configuration used by both the shell server (which serves
+ * `/api/auth/**`) and the standalone API (which only verifies sessions).
+ *
+ * `secret` is read from `AUTH_SECRET`; in dev a fallback keeps the workspace
+ * runnable but production deploys MUST set it.
+ */
+export const authjsConfig = {
 	basePath: "/api/auth",
 	trustHost: true,
-	// TODO: Replace secret {@see https://authjs.dev/reference/core#secret}
-	secret: "MY_SECRET",
+	secret: env.AUTH_SECRET ?? "MY_SECRET",
 	providers: [
-		// TODO: Choose and implement providers
 		CredentialsProvider({
 			name: "Credentials",
 			credentials: {
@@ -22,33 +27,38 @@ const authjsConfig = {
 				password: { label: "Password", type: "password" },
 			},
 			async authorize() {
-				// Add logic here to look up the user from the credentials supplied
 				const user = { id: "1", name: "J Smith", email: "jsmith@example.com" };
-
-				// Any object returned will be saved in `user` property of the JWT
-				// If you return null then an error will be displayed advising the user to check their details.
-				// You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
 				return user ?? null;
 			},
 		}),
 
 		Auth0({
-			issuer: env.AUTH0_ISSUER_BASE_URL,
-			clientId: env.AUTH0_CLIENT_ID,
-			clientSecret: env.AUTH0_CLIENT_SECRET,
+			issuer: env.AUTH0_ISSUER_BASE_URL ?? "",
+			clientId: env.AUTH0_CLIENT_ID ?? "",
+			clientSecret: env.AUTH0_CLIENT_SECRET ?? "",
 		}),
 	],
 } satisfies Omit<AuthConfig, "raw">;
 
+export type RiftSession = Session;
+
 /**
- * Retrieve Auth.js session from Request
+ * Retrieve the Auth.js session for a Request by re-issuing the
+ * `/api/auth/session` lookup with the request's cookies. Returns `null` for
+ * unauthenticated requests; throws on Auth.js error responses.
  */
-export async function getSession(req: Request, config: Omit<AuthConfig, "raw">): Promise<Session | null> {
+export async function getSession(
+	req: Request,
+	config: Omit<AuthConfig, "raw"> = authjsConfig,
+): Promise<RiftSession | null> {
 	setEnvDefaults(process.env, config);
 	const requestURL = new URL(req.url);
 	const url = createActionURL("session", requestURL.protocol, req.headers, process.env, config);
 
-	const response = await Auth(new Request(url, { headers: { cookie: req.headers.get("cookie") ?? "" } }), config);
+	const response = await Auth(
+		new Request(url, { headers: { cookie: req.headers.get("cookie") ?? "" } }),
+		config,
+	);
 	const data: unknown = await response.json();
 
 	if (!data || typeof data !== "object" || Object.keys(data).length === 0) {
@@ -56,7 +66,7 @@ export async function getSession(req: Request, config: Omit<AuthConfig, "raw">):
 	}
 	if (response.status === 200) {
 		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Auth.js session response validated by status code
-		return data as Session;
+		return data as RiftSession;
 	}
 	const message =
 		"message" in data && typeof (data as { message: unknown }).message === "string"
@@ -65,18 +75,15 @@ export async function getSession(req: Request, config: Omit<AuthConfig, "raw">):
 	throw new Error(message);
 }
 
-// Note: You can directly define a server middleware instead of defining a Universal Middleware. (You can remove @universal-middleware/* — Vike's scaffolder uses it only to simplify its internal logic, see https://github.com/vikejs/vike/discussions/3116)
 /**
- * Add Auth.js session to the context.
- * @link {@see https://authjs.dev/getting-started/session-management/get-session}
+ * Universal middleware that adds `session` (Auth.js Session or null) to the
+ * request context. Consumed by Vike via `pageContext.session`.
  */
 export const authjsSessionMiddleware: UniversalMiddleware = enhance(
-	// The context we add here is automatically merged into pageContext
 	async (request, context) => {
 		try {
 			return {
 				...context,
-				// Sets pageContext.session
 				session: await getSession(request, authjsConfig),
 			};
 		} catch (error) {
@@ -88,18 +95,16 @@ export const authjsSessionMiddleware: UniversalMiddleware = enhance(
 		}
 	},
 	{
-		name: "my-app:authjs-middleware",
+		name: "rift:authjs-middleware",
 		immutable: false,
 	},
 );
 
-// Note: You can directly define a server middleware instead of defining a Universal Middleware. (You can remove @universal-middleware/* — Vike's scaffolder uses it only to simplify its internal logic, see https://github.com/vikejs/vike/discussions/3116)
 /**
- * Auth.js route
- * @link {@see https://authjs.dev/getting-started/installation}
- **/
+ * Auth.js HTTP handler — mounted by the shell at `/api/auth/**`.
+ */
 export const authjsHandler = enhance(async request => Auth(request, authjsConfig), {
-	name: "my-app:authjs-handler",
+	name: "rift:authjs-handler",
 	path: "/api/auth/**",
 	method: ["GET", "POST"],
 	immutable: false,

@@ -1,5 +1,5 @@
 import type { Champion, ChampionAbility, ChampionSkin } from "@rift/champion";
-import { SEED_ABILITIES, SEED_CHAMPIONS, SEED_SKINS } from "@rift/champion";
+import { createApiClient } from "@rift/data-access";
 import { render } from "vike/abort";
 import type { PageContextServer } from "vike/types";
 
@@ -8,13 +8,14 @@ export type Data = Champion & {
 	skins: ChampionSkin[];
 };
 
+const API_URL = process.env.RIFT_API_URL ?? "http://localhost:3100";
+
 export async function data(pageContext: PageContextServer): Promise<Data> {
 	const { id } = pageContext.routeParams;
-	const champion = SEED_CHAMPIONS.find(c => c.id === id);
-	if (!champion) {
-		throw render(404);
-	}
-	const abilities = SEED_ABILITIES.filter(a => a.championId === id);
-	const skins = SEED_SKINS.filter(s => s.championId === id);
+	const client = createApiClient(API_URL);
+	const res = await client.champions[":id"].$get({ param: { id } });
+	if (res.status === 404) throw render(404);
+	if (!res.ok) throw new Error(`Failed to load champion ${id}: HTTP ${res.status}`);
+	const { champion, abilities, skins } = await res.json();
 	return { ...champion, abilities, skins };
 }

@@ -1,0 +1,77 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/api/src",
+  "tags": ["type:app", "scope:api"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "options": {
+        "outputPath": "{projectRoot}/dist",
+        "tsConfig": "{projectRoot}/tsconfig.json",
+        "packageJson": "{projectRoot}/package.json",
+        "main": "{projectRoot}/src/index.ts",
+        "assets": []
+      },
+      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": ["^build"]
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm dev",
+        "cwd": "apps/api"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm start",
+        "cwd": "apps/api"
+      },
+      "dependsOn": ["build"]
+    },
+    "db:push": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm db:push",
+        "cwd": "apps/api"
+      }
+    },
+    "db:seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm db:seed",
+        "cwd": "apps/api"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm oxlint src/",
+        "cwd": "apps/api"
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "configFile": "apps/api/vitest.config.ts"
+      }
+    },
+    "fmt": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm oxfmt src/",
+        "cwd": "apps/api"
+      }
+    },
+    "fmt:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm oxfmt --check src/",
+        "cwd": "apps/api"
+      }
+    }
+  }
+}

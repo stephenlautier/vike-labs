@@ -1,5 +1,5 @@
 {
-  "name": "@rift/data-access",
+  "name": "@rift/auth",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -12,15 +12,10 @@
     }
   },
   "dependencies": {
-    "@rift/champion": "workspace:*",
-    "@rift/player": "workspace:*",
-    "hono": "catalog:"
+    "@auth/core": "catalog:",
+    "@universal-middleware/core": "catalog:"
   },
   "devDependencies": {
-    "@rift/api": "workspace:*",
-    "@types/react": "catalog:"
-  },
-  "peerDependencies": {
-    "react": ">=19.0.0"
+    "@types/node": "catalog:"
   }
 }

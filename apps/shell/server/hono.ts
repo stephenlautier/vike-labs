@@ -1,7 +1,6 @@
+import { authjsHandler, authjsSessionMiddleware } from "@rift/auth";
 import vike from "@vikejs/hono";
 import { Hono } from "hono";
-
-import { authjsHandler, authjsSessionMiddleware } from "./authjs-handler";
 
 function getApp() {
 	const app = new Hono();

@@ -1,7 +1,7 @@
 import type { Tier } from "@rift/champion";
 import { LolTierBadge } from "@rift/ui/react";
 
-import type { EnrichedTierEntry } from "../../server/tier-list-handler";
+import type { EnrichedTierEntry } from "../../pages/index/+data";
 
 type Props = {
 	tier: Tier;
