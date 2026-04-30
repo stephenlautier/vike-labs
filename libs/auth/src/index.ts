@@ -55,10 +55,7 @@ export async function getSession(
 	const requestURL = new URL(req.url);
 	const url = createActionURL("session", requestURL.protocol, req.headers, process.env, config);
 
-	const response = await Auth(
-		new Request(url, { headers: { cookie: req.headers.get("cookie") ?? "" } }),
-		config,
-	);
+	const response = await Auth(new Request(url, { headers: { cookie: req.headers.get("cookie") ?? "" } }), config);
 	const data: unknown = await response.json();
 
 	if (!data || typeof data !== "object" || Object.keys(data).length === 0) {

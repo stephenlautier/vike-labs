@@ -12,8 +12,4 @@ export type { TierListFilters, UseTierListResult } from "./tier-list/tier-list.h
 
 // ── Player ───────────────────────────────────────────────────────────────────
 export { useMatchHistory, usePlayer, usePlayerChampions } from "./player/player.hooks";
-export type {
-	UseMatchHistoryResult,
-	UsePlayerChampionsResult,
-	UsePlayerResult,
-} from "./player/player.hooks";
+export type { UseMatchHistoryResult, UsePlayerChampionsResult, UsePlayerResult } from "./player/player.hooks";

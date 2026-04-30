@@ -27,7 +27,8 @@
     "*.min.css",
     // stencil
     "components.d.ts",
-    "libs/ui/**/*.md"
+    "libs/ui/**/*.md",
+    "apps/mfe-player/**/*.md"
   ],
   "overrides": [
     {

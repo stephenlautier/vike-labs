@@ -11,11 +11,7 @@ const PlayerChampionsSchema = v.array(PlayerChampionSchema);
 const PlayerMatchesSchema = v.array(PlayerMatchEntrySchema);
 
 async function loadPlayerByAuth0Sub(auth0Sub: string) {
-	const player = await db
-		.select()
-		.from(schema.players)
-		.where(eq(schema.players.auth0Sub, auth0Sub))
-		.get();
+	const player = await db.select().from(schema.players).where(eq(schema.players.auth0Sub, auth0Sub)).get();
 	if (!player) throw new HTTPException(404, { message: "Player not found" });
 	return player;
 }
@@ -41,10 +37,6 @@ export const playerRoute = new Hono<{ Variables: AuthVariables }>()
 	.get("/me/matches", async c => {
 		const session = c.get("session");
 		const player = await loadPlayerByAuth0Sub(session!.user!.id!);
-		const rows = await db
-			.select()
-			.from(schema.playerMatches)
-			.where(eq(schema.playerMatches.playerId, player.id))
-			.all();
+		const rows = await db.select().from(schema.playerMatches).where(eq(schema.playerMatches.playerId, player.id)).all();
 		return c.json(v.parse(PlayerMatchesSchema, rows));
 	});

@@ -20,11 +20,7 @@ export const championsRoute = new Hono()
 	})
 	.get("/:id", async c => {
 		const id = c.req.param("id");
-		const champion = await db
-			.select()
-			.from(schema.champions)
-			.where(eq(schema.champions.id, id))
-			.get();
+		const champion = await db.select().from(schema.champions).where(eq(schema.champions.id, id)).get();
 		if (!champion) throw new HTTPException(404, { message: `Champion ${id} not found` });
 
 		const abilities = await db
@@ -32,11 +28,7 @@ export const championsRoute = new Hono()
 			.from(schema.championAbilities)
 			.where(eq(schema.championAbilities.championId, id))
 			.all();
-		const skins = await db
-			.select()
-			.from(schema.championSkins)
-			.where(eq(schema.championSkins.championId, id))
-			.all();
+		const skins = await db.select().from(schema.championSkins).where(eq(schema.championSkins.championId, id)).all();
 
 		return c.json(
 			v.parse(ChampionDetailSchema, {
