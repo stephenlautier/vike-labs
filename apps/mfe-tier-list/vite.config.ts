@@ -1,0 +1,61 @@
+import { federation } from "@module-federation/vite";
+import react from "@vitejs/plugin-react";
+import path from "node:path";
+import { defineConfig } from "vite";
+
+/**
+ * `mfe-tier-list` is a Module Federation **remote** (Phase D-A). See
+ * `apps/mfe-champions/vite.config.ts` for the architectural notes — this
+ * file is the same shape with a different `name` / `exposes`.
+ */
+export default defineConfig({
+	plugins: [
+		react(),
+		federation({
+			name: "mfe-tier-list",
+			filename: "remoteEntry.js",
+			exposes: {
+				"./pages/tier-list": "./src/pages/tier-list/Page.tsx",
+			},
+			shared: {
+				react: { singleton: true, requiredVersion: "^19.0.0" },
+				"react/": {},
+				"react-dom": { singleton: true, requiredVersion: "^19.0.0" },
+				"react-dom/": {},
+				vike: { singleton: true },
+				"vike-react": { singleton: true },
+				jotai: { singleton: true },
+			},
+			manifest: true,
+			// `@module-federation/dts-plugin` peer-requires TS ^4–5 (we run TS 6) and
+			// runs a `tsc` over `exposes` whose path-alias imports cause `.d.ts`
+			// files to leak into `libs/*/src/`. The shell consumes our pages via
+			// the package `exports` map, so MF type sharing is unnecessary.
+			dts: false,
+		}),
+	],
+	resolve: {
+		// Most-specific subpath aliases must come before the base package alias.
+		alias: [
+			{ find: "@rift/ui/react", replacement: path.resolve(__dirname, "../../libs/ui/src/react/components.ts") },
+			{ find: "@rift/ui/dist/components", replacement: path.resolve(__dirname, "../../libs/ui/dist/components") },
+			{ find: "@rift/ui", replacement: path.resolve(__dirname, "../../libs/ui/src/index.ts") },
+			{ find: "@rift/champion", replacement: path.resolve(__dirname, "../../libs/champion/src/index.ts") },
+			{ find: "@rift/data-access", replacement: path.resolve(__dirname, "../../libs/data-access/src/index.ts") },
+		],
+	},
+	build: {
+		target: "esnext",
+		minify: true,
+		cssCodeSplit: false,
+	},
+	server: {
+		port: 3002,
+		strictPort: true,
+		origin: process.env.MFE_TIER_LIST_URL ?? "http://localhost:3002",
+	},
+	preview: {
+		port: 3002,
+		strictPort: true,
+	},
+});

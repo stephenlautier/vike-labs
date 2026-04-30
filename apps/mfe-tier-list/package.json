@@ -1,13 +1,17 @@
 {
   "name": "@rift/mfe-tier-list",
-  "type": "module",
   "private": true,
+  "files": [
+    "src"
+  ],
+  "type": "module",
   "exports": {
     "./pages/tier-list": "./src/pages/tier-list/Page.tsx",
     "./pages/tier-list/data": "./src/pages/tier-list/data.ts"
   },
-  "files": ["src"],
   "scripts": {
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "oxlint --type-aware ."
   },
   "dependencies": {
@@ -16,14 +20,18 @@
     "@rift/ui": "workspace:^",
     "jotai": "catalog:",
     "react": "catalog:",
+    "react-dom": "catalog:",
     "vike": "catalog:",
     "vike-react": "catalog:"
   },
   "devDependencies": {
+    "@module-federation/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

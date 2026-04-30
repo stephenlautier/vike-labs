@@ -5,6 +5,19 @@ dist
 tmp
 /out-tsc
 
+# Module Federation generated artifacts (per-MFE local cache)
+**/.mf
+**/.federation
+**/.__mf__temp
+
+# Stray TypeScript declaration outputs in source folders.
+# These should never be committed — `.d.ts` files belong in `dist/` only.
+# (Real hand-authored ambient declarations should live in `*.d.ts` files
+# under a clearly-named folder e.g. `types/` or `global.d.ts` at app root.)
+libs/*/src/**/*.d.ts
+libs/*/src/**/*.d.ts.map
+libs/*/src/**/*.js.map
+
 # dependencies
 node_modules
 

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>mfe-champions remote (dev)</title>
+	</head>
+	<body>
+		<!--
+			This page only exists so `vite build` has an HTML entry. The MFE is
+			never visited directly in production — it is consumed via Module
+			Federation by `apps/shell`. The dev page below renders the
+			`champions-list` exposed module so you can smoke-test the remote
+			in isolation (`pnpm nx run mfe-champions:preview`).
+		-->
+		<div id="root"></div>
+		<script type="module" src="/src/main.tsx"></script>
+	</body>
+</html>

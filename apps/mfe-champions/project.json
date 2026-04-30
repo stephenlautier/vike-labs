@@ -5,6 +5,23 @@
   "sourceRoot": "apps/mfe-champions/src",
   "tags": ["type:lib", "scope:champions"],
   "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm build",
+        "cwd": "apps/mfe-champions"
+      },
+      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": ["^build"]
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm preview",
+        "cwd": "apps/mfe-champions"
+      },
+      "dependsOn": ["build"]
+    },
     "lint": {
       "executor": "nx:run-commands",
       "options": {

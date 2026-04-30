@@ -720,22 +720,91 @@ live in their own packages and are imported.
 
 ### Phase D — Introduce Module Federation for horizontal MFEs
 
-Outcome: horizontal MFEs are independently buildable & deployable; their
-bundles are loaded at runtime and **share** React/vike-react with shell.
+> **Implementation note (April 2026):** Phase D is split into two sub-phases.
+> **D-A** lands first as a low-risk client-only setup; **D-B** is the harder
+> SSR-dynamic flow that we'll attempt only once D-A is stable.
 
-- D.1. Add `@module-federation/vite` to shell + horizontal MFE
-  `vite.config.ts`.
-- D.2. Configure each horizontal MFE as a `remote` exposing `./routes` and
-  `./App`.
-- D.3. Configure shell as `host` with `shared: { singleton: true }` for the
-  list in §6.
-- D.4. Replace the in-tree imports from C.0b with `import("remote-champions/…")`
-  using Vite's `optimizeDeps.exclude` so dev mode hot-reload still works.
-- D.5. Add an env-driven manifest (`MFE_*_URL`) for prod.
-- D.6. Verify (dev): edit a champions page, see HMR in shell.
-- D.7. Verify (prod): build both apps separately, deploy mfe-champions to a
-  test URL, point shell at it, redeploy only the MFE → change visible without
-  shell rebuild.
+#### Phase D-A — Client-only Module Federation
+
+Outcome: horizontal MFEs are independently buildable & deployable for the
+**client** bundle. Shell SSR continues to import MFE pages in-tree (via the
+package `exports` map wired up in Phase C) so the rendered HTML is unchanged
+from a user's perspective. Redeploying an MFE updates only the post-hydration
+JavaScript — a new SSR-only field still requires a shell rebuild.
+
+- ✅ D-A.1. Add `@module-federation/vite` to shell + horizontal MFE
+  `vite.config.ts`. (Catalog entry added; per-MFE `vite.config.ts` created.)
+- ✅ D-A.2. Restore a minimal `vite.config.ts` per horizontal MFE that **builds
+  only** (no Vike, no app entrypoint) and emits `remoteEntry.js` exposing
+  the page modules. Each MFE has a tiny `index.html` + `src/main.tsx`
+  smoke-test entry (Vite needs an HTML entry; `vite preview` renders it
+  in isolation).
+- ✅ D-A.3. Configure each horizontal MFE as a `remote` with `exposes` for its
+  page surface (`./pages/champions-list`, `./pages/champion-detail`,
+  `./pages/tier-list`). Both `mfe-champions` and `mfe-tier-list` now emit
+  `dist/remoteEntry.js` + `dist/mf-manifest.json` via `pnpm nx run X:build`.
+- D-A.4. Configure shell as `host` with `shared: { singleton: true }` for
+  the list in §6.
+
+> **Sub-phase status (D-A.1–A.3 done):** MFE remote artifacts build green.
+> Notes for picking this back up:
+> - `react-dom/client` and other sub-paths require `"react/": {}` and
+>   `"react-dom/": {}` shared entries (in addition to the base `react` /
+>   `react-dom` singletons) so the MF prebuild can resolve them.
+> - `@rift/*` workspace packages are **not** declared as `shared` in the
+>   remotes — they're bundled into each remote. They're still aliased to
+>   the in-tree source so MFEs build without depending on lib `dist/`
+>   (mirrors the shell SSR alias setup from Phase C).
+> - `@rift/ui` needs sub-path aliases ordered most-specific first
+>   (`@rift/ui/react`, `@rift/ui/dist/components`, then `@rift/ui`).
+> - The "Module Federation DTS … #TYPE-001" warning is a peer-version
+>   mismatch (`@module-federation/dts-plugin` wants TS ^4–5; we're on TS 6).
+>   Non-blocking — emitted artifacts are correct.
+- D-A.5. Use Vike's `Page: () => import("...")` lazy form in the shell's
+  `+config.ts` so the client build resolves the import via MF runtime while
+  SSR continues to use the in-tree workspace alias. Use Vite
+  `optimizeDeps.exclude` so dev mode hot-reload still works.
+- D-A.6. Add an env-driven manifest (`MFE_*_URL`) for prod; default to local
+  dev URLs.
+- D-A.7. Verify (dev): edit a champions page, see HMR in the shell.
+- D-A.8. Verify (prod): build both apps separately, deploy mfe-champions to
+  a test URL, point shell at it, redeploy only the MFE → client-side change
+  visible without shell rebuild.
+
+#### Phase D-B — SSR-dynamic Module Federation (`mfe-ssr-dynamic`)
+
+Outcome: both shell SSR (Node) **and** the client load remotes at runtime.
+A new SSR-rendered field in an MFE page becomes visible without a shell
+rebuild. This is the genuine "independently deployable" target.
+
+- D-B.1. Adopt `@module-federation/vite` v1.15+ SSR flow (the plugin's
+  Node-side `remoteEntry` loader). Confirm the version targets we use
+  support `Hono` and a Node 24 runtime.
+- D-B.2. Each horizontal MFE's `vite.config.ts` emits **two** outputs: a
+  browser `remoteEntry.js` (consumed by shell client bundle) and a Node
+  `remoteEntry.cjs`/`remoteEntry.mjs` (consumed by the shell server).
+- D-B.3. Shell server (`apps/shell/server/hono.ts` or a small bootstrap
+  module) calls the MF runtime `init({ remotes: [...] })` once on cold
+  start, registering each MFE's Node `remoteEntry`.
+- D-B.4. Shell `+Page.tsx` re-exports become **single-source dynamic
+  imports** (`Page: () => import("mfe-champions/pages/champions-list")`)
+  that resolve via MF runtime in both Node and browser.
+- D-B.5. Add a manifest fetcher: shell server pulls `mf-manifest.json` from
+  each `MFE_*_URL` on startup (with a cache-bust on SIGHUP) so version
+  pinning is explicit and rollbacks are an env-var redeploy.
+- D-B.6. Add a smoke check that fails the shell health probe if any
+  `MFE_*_URL` is unreachable at boot — fail-fast beats serving partial HTML.
+- D-B.7. Verify: redeploy mfe-champions with a new SSR-only DOM node;
+  `curl shell/champions` returns the new HTML on the next request without
+  redeploying or restarting the shell.
+- D-B.8. Document the cache-poisoning risk: a malformed remote `remoteEntry`
+  must not be able to crash the shell process. Sandbox the MF init in a
+  try/catch with a fallback "MFE unavailable" page.
+
+> **Risk surface for D-B:** module-federation/vite SSR is newer than its
+> client flow; expect at least one round of upstream-issue diagnosis. If the
+> ROI is unclear, stay on D-A — most of the architectural value (shared
+> singletons, independent client deploy) is already there.
 
 ### Phase E — Convert mfe-player to vertical (Stencil)
 

@@ -12,6 +12,8 @@
     "./pages/champion-detail/data": "./src/pages/champion-detail/data.ts"
   },
   "scripts": {
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "oxlint --type-aware ."
   },
   "dependencies": {
@@ -19,14 +21,18 @@
     "@rift/data-access": "workspace:^",
     "@rift/ui": "workspace:^",
     "react": "catalog:",
+    "react-dom": "catalog:",
     "vike": "catalog:",
     "vike-react": "catalog:"
   },
   "devDependencies": {
+    "@module-federation/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }
