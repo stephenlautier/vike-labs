@@ -42,14 +42,19 @@ type RiftPlayerAppEl = HTMLElement & {
 export function PlayerHydrator(): null {
 	useEffect(() => {
 		let cancelled = false;
-		const cleanups: Array<() => void> = [];
+		const cleanups: (() => void)[] = [];
 
+		// oxlint-disable-next-line no-void
 		void (async () => {
 			await import("@rift/mfe-player/loader");
-			if (cancelled) return;
+			if (cancelled) {
+				return;
+			}
 
 			const el = document.querySelector<RiftPlayerAppEl>("rift-player-app");
-			if (!el) return;
+			if (!el) {
+				return;
+			}
 
 			// 1. Forward Stencil routechange → history.pushState (no Vike round-trip).
 			const onRouteChange = (event: Event) => {
@@ -60,7 +65,9 @@ export function PlayerHydrator(): null {
 				}
 			};
 			el.addEventListener("routechange", onRouteChange);
-			cleanups.push(() => el.removeEventListener("routechange", onRouteChange));
+			cleanups.push(() => {
+				el.removeEventListener("routechange", onRouteChange);
+			});
 
 			// 2. Browser back/forward → update the active tab via imperative method.
 			//    `setActiveRoute` (Stencil @Method) syncs internal state even when
@@ -69,7 +76,9 @@ export function PlayerHydrator(): null {
 				void el.setActiveRoute?.(subRouteFromUrl());
 			};
 			window.addEventListener("popstate", onPopState);
-			cleanups.push(() => window.removeEventListener("popstate", onPopState));
+			cleanups.push(() => {
+				window.removeEventListener("popstate", onPopState);
+			});
 
 			// 3. Fetch live data and hydrate props.
 			let summary;
@@ -80,7 +89,9 @@ export function PlayerHydrator(): null {
 				console.warn("[PlayerHydrator] fetchPlayerSummary failed", error);
 				return;
 			}
-			if (cancelled) return;
+			if (cancelled) {
+				return;
+			}
 			el.user = summary.user;
 			el.topMastery = summary.topMastery;
 			el.ownedChampions = summary.ownedChampions;
@@ -89,7 +100,9 @@ export function PlayerHydrator(): null {
 
 		return () => {
 			cancelled = true;
-			for (const fn of cleanups) fn();
+			for (const fn of cleanups) {
+				fn();
+			}
 		};
 	}, []);
 	return null;

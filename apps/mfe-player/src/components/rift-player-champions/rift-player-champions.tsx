@@ -1,6 +1,7 @@
 import { Component, Prop, h } from "@stencil/core";
 
-import { MOCK_OWNED_CHAMPIONS, type PlayerChampionEntry, formatPoints } from "../../data/mock";
+import { MOCK_OWNED_CHAMPIONS, formatPoints } from "../../data/mock";
+import type { PlayerChampionEntry } from "../../data/mock";
 
 @Component({
 	tag: "rift-player-champions",

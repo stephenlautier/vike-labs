@@ -1,6 +1,7 @@
 import { Component, Prop, h } from "@stencil/core";
 
-import { MOCK_MATCH_HISTORY, type MatchEntry, formatDuration } from "../../data/mock";
+import { MOCK_MATCH_HISTORY, formatDuration } from "../../data/mock";
+import type { MatchEntry } from "../../data/mock";
 
 @Component({
 	tag: "rift-player-matches",

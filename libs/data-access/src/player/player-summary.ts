@@ -9,29 +9,29 @@ import { createApiClient } from "../api-client";
  * the web component can render without further lookups (it has no React /
  * hook context).
  */
-export interface PlayerSummary {
+export type PlayerSummary = {
 	user: PlayerSummaryUser;
 	topMastery: PlayerSummaryChampion[];
 	ownedChampions: PlayerSummaryChampion[];
 	matches: PlayerSummaryMatch[];
-}
+};
 
-export interface PlayerSummaryUser {
+export type PlayerSummaryUser = {
 	id: string;
 	summonerName: string;
 	profileIconId: number;
 	summonerLevel: number;
-}
+};
 
-export interface PlayerSummaryChampion {
+export type PlayerSummaryChampion = {
 	championId: string;
 	championName: string;
 	masteryLevel: number;
 	masteryPoints: number;
 	owned: boolean;
-}
+};
 
-export interface PlayerSummaryMatch {
+export type PlayerSummaryMatch = {
 	id: string;
 	championId: string;
 	championName: string;
@@ -42,7 +42,7 @@ export interface PlayerSummaryMatch {
 	win: boolean;
 	gameDurationSec: number;
 	matchDate: string;
-}
+};
 
 /**
  * Framework-agnostic player fetch. Returns a fully denormalized
@@ -62,10 +62,18 @@ export async function fetchPlayerSummary(baseUrl: string): Promise<PlayerSummary
 		client.player.me.matches.$get(),
 	]);
 
-	if (!playerRes.ok) throw new Error(`player/me HTTP ${playerRes.status}`);
-	if (!championsRes.ok) throw new Error(`champions HTTP ${championsRes.status}`);
-	if (!playerChampionsRes.ok) throw new Error(`player/me/champions HTTP ${playerChampionsRes.status}`);
-	if (!matchesRes.ok) throw new Error(`player/me/matches HTTP ${matchesRes.status}`);
+	if (!playerRes.ok) {
+		throw new Error(`player/me HTTP ${playerRes.status}`);
+	}
+	if (!championsRes.ok) {
+		throw new Error(`champions HTTP ${championsRes.status}`);
+	}
+	if (!playerChampionsRes.ok) {
+		throw new Error(`player/me/champions HTTP ${playerChampionsRes.status}`);
+	}
+	if (!matchesRes.ok) {
+		throw new Error(`player/me/matches HTTP ${matchesRes.status}`);
+	}
 
 	const [player, champions, playerChampions, matches] = await Promise.all([
 		playerRes.json() as Promise<Player>,
@@ -85,7 +93,7 @@ export async function fetchPlayerSummary(baseUrl: string): Promise<PlayerSummary
 		owned: pc.owned,
 	}));
 
-	const topMastery = [...ownedChampions].sort((a, b) => b.masteryPoints - a.masteryPoints).slice(0, 3);
+	const topMastery = [...ownedChampions].toSorted((a, b) => b.masteryPoints - a.masteryPoints).slice(0, 3);
 
 	const summaryMatches: PlayerSummaryMatch[] = matches.map(m => ({
 		id: m.id,

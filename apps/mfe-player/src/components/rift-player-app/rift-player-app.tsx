@@ -56,7 +56,9 @@ export class RiftPlayerApp {
 	 */
 	@Watch("initialRoute")
 	onInitialRouteChange(next: SubRoute) {
-		if (next !== this.route) this.route = next;
+		if (next !== this.route) {
+			this.route = next;
+		}
 	}
 
 	/**
@@ -66,11 +68,15 @@ export class RiftPlayerApp {
 	 */
 	@Method()
 	async setActiveRoute(route: SubRoute): Promise<void> {
-		if (route !== this.route) this.route = route;
+		if (route !== this.route) {
+			this.route = route;
+		}
 	}
 
 	private go = (next: SubRoute) => {
-		if (next === this.route) return;
+		if (next === this.route) {
+			return;
+		}
 		this.route = next;
 		this.routeChange.emit({ path: ROUTE_TO_PATH[next], route: next });
 	};
@@ -89,12 +95,15 @@ export class RiftPlayerApp {
 
 	private renderActive() {
 		switch (this.route) {
-			case "champions":
+			case "champions": {
 				return <rift-player-champions ownedChampions={this.ownedChampions}></rift-player-champions>;
-			case "matches":
+			}
+			case "matches": {
 				return <rift-player-matches matchHistory={this.matchHistory}></rift-player-matches>;
-			default:
+			}
+			default: {
 				return <rift-player-overview user={this.user} topMastery={this.topMastery}></rift-player-overview>;
+			}
 		}
 	}
 
