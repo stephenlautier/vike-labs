@@ -7,7 +7,7 @@ export const PlayerSchema = v.object({
 	accountId: v.string(),
 	profileIconId: v.number(),
 	summonerLevel: v.number(),
-	auth0Sub: v.string(),
+	subjectId: v.string(),
 });
 
 export type Player = v.InferOutput<typeof PlayerSchema>;

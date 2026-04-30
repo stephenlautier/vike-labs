@@ -378,6 +378,9 @@ importers:
       '@rift/ui':
         specifier: workspace:^
         version: link:../../libs/ui
+      '@universal-middleware/core':
+        specifier: 'catalog:'
+        version: 0.4.17(hono@4.12.15)(srvx@0.11.15)
       '@vikejs/hono':
         specifier: 'catalog:'
         version: 0.2.0(hono@4.12.15)(srvx@0.11.15)(vike@0.4.257(hono@4.12.15)(react-streaming@0.4.17(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(srvx@0.11.15)(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.0)))

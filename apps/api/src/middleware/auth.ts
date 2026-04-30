@@ -1,8 +1,9 @@
 import { createMiddleware } from "hono/factory";
 
 /**
- * Minimal session shape consumed by routes. Auth0/Auth.js is currently
- * disabled — see `mockSession` below.
+ * Minimal session shape consumed by routes. The shell mints real Credentials
+ * sessions via Auth.js, but cross-origin session sharing with the api is not
+ * yet wired — see `mockSession` below.
  */
 export type MockSession = {
 	user: {
@@ -17,14 +18,16 @@ export type AuthVariables = {
 };
 
 /**
- * Mock session matching the seeded demo player (`auth0Sub: "auth0|rift-demo"`
- * in `src/db/seed.ts`). Auth0 is disabled for now; every request is treated
- * as the demo user so guarded routes (`/player/*`) work without a login flow.
+ * Mock session matching the seeded demo player (`subjectId: "rift-demo"`
+ * in `src/db/seed.ts`). The shell mints real Credentials sessions but the
+ * api currently can't read its cookie, so every request is treated as the
+ * demo user. TODO: cross-origin session verification (mint a JWT in the
+ * shell that the api can verify) — tracked separately.
  */
 const mockSession: MockSession = {
 	user: {
-		id: "auth0|rift-demo",
-		name: "Rift Demo",
+		id: "rift-demo",
+		name: "RiftDemo",
 		email: "demo@rift.local",
 	},
 };
@@ -38,8 +41,8 @@ export const sessionMiddleware = createMiddleware<{ Variables: AuthVariables }>(
 });
 
 /**
- * No-op while auth0 is disabled — the mock session always satisfies the
- * "authenticated user" requirement.
+ * No-op until cross-origin session verification is wired — the mock session
+ * always satisfies the "authenticated user" requirement.
  */
 export const requireUser = createMiddleware<{ Variables: AuthVariables }>(async (_c, next) => {
 	await next();

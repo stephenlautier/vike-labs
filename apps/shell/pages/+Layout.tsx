@@ -3,20 +3,27 @@ import "./tailwind.css";
 import { usePageContext } from "vike-react/usePageContext";
 
 import { Link } from "../components/Link";
+import { SignOutButton } from "../components/SignOutButton";
+import { ThemeProvider } from "../components/ThemeProvider";
+import { ThemeSwitcher } from "../components/ThemeSwitcher";
 
 export default function Layout({ children }: { children: React.ReactNode }): JSX.Element {
+	const pageContext = usePageContext();
 	return (
-		<div className="min-h-screen flex flex-col">
-			<Nav />
-			<main className="flex-1 container mx-auto px-4 py-8">{children}</main>
-		</div>
+		<ThemeProvider initialMode={pageContext.theme ?? "system"}>
+			<div className="min-h-screen flex flex-col">
+				<Nav />
+				<main className="flex-1 container mx-auto px-4 py-8">{children}</main>
+			</div>
+		</ThemeProvider>
 	);
 }
 
 function Nav(): JSX.Element {
 	const pageContext = usePageContext();
 	const session = pageContext.session;
-	const user = session?.user;
+	const player = pageContext.player;
+	const displayName = player?.summonerName ?? session?.user?.name ?? null;
 
 	return (
 		<header className="border-b border-border bg-background sticky top-0 z-10">
@@ -27,13 +34,16 @@ function Nav(): JSX.Element {
 					<Link href="/tier-list">Tier List</Link>
 					<Link href="/player">My Profile</Link>
 				</nav>
-				<div className="text-sm">
-					{user ? (
-						<span>
-							{user.name} &middot; <a href="/api/auth/signout">Sign out</a>
+				<div className="flex items-center gap-4 text-sm">
+					<ThemeSwitcher />
+					{displayName ? (
+						<span className="flex items-center gap-2">
+							<span>{displayName}</span>
+							<span className="text-muted-foreground">·</span>
+							<SignOutButton />
 						</span>
 					) : (
-						<a href="/api/auth/signin">Sign in</a>
+						<a href="/login">Sign in</a>
 					)}
 				</div>
 			</div>

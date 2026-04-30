@@ -1,6 +1,5 @@
 import { Auth, createActionURL, setEnvDefaults } from "@auth/core";
 import type { AuthConfig } from "@auth/core";
-import Auth0 from "@auth/core/providers/auth0";
 import CredentialsProvider from "@auth/core/providers/credentials";
 import type { Session } from "@auth/core/types";
 import { enhance } from "@universal-middleware/core";
@@ -9,45 +8,49 @@ import type { UniversalHandler, UniversalMiddleware } from "@universal-middlewar
 const env: Record<string, string | undefined> = process?.env ?? {};
 
 /**
+ * Demo credentials used by the local Credentials provider. The `id` matches
+ * the seeded player's `subjectId` so `session.user.id === players.subjectId`
+ * — that's how API routes resolve the signed-in player without any extra
+ * lookup table.
+ */
+const DEMO_USER = {
+	id: "rift-demo",
+	name: "RiftDemo",
+	email: "demo@rift.local",
+} as const;
+const DEMO_USERNAME = "rift-demo";
+const DEMO_PASSWORD = "demo";
+
+/**
  * Shared Auth.js configuration used by both the shell server (which serves
  * `/api/auth/**`) and the standalone API (which only verifies sessions).
  *
  * `secret` is read from `AUTH_SECRET`; in dev a fallback keeps the workspace
- * runnable but production deploys MUST set it.
- *
- * The Auth0 provider is only registered when its env vars are configured so
- * unconfigured local/dev/preview runs don't spam Auth.js `InvalidEndpoints`
- * errors on every request that touches `getSession`. Credentials provider
- * is always available so devs can still exercise the auth flow.
+ * runnable but production deploys MUST set it. Only the Credentials provider
+ * is wired — see `DEMO_USER` for accepted credentials. `pages.signIn` points
+ * Auth.js at the shell's custom `/login` page instead of the built-in form.
  */
-const auth0Configured = Boolean(env.AUTH0_ISSUER_BASE_URL && env.AUTH0_CLIENT_ID && env.AUTH0_CLIENT_SECRET);
-
 export const authjsConfig = {
 	basePath: "/api/auth",
 	trustHost: true,
 	secret: env.AUTH_SECRET ?? "MY_SECRET",
+	pages: {
+		signIn: "/login",
+	},
 	providers: [
 		CredentialsProvider({
 			name: "Credentials",
 			credentials: {
-				username: { label: "Username", type: "text", placeholder: "jsmith" },
+				username: { label: "Username", type: "text", placeholder: DEMO_USERNAME },
 				password: { label: "Password", type: "password" },
 			},
-			async authorize() {
-				const user = { id: "1", name: "J Smith", email: "jsmith@example.com" };
-				return user ?? null;
+			async authorize(credentials) {
+				if (credentials?.username === DEMO_USERNAME && credentials?.password === DEMO_PASSWORD) {
+					return { ...DEMO_USER };
+				}
+				return null;
 			},
 		}),
-
-		...(auth0Configured
-			? [
-					Auth0({
-						issuer: env.AUTH0_ISSUER_BASE_URL!,
-						clientId: env.AUTH0_CLIENT_ID!,
-						clientSecret: env.AUTH0_CLIENT_SECRET!,
-					}),
-				]
-			: []),
 	],
 } satisfies Omit<AuthConfig, "raw">;
 

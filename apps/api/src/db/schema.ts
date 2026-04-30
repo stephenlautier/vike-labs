@@ -58,13 +58,13 @@ export const players = sqliteTable(
 		accountId: text("account_id").notNull(),
 		profileIconId: integer("profile_icon_id").notNull(),
 		summonerLevel: integer("summoner_level").notNull(),
-		auth0Sub: text("auth0_sub").notNull(),
+		subjectId: text("subject_id").notNull(),
 		createdAt: integer("created_at", { mode: "timestamp" })
 			.notNull()
 			.default(sql`(unixepoch())`),
 	},
 	t => ({
-		auth0SubIdx: uniqueIndex("players_auth0_sub_idx").on(t.auth0Sub),
+		subjectIdIdx: uniqueIndex("players_subject_id_idx").on(t.subjectId),
 	}),
 );
 

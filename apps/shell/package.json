@@ -18,6 +18,7 @@
     "@rift/mfe-tier-list": "workspace:*",
     "@rift/styles": "workspace:*",
     "@rift/ui": "workspace:^",
+    "@universal-middleware/core": "catalog:",
     "@vikejs/hono": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",

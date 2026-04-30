@@ -146,9 +146,12 @@ export default defineConfig(({ command }) => ({
 	server: {
 		proxy: {
 			// In dev, browser fetches to `/api/*` are proxied to apps/api on :3100
-			// (with the `/api` prefix stripped). Auth.js routes (`/api/auth/**`) are
-			// served by the shell's own Hono server before reaching this proxy.
-			"/api": {
+			// (with the `/api` prefix stripped). The regex uses a negative
+			// lookahead so `/api/auth/**` is NOT matched here — those routes
+			// must reach the shell's own Hono server (`authjsHandler`) so the
+			// CSRF cookie set by `GET /api/auth/csrf` is read back by the
+			// callback POST on the same origin/handler.
+			"^/api/(?!auth(/|$)).*": {
 				target: process.env.RIFT_API_URL ?? "http://localhost:3100",
 				changeOrigin: true,
 				rewrite: p => p.replace(/^\/api/, ""),

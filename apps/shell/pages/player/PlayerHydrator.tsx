@@ -88,7 +88,7 @@ export function PlayerHydrator(): null {
 			// 3. Fetch live data and hydrate props.
 			let summary;
 			try {
-				summary = await fetchPlayerSummary("");
+				summary = await fetchPlayerSummary("/api");
 			} catch (error) {
 				// Unauthenticated / network error → leave SSR mock placeholder visible.
 				console.warn("[PlayerHydrator] fetchPlayerSummary failed", error);

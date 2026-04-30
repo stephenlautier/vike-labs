@@ -3,7 +3,7 @@
  *
  * Champions/abilities/skins/tiers come from `@rift/champion` (`SEED_*`
  * exports). A single sample player + match history is inserted with a
- * fixed `auth0Sub` so the local Credentials provider can resolve to it.
+ * fixed `subjectId` so the local Credentials provider can resolve to it.
  *
  * Run with: `pnpm nx run api:db:seed`
  */
@@ -13,11 +13,11 @@ import { db, schema } from "./client";
 
 const SAMPLE_PLAYER = {
 	id: "player-1",
-	summonerName: "RiftDemo",
+	summonerName: "chikohex",
 	accountId: "acc-rift-demo",
 	profileIconId: 4567,
 	summonerLevel: 247,
-	auth0Sub: "auth0|rift-demo",
+	subjectId: "rift-demo",
 };
 
 async function seed(): Promise<void> {

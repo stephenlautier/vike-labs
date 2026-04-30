@@ -49,11 +49,13 @@ export type PlayerSummaryMatch = {
  * `PlayerSummary` ready to be assigned to the `<rift-player-app>` custom
  * element's properties.
  *
- * Pass an empty `baseUrl` in the browser when `/api/*` is proxied; pass an
- * absolute URL on the server (Vike `+data.ts`).
+ * `baseUrl` is the full API base — the caller decides whether that includes
+ * an `/api` prefix or not. Use `"/api"` from the browser (so the shell's
+ * proxy is hit), and pass an absolute URL like `process.env.RIFT_API_URL`
+ * directly when calling from the server.
  */
 export async function fetchPlayerSummary(baseUrl: string): Promise<PlayerSummary> {
-	const client = createApiClient(`${baseUrl}/api`);
+	const client = createApiClient(baseUrl);
 
 	const [playerRes, championsRes, playerChampionsRes, matchesRes] = await Promise.all([
 		client.player.me.$get(),

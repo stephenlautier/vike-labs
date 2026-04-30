@@ -26,7 +26,7 @@ libs/
 | `ChampionAbility`  | id, slot (Q/W/E/R/P), name, description, cooldown, championId                        |
 | `ChampionTier`     | id, championId, tier (S/A/B/C/D), role, patch, winRate, pickRate                     |
 | `ChampionSkin`     | id, championId, name, rpPrice, splashArtUrl, rarity                                  |
-| `Player`           | id, summonerName, accountId, profileIconId, summonerLevel, auth0Sub                  |
+| `Player`           | id, summonerName, accountId, profileIconId, summonerLevel, subjectId                 |
 | `PlayerChampion`   | playerId, championId, masteryLevel, masteryPoints, owned                             |
 | `PlayerMatchEntry` | id, playerId, championId, role, kills, deaths, assists, win, gameDuration, matchDate |
 
@@ -52,23 +52,23 @@ pnpm run nx:reset                   # clear NX cache (use when builds behave une
 
 ## Tech Stack
 
-| Tool                                                                  | Role                                                  |
-| --------------------------------------------------------------------- | ----------------------------------------------------- |
-| [Vike](https://vike.dev/) + [vike-react](https://vike.dev/vike-react) | SSR/SSG framework (each MFE is a standalone Vike app) |
-| [React 19](https://react.dev/)                                        | UI framework                                          |
-| [StencilJS](https://stenciljs.com/)                                   | Core web components in `libs/ui`                      |
-| [Tailwind CSS v4](https://tailwindcss.com/)                           | Utility-first CSS                                     |
-| [shadcn/ui](https://ui.shadcn.com/)                                   | Component library (within each app)                   |
-| [Hono](https://hono.dev/)                                             | API server (each app has its own `+server.ts`)        |
-| [Auth.js](https://authjs.dev/) + [Auth0](https://auth0.com/)          | Authentication via `@auth/core` with Auth0 provider   |
-| [Module Federation](https://github.com/module-federation/vite)        | MFE runtime sharing via `@module-federation/vite`     |
-| [Jotai](https://jotai.org/)                                           | Atomic client-side state management                   |
-| [Vitest](https://vitest.dev/)                                         | Unit testing                                          |
-| [Playwright](https://playwright.dev/)                                 | E2E testing (`e2e/` folder per app)                   |
-| [Storybook 10](https://storybook.js.org/)                             | Component explorer for `libs/ui`                      |
-| [Oxlint](https://oxc.rs/docs/guide/usage/linter.html)                 | Fast linter (replaces ESLint)                         |
-| [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)               | Fast formatter (replaces Prettier)                    |
-| TypeScript 6                                                          | Strict mode enabled everywhere                        |
+| Tool                                                                  | Role                                                               |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [Vike](https://vike.dev/) + [vike-react](https://vike.dev/vike-react) | SSR/SSG framework (each MFE is a standalone Vike app)              |
+| [React 19](https://react.dev/)                                        | UI framework                                                       |
+| [StencilJS](https://stenciljs.com/)                                   | Core web components in `libs/ui`                                   |
+| [Tailwind CSS v4](https://tailwindcss.com/)                           | Utility-first CSS                                                  |
+| [shadcn/ui](https://ui.shadcn.com/)                                   | Component library (within each app)                                |
+| [Hono](https://hono.dev/)                                             | API server (each app has its own `+server.ts`)                     |
+| [Auth.js](https://authjs.dev/)                                        | Authentication via `@auth/core` with a Credentials provider (demo) |
+| [Module Federation](https://github.com/module-federation/vite)        | MFE runtime sharing via `@module-federation/vite`                  |
+| [Jotai](https://jotai.org/)                                           | Atomic client-side state management                                |
+| [Vitest](https://vitest.dev/)                                         | Unit testing                                                       |
+| [Playwright](https://playwright.dev/)                                 | E2E testing (`e2e/` folder per app)                                |
+| [Storybook 10](https://storybook.js.org/)                             | Component explorer for `libs/ui`                                   |
+| [Oxlint](https://oxc.rs/docs/guide/usage/linter.html)                 | Fast linter (replaces ESLint)                                      |
+| [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)               | Fast formatter (replaces Prettier)                                 |
+| TypeScript 6                                                          | Strict mode enabled everywhere                                     |
 
 ## Scaffolding a New Vike App
 
@@ -76,7 +76,7 @@ Use [Bati](https://github.com/vikejs/bati) (the Vike scaffolder) to create apps,
 
 ```bash
 cd apps
-pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --auth0 --hono --oxlint
+pnpm create vike@latest <app-name> --react --tailwindcss --shadcn-ui --hono --oxlint
 ```
 
 > After scaffolding: remove `.oxlintrc.json` (root `oxlint.config.ts` is used instead), remove nested `.git/`, update `tsconfig.json` to extend `../../tsconfig.base.json` and point `@/` at `./src/*`, update `vite.config.ts` to use `path.resolve(__dirname, "./src")` for the `@` alias, then add a `project.json` to register the app with NX. See an existing app's `project.json` as reference.
@@ -143,18 +143,18 @@ Each app uses `@/` as an alias for its own `src/` directory.
 
 ### Authentication & Route Access
 - **Public** (no auth required): `mfe-champions`, `mfe-tier-list`
-- **Private** (Auth0 login required): `apps/shell` + `mfe-player` — guarded via Auth.js session
-- Auth provider: [Auth.js](https://authjs.dev/) (`@auth/core`) with Auth0 provider — session accessible as `pageContext.session`
+- **Private** (login required): `apps/shell` + `mfe-player` — guarded via Auth.js session
+- Auth provider: [Auth.js](https://authjs.dev/) (`@auth/core`) with a Credentials provider (demo creds: `rift-demo` / `demo`) — session accessible as `pageContext.session`
 - Unauthenticated users hitting `mfe-player` routes are rejected by `+guard.ts` (throws `render(401)`)
-- Server-side: read `pageContext.session?.user` to identify the player; Auth0 `sub` comes from `session.user.id`
+- Server-side: read `pageContext.session?.user` to identify the player; `session.user.id` matches the seeded player's `subjectId`
 - Auth routes: `/api/auth/signin`, `/api/auth/signout`, `/api/auth/session` (handled by `server/authjs-handler.ts`)
 
 ### Player Profile (`mfe-player`)
-- Requires Auth0 authentication — all pages guarded by `pages/+guard.ts`
+- Requires authentication — all pages guarded by `pages/+guard.ts`
 - Displays top 3 champions by mastery points (from `PlayerChampion`)
 - Owned champions grid links through to `mfe-champions` detail pages
 - Match history table shows K/D/A, role, champion, win/loss, duration per `PlayerMatchEntry`
-- Player data is fetched server-side using the Auth0 `sub` from `pageContext.session?.user?.id`
+- Player data is fetched server-side using `session.user.id` (matches the seeded `subjectId`)
 
 ### State Management (Jotai)
 - Use Jotai atoms for UI filter state, user preferences, and cross-component derived state

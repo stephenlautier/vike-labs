@@ -11,8 +11,8 @@ import type { AuthVariables } from "../middleware/auth";
 const PlayerChampionsSchema = v.array(PlayerChampionSchema);
 const PlayerMatchesSchema = v.array(PlayerMatchEntrySchema);
 
-async function loadPlayerByAuth0Sub(auth0Sub: string): Promise<typeof schema.players.$inferSelect> {
-	const player = await db.select().from(schema.players).where(eq(schema.players.auth0Sub, auth0Sub)).get();
+async function loadPlayerBySubjectId(subjectId: string): Promise<typeof schema.players.$inferSelect> {
+	const player = await db.select().from(schema.players).where(eq(schema.players.subjectId, subjectId)).get();
 	if (!player) {
 		throw new HTTPException(404, { message: "Player not found" });
 	}
@@ -23,12 +23,12 @@ export const playerRoute = new Hono<{ Variables: AuthVariables }>()
 	.use("*", requireUser)
 	.get("/me", async c => {
 		const session = c.get("session");
-		const player = await loadPlayerByAuth0Sub(session.user.id);
+		const player = await loadPlayerBySubjectId(session.user.id);
 		return c.json(v.parse(PlayerSchema, player));
 	})
 	.get("/me/champions", async c => {
 		const session = c.get("session");
-		const player = await loadPlayerByAuth0Sub(session.user.id);
+		const player = await loadPlayerBySubjectId(session.user.id);
 		const rows = await db
 			.select()
 			.from(schema.playerChampions)
@@ -38,7 +38,7 @@ export const playerRoute = new Hono<{ Variables: AuthVariables }>()
 	})
 	.get("/me/matches", async c => {
 		const session = c.get("session");
-		const player = await loadPlayerByAuth0Sub(session.user.id);
+		const player = await loadPlayerBySubjectId(session.user.id);
 		const rows = await db.select().from(schema.playerMatches).where(eq(schema.playerMatches.playerId, player.id)).all();
 		return c.json(v.parse(PlayerMatchesSchema, rows));
 	});

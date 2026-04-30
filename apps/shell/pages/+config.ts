@@ -4,7 +4,7 @@ import type { Config } from "vike/types";
 const config: Config = {
 	title: "Rift — League of Legends",
 	description: "League of Legends companion app",
-	passToClient: ["session"],
+	passToClient: ["session", "player", "theme"],
 	extends: [vikeReact],
 	ssr: true,
 	// Stencil's React SSR wrapper (`@rift/ui/react`, `node` export) renders

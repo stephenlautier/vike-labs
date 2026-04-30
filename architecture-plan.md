@@ -45,7 +45,7 @@
 - Multi-region deployment / edge runtimes (out of scope for this plan).
 - A custom MFE registry — we'll use static URLs / env-driven manifests.
 - Replacing Vike. The shell stays Vike-first.
-- Replacing Auth.js or Auth0.
+- Replacing Auth.js.
 
 ---
 
@@ -233,8 +233,8 @@ No MFE routers, no business REST mounted.
 
 ### Auth flow
 
-- **Browser ↔ shell**: Auth.js (Auth0) sets a session cookie on the shell
-  origin. Shell middleware populates `pageContext.session` /
+- **Browser ↔ shell**: Auth.js (Credentials provider) sets a session cookie on
+  the shell origin. Shell middleware populates `pageContext.session` /
   `pageContext.user`. `passToClient: ["user"]` ships the sanitized user to
   every MFE.
 - **Browser ↔ API**: same-origin in dev (Vite proxies `/api/*` → API),
@@ -317,7 +317,7 @@ Responses are validated against the Valibot schemas in `libs/champion` /
 ### Database
 
 Drizzle tables mirror the Valibot schemas 1:1: champions, championAbilities,
-championSkins, championTiers, players (with `auth0Sub` unique linking to
+championSkins, championTiers, players (with `subjectId` unique linking to
 Auth.js identity), playerChampions, playerMatches.
 
 ### Seeding
@@ -325,8 +325,8 @@ Auth.js identity), playerChampions, playerMatches.
 `pnpm nx run api:db:seed`:
 1. Runs migrations (idempotent).
 2. Upserts `SEED_CHAMPIONS / ABILITIES / SKINS / TIERS` from `@rift/champion`.
-3. Creates a demo Player with a fixed `auth0Sub` so `mfe-player` works
-   end-to-end after a single Auth0 login.
+3. Creates a demo Player with a fixed `subjectId` so `mfe-player` works
+   end-to-end with the demo Credentials login.
 
 `dev` chains `db:push && db:seed && tsx watch src/index.ts`.
 

@@ -72,11 +72,11 @@ The shell-side bare-name imports (e.g. `mfe-champions/pages/champions-list`) are
 > dev servers. They publish pages as `exports` in their `package.json` and the
 > shell consumes them — directly in dev, via the federation runtime in prod.
 
-> **Auth note**: Auth0/Auth.js is currently disabled for local dev. The API
-> middleware injects a mock session for the seeded demo player
-> (`auth0|rift-demo`) so guarded `/player/*` routes work without a login flow.
-> Auth.js is still wired up via [libs/auth](libs/auth) and mounted at
-> `/api/auth/**` on the shell — set `AUTH0_*` + `AUTH_SECRET` to re-enable it.
+> **Auth note**: Auth.js is wired with a Credentials-only provider for local
+> dev (demo creds: `rift-demo` / `demo`). The shell exposes the session as
+> `pageContext.session`; the API currently uses a mock session matching the
+> seeded player (`subjectId: "rift-demo"`) because cross-origin session
+> verification between shell and api is not yet wired — tracked separately.
 
 ## Shared Libraries
 
@@ -210,21 +210,22 @@ pnpm nx:reset             # clear NX cache (use when builds behave unexpectedly)
 
 ## Authentication
 
-Auth0/Auth.js is **disabled** in this experiment for local dev convenience.
-The API middleware
+Auth.js is wired with a Credentials-only provider (no external IdP). Sign in
+at `/login` with the demo account `rift-demo` / `demo`. The API middleware
 ([apps/api/src/middleware/auth.ts](apps/api/src/middleware/auth.ts)) injects a
 mock session for the seeded demo player on every request, so `/player/*`
-routes resolve to that player without any login flow.
+routes resolve to that player without cross-origin session sharing.
 
-The wiring is still in place via [libs/auth](libs/auth):
+The wiring is in place via [libs/auth](libs/auth):
 
 - The shell mounts `authjsHandler` at `/api/auth/**` and
   `authjsSessionMiddleware` to expose the session as `pageContext.session`.
-- The API independently verifies sessions via the same `@rift/auth` config.
+- Sign in via `/login` (custom page) with the demo credentials
+  `rift-demo` / `demo`.
 
-To re-enable Auth0 end-to-end, set `AUTH0_ISSUER_BASE_URL`,
-`AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, and `AUTH_SECRET` in the shell's
-environment, then drop the mock-session injection in the API middleware.
+Next step (out of scope for this PR): replace the api's mock session with
+real verification — e.g. the shell mints a short-lived JWT that the api
+verifies on each request.
 
 ---
 
@@ -236,7 +237,7 @@ environment, then drop the mock-session injection in the API middleware.
 | `ChampionAbility`  | id, slot (Q/W/E/R/P), name, description, cooldown, championId                        |
 | `ChampionTier`     | id, championId, tier (S/A/B/C/D), role, patch, winRate, pickRate                     |
 | `ChampionSkin`     | id, championId, name, rpPrice, splashArtUrl, rarity                                  |
-| `Player`           | id, summonerName, accountId, profileIconId, summonerLevel, auth0Sub                  |
+| `Player`           | id, summonerName, accountId, profileIconId, summonerLevel, subjectId                 |
 | `PlayerChampion`   | playerId, championId, masteryLevel, masteryPoints, owned                             |
 | `PlayerMatchEntry` | id, playerId, championId, role, kills, deaths, assists, win, gameDuration, matchDate |
 

@@ -4,6 +4,9 @@ import { Hono } from "hono";
 import fs from "node:fs";
 import path from "node:path";
 
+import { playerMiddleware } from "./player-middleware";
+import { themeMiddleware } from "./theme-middleware";
+
 const API_TARGET = process.env.RIFT_API_URL ?? "http://localhost:3100";
 
 /**
@@ -96,8 +99,15 @@ function getApp(): Hono {
 
 	// Proxy `/api/*` to `@rift/api` (mirrors the Vite dev-server proxy so the
 	// browser can talk to the same origin in both dev and prod). Auth.js
-	// routes (`/api/auth/**`) are intercepted earlier by `authjsHandler`.
-	app.all("/api/*", async c => {
+	// routes (`/api/auth/**`) MUST be excluded so they reach `authjsHandler`
+	// further down the chain — otherwise sign in / sign out get forwarded
+	// to the standalone API and 404.
+	// oxlint-disable typescript-eslint/consistent-return -- Hono middleware idiom: fallthrough branch chains via next() while proxy branch returns the upstream Response
+	app.all("/api/*", async (c, next) => {
+		if (c.req.path.startsWith("/api/auth/")) {
+			await next();
+			return;
+		}
 		const url = new URL(c.req.url);
 		const target = `${API_TARGET}${url.pathname.replace(/^\/api/, "")}${url.search}`;
 		const init: RequestInit = {
@@ -113,6 +123,12 @@ function getApp(): Hono {
 	vike(app, [
 		// Append Auth.js session to context
 		authjsSessionMiddleware,
+
+		// Resolve the signed-in player from the API and attach to context
+		playerMiddleware,
+
+		// Read the rift-theme cookie and expose as pageContext.theme
+		themeMiddleware,
 
 		// Auth.js route. See https://authjs.dev/getting-started/installation
 		authjsHandler,
