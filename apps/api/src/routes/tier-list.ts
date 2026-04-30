@@ -1,5 +1,5 @@
-import { ChampionRoleSchema, ChampionTierSchema, TierSchema } from "@rift/champion";
 import { vValidator } from "@hono/valibot-validator";
+import { ChampionRoleSchema, ChampionTierSchema, TierSchema } from "@rift/champion";
 import { and, eq, type SQL } from "drizzle-orm";
 import { Hono } from "hono";
 import * as v from "valibot";
