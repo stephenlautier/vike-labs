@@ -33,6 +33,7 @@
     "vike-react": "catalog:"
   },
   "devDependencies": {
+    "@module-federation/vite": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

@@ -743,29 +743,41 @@ JavaScript — a new SSR-only field still requires a shell rebuild.
   page surface (`./pages/champions-list`, `./pages/champion-detail`,
   `./pages/tier-list`). Both `mfe-champions` and `mfe-tier-list` now emit
   `dist/remoteEntry.js` + `dist/mf-manifest.json` via `pnpm nx run X:build`.
-- D-A.4. Configure shell as `host` with `shared: { singleton: true }` for
-  the list in §6.
+- ✅ D-A.4. Configure shell as `host` with `shared: { singleton: true }` for
+  the list in §6. Done in `apps/shell/vite.config.ts` — `remotes` references
+  each MFE manifest URL; `shared` mirrors the per-MFE singletons. Build
+  passes for all 10 projects.
+- ✅ D-A.6. Add an env-driven manifest (`MFE_*_URL`) for prod; default to
+  local dev URLs. Done at the top of `apps/shell/vite.config.ts` and matches
+  each MFE's `server.origin`.
 
-> **Sub-phase status (D-A.1–A.3 done):** MFE remote artifacts build green.
-> Notes for picking this back up:
-> - `react-dom/client` and other sub-paths require `"react/": {}` and
->   `"react-dom/": {}` shared entries (in addition to the base `react` /
->   `react-dom` singletons) so the MF prebuild can resolve them.
-> - `@rift/*` workspace packages are **not** declared as `shared` in the
->   remotes — they're bundled into each remote. They're still aliased to
->   the in-tree source so MFEs build without depending on lib `dist/`
->   (mirrors the shell SSR alias setup from Phase C).
-> - `@rift/ui` needs sub-path aliases ordered most-specific first
->   (`@rift/ui/react`, `@rift/ui/dist/components`, then `@rift/ui`).
-> - The "Module Federation DTS … #TYPE-001" warning is a peer-version
->   mismatch (`@module-federation/dts-plugin` wants TS ^4–5; we're on TS 6).
->   Non-blocking — emitted artifacts are correct.
+> **Sub-phase status (D-A.1–A.4 + A.6 done):** Shell + both MFE remotes
+> build green; shell is registered as MF host with the two remotes wired.
+> Notes:
+> - The MF DTS plugin is disabled everywhere (`dts: false`) — see the
+>   cleanup notes; it conflicted with TS 6 and was leaking `.d.ts` files
+>   into `libs/*/src/` on every build.
+> - Shell `+Page.tsx` files still statically re-export the in-tree page
+>   modules from `@rift/mfe-*/pages/*` (Phase C wiring). Until D-A.5
+>   lands, the host's MF `remotes` block is **inactive at runtime** — no
+>   code in the shell yet imports via the remote name. The plumbing is in
+>   place so D-A.5 only needs the import-site swap.
+
 - D-A.5. Use Vike's `Page: () => import("...")` lazy form in the shell's
   `+config.ts` so the client build resolves the import via MF runtime while
   SSR continues to use the in-tree workspace alias. Use Vite
   `optimizeDeps.exclude` so dev mode hot-reload still works.
-- D-A.6. Add an env-driven manifest (`MFE_*_URL`) for prod; default to local
-  dev URLs.
+
+> **D-A.5 risk note:** This is the SSR/client dual-resolution step. The
+> client must rewrite `import("mfe-champions/pages/...")` into the MF
+> runtime, but the SSR build must keep resolving the same string to the
+> in-tree `@rift/mfe-champions/pages/...` workspace package — otherwise
+> the SSR build will try to fetch a remote that may not be reachable at
+> build time, and any new SSR-only field still requires a shell rebuild
+> anyway (that's D-B's job). The cleanest path is Vite's per-environment
+> `resolve.alias` (different aliases for the `ssr` vs `client`
+> environments) plus a `Page: () => import()` form in `+config.ts`.
+
 - D-A.7. Verify (dev): edit a champions page, see HMR in the shell.
 - D-A.8. Verify (prod): build both apps separately, deploy mfe-champions to
   a test URL, point shell at it, redeploy only the MFE → client-side change
