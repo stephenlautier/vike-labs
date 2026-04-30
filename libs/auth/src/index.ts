@@ -14,7 +14,14 @@ const env: Record<string, string | undefined> = process?.env ?? {};
  *
  * `secret` is read from `AUTH_SECRET`; in dev a fallback keeps the workspace
  * runnable but production deploys MUST set it.
+ *
+ * The Auth0 provider is only registered when its env vars are configured so
+ * unconfigured local/dev/preview runs don't spam Auth.js `InvalidEndpoints`
+ * errors on every request that touches `getSession`. Credentials provider
+ * is always available so devs can still exercise the auth flow.
  */
+const auth0Configured = Boolean(env.AUTH0_ISSUER_BASE_URL && env.AUTH0_CLIENT_ID && env.AUTH0_CLIENT_SECRET);
+
 export const authjsConfig = {
 	basePath: "/api/auth",
 	trustHost: true,
@@ -32,11 +39,15 @@ export const authjsConfig = {
 			},
 		}),
 
-		Auth0({
-			issuer: env.AUTH0_ISSUER_BASE_URL ?? "",
-			clientId: env.AUTH0_CLIENT_ID ?? "",
-			clientSecret: env.AUTH0_CLIENT_SECRET ?? "",
-		}),
+		...(auth0Configured
+			? [
+					Auth0({
+						issuer: env.AUTH0_ISSUER_BASE_URL!,
+						clientId: env.AUTH0_CLIENT_ID!,
+						clientSecret: env.AUTH0_CLIENT_SECRET!,
+					}),
+				]
+			: []),
 	],
 } satisfies Omit<AuthConfig, "raw">;
 

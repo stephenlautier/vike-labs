@@ -4,9 +4,13 @@
 # Generated React output target wrappers (regenerated on build)
 src/react/
 
+# Generated component-types barrel (regenerated on build)
+src/components.d.ts
+
 # Build outputs
 dist/
 loader/
+hydrate/
 www/
 
 # Stencil test artifacts

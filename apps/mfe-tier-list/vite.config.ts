@@ -39,9 +39,8 @@ export default defineConfig({
 	resolve: {
 		// Most-specific subpath aliases must come before the base package alias.
 		alias: [
-			{ find: "@rift/ui/react", replacement: path.resolve(__dirname, "../../libs/ui/src/react/components.ts") },
 			{ find: "@rift/ui/dist/components", replacement: path.resolve(__dirname, "../../libs/ui/dist/components") },
-			{ find: "@rift/ui", replacement: path.resolve(__dirname, "../../libs/ui/src/index.ts") },
+			{ find: /^@rift\/ui$/, replacement: path.resolve(__dirname, "../../libs/ui/src/index.ts") },
 			{ find: "@rift/champion", replacement: path.resolve(__dirname, "../../libs/champion/src/index.ts") },
 			{ find: "@rift/data-access", replacement: path.resolve(__dirname, "../../libs/data-access/src/index.ts") },
 		],

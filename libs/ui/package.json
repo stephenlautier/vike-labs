@@ -5,6 +5,7 @@
   "description": "StencilJS web components design system (lol-* prefix)",
   "files": [
     "dist/",
+    "hydrate/",
     "loader/"
   ],
   "main": "dist/index.cjs.js",
@@ -18,6 +19,7 @@
     },
     "./react": {
       "types": "./src/react/components.ts",
+      "node": "./src/react/components.server.ts",
       "import": "./src/react/components.ts"
     },
     "./components/*": {
@@ -34,6 +36,11 @@
     },
     "./loader": {
       "import": "./loader/index.js"
+    },
+    "./hydrate": {
+      "types": "./hydrate/index.d.ts",
+      "import": "./hydrate/index.mjs",
+      "require": "./hydrate/index.js"
     }
   },
   "scripts": {
