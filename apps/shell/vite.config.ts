@@ -1,4 +1,5 @@
 import { federation } from "@module-federation/vite";
+import { stencilSSR } from "@stencil/ssr";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
@@ -18,6 +19,16 @@ export default defineConfig(({ command }) => ({
 		vike(),
 		react(),
 		tailwindcss(),
+		// Compile-time SSR for the Stencil player MFE. The plugin intercepts JSX
+		// that references components from `@rift/mfe-player/react`, calls the
+		// hydrate module, and replaces them with pre-rendered Declarative
+		// Shadow-DOM wrappers so the markup is server-rendered.
+		stencilSSR({
+			module: import("@rift/mfe-player/react"),
+			from: "@rift/mfe-player/react",
+			hydrateModule: import("@rift/mfe-player/hydrate"),
+			serializeShadowRoot: { default: "declarative-shadow-dom" },
+		}),
 		// Federation host registration is build-only. In dev, the shell still
 		// imports MFE pages in-tree via the workspace `exports` map (Phase C
 		// wiring), so HMR works exactly like a normal monorepo. Loading the
@@ -77,13 +88,40 @@ export default defineConfig(({ command }) => ({
 			{ find: "@rift/ui/react", replacement: path.resolve(__dirname, "../../libs/ui/src/react/components.ts") },
 			{ find: "@rift/ui/dist/components", replacement: path.resolve(__dirname, "../../libs/ui/dist/components") },
 			{ find: "@rift/ui", replacement: path.resolve(__dirname, "../../libs/ui/src/index.ts") },
+			{
+				find: "@rift/mfe-player/react",
+				replacement: path.resolve(__dirname, "../mfe-player/src/react/components.ts"),
+			},
+			{
+				find: "@rift/mfe-player/hydrate",
+				replacement: path.resolve(__dirname, "../mfe-player/hydrate/index.mjs"),
+			},
+			{
+				find: "@rift/mfe-player/loader",
+				replacement: path.resolve(__dirname, "../mfe-player/loader/index.js"),
+			},
+			{
+				find: "@rift/mfe-player/dist/components",
+				replacement: path.resolve(__dirname, "../mfe-player/dist/components"),
+			},
+			{
+				find: "@rift/mfe-player",
+				replacement: path.resolve(__dirname, "../mfe-player/dist/index.js"),
+			},
 			{ find: "@rift/champion", replacement: path.resolve(__dirname, "../../libs/champion/src/index.ts") },
 			{ find: "@rift/data-access", replacement: path.resolve(__dirname, "../../libs/data-access/src/index.ts") },
 			{ find: "@", replacement: path.resolve(__dirname, "./src") },
 		],
 	},
 	optimizeDeps: {
-		exclude: ["@rift/ui", "@rift/champion", "@rift/data-access", "@rift/mfe-champions", "@rift/mfe-tier-list"],
+		exclude: [
+			"@rift/ui",
+			"@rift/champion",
+			"@rift/data-access",
+			"@rift/mfe-champions",
+			"@rift/mfe-player",
+			"@rift/mfe-tier-list",
+		],
 	},
 	ssr: {
 		noExternal: [
@@ -91,6 +129,7 @@ export default defineConfig(({ command }) => ({
 			"@rift/champion",
 			"@rift/data-access",
 			"@rift/mfe-champions",
+			"@rift/mfe-player",
 			"@rift/mfe-tier-list",
 			"@stencil/react-output-target",
 		],

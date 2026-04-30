@@ -1,0 +1,46 @@
+# rift-player-app
+
+
+
+<!-- Auto Generated Below -->
+
+
+## Overview
+
+Top-level player MFE shell. Hand-rolled sub-router (no
+
+## Properties
+
+| Property       | Attribute       | Description                                                                  | Type                                     | Default      |
+| -------------- | --------------- | ---------------------------------------------------------------------------- | ---------------------------------------- | ------------ |
+| `initialRoute` | `initial-route` | Initial sub-route, used by the host to deep-link e.g. /player/match-history. | `"champions" \| "matches" \| "overview"` | `"overview"` |
+| `user`         | --              | Authenticated user. JSON-serializable so SSR/DSD can roundtrip it.           | `PlayerSummary`                          | `undefined`  |
+
+
+## Events
+
+| Event         | Description                                             | Type                                              |
+| ------------- | ------------------------------------------------------- | ------------------------------------------------- |
+| `routechange` | Emitted with `{ path }` so the host can update its URL. | `CustomEvent<{ path: string; route: SubRoute; }>` |
+
+
+## Dependencies
+
+### Depends on
+
+- [rift-player-champions](../rift-player-champions)
+- [rift-player-matches](../rift-player-matches)
+- [rift-player-overview](../rift-player-overview)
+
+### Graph
+```mermaid
+graph TD;
+  rift-player-app --> rift-player-champions
+  rift-player-app --> rift-player-matches
+  rift-player-app --> rift-player-overview
+  style rift-player-app fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+----------------------------------------------
+
+*Built with [StencilJS](https://stenciljs.com/)*

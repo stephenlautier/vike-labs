@@ -15,6 +15,7 @@
     "@rift/champion": "workspace:^",
     "@rift/data-access": "workspace:^",
     "@rift/mfe-champions": "workspace:*",
+    "@rift/mfe-player": "workspace:*",
     "@rift/mfe-tier-list": "workspace:*",
     "@rift/styles": "workspace:*",
     "@rift/ui": "workspace:^",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@module-federation/vite": "catalog:",
+    "@stencil/ssr": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

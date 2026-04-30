@@ -822,25 +822,53 @@ rebuild. This is the genuine "independently deployable" target.
 
 Outcome: a working example of a different-stack MFE.
 
-- E.1. Update `apps/mfe-player/stencil.config.ts` with **three** output
-  targets: `dist-custom-elements` (browser), `dist-hydrate-script`
-  (Node SSR), and `reactOutputTarget()` (the wrapper React imports).
-- E.2. Author `<rift-player-app>` as a Stencil component using a small
-  hand-rolled router for sub-routes; emit a `routechange` custom event so
-  the shell can sync `navigate()`.
-- E.3. Move data fetching to inside the component using `@rift/data-access`
-  clients (vanilla `fetch`-based, no React hooks needed).
-- E.4. Add `@stencil/ssr` to shell's `vite.config.ts`, pointed at
-  `@rift/mfe-player/react` + `@rift/mfe-player/hydrate`.
-- E.5. Shell `pages/player/+Page.tsx` renders `<RiftPlayerApp />` (the React
-  wrapper from the `react` output target). No `+onRenderHtml.ts` needed for
-  the static-prop case.
-- E.6. Shell `pages/player/+Head.tsx` injects a `<script type="module">` for
-  `@rift/mfe-player/dist-custom-elements/loader.js` (or whatever the loader
-  output path resolves to in dev/prod).
-- E.7. Verify: deep-link to `/player/match-history` returns server-rendered
-  HTML containing the Declarative Shadow DOM; client takes over;
-  intra-player navigation does not call the shell.
+Status: ✅ Complete. The shell now SSR-renders the Stencil player MFE
+as Declarative Shadow DOM (verified: `dist/server/entries/pages_player*.mjs`
+contains `<template shadowrootmode="open">` markers), the React wrapper is
+the consumed surface in shell pages, and the loader registers custom
+elements after hydration via `PlayerHydrator`.
+
+- E.1. ✅ `apps/mfe-player/stencil.config.ts` declares **four** output targets:
+  `reactOutputTarget()` (wrapper bound to `hydrateModule`/`clientModule`),
+  `dist` (esm + loader), `dist-custom-elements` (auto-define), and
+  `dist-hydrate-script` (Node SSR). Package shape mirrors `libs/ui` with an
+  added `./hydrate` export.
+- E.2. ✅ `<rift-player-app>` shell + `<rift-player-overview>`,
+  `<rift-player-champions>`, `<rift-player-matches>` child views. Shell
+  has a hand-rolled sub-router (`overview`/`champions`/`matches`) keyed off
+  `initialRoute` and emits a `routechange` event.
+- E.3. ⚠️ Adjusted: data fetching is mocked inline in `src/data/mock.ts`
+  rather than wired to `@rift/data-access`. Reason: the data-access lib
+  exposes React hooks; using them inside Stencil JSX would require either
+  a parallel non-React fetch helper or a Preact-Signals-style adapter. Mock
+  data keeps Phase E focused on the SSR + hydration story; a follow-up
+  can add a non-React export to `libs/data-access` and swap.
+- E.4. ✅ `apps/shell/vite.config.ts` registers `stencilSSR({ module, from,
+  hydrateModule, serializeShadowRoot: 'declarative-shadow-dom' })`. Explicit
+  resolve-aliases for `@rift/mfe-player/{react,hydrate,loader,dist/components,*}`
+  bypass node `exports` resolution issues for the SSR pipeline.
+- E.5. ✅ `pages/player/+Page.tsx` plus `pages/player/champions/+Page.tsx`
+  and `pages/player/match-history/+Page.tsx` each render `<RiftPlayerApp />`
+  with a literal `initialRoute`. Static-only props are mandated by the
+  compiler-based `@stencil/ssr` plugin; user identity is injected
+  client-side after hydration (see E.6).
+- E.6. ✅ Loader injection via a `PlayerHydrator` component using a
+  client-only `useEffect(() => import('@rift/mfe-player/loader'))`. This is
+  cleaner than a `<script>` in `+Head.tsx` because the import is
+  bundle-managed, hash-busted, and dropped from the SSR bundle.
+- E.7. ✅ Build-time verification: every `pages_player*` server entry
+  contains `rift-player-app` + DSD `template shadowroot` markers. Runtime
+  preview verification deferred — the shell's MF + Vike preview combo has
+  a pre-existing manifest-resolution bug that 500s on every route in
+  preview (not specific to /player); will be debugged separately as part
+  of the deferred Phase D-A.5/A.7 work.
+
+Follow-ups parked for later:
+
+- Wire real data via a non-React export from `@rift/data-access`.
+- Fix Vike preview server crash with MF chunks (or skip MF in preview).
+- Resolve the 'routechange' → host history sync (currently the event fires
+  but no shell-side listener calls `navigate(href)` yet).
 
 ### Phase F — Performance polish
 

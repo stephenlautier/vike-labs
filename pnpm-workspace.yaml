@@ -50,6 +50,11 @@ catalog:
   oxlint-tsgolint: ^0.20.0
   "@module-federation/vite": ^1.15.1
 
+  # ── Stencil (web components) ─────────────────────────────────────────────────
+  "@stencil/core": 4.43.4
+  "@stencil/react-output-target": ^1.5.2
+  "@stencil/ssr": ^0.3.1
+
   # ── Types ────────────────────────────────────────────────────────────────────
   "@types/node": ^22.0.0
   "@types/react": ^19.2.14
