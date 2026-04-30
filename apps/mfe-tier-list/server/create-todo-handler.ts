@@ -1,7 +1,8 @@
-import { enhance, type UniversalHandler } from "@universal-middleware/core";
+import { enhance } from "@universal-middleware/core";
+import type { UniversalHandler } from "@universal-middleware/core";
 
 // Note: You can directly define a server middleware instead of defining a Universal Middleware. (You can remove @universal-middleware/* — Vike's scaffolder uses it only to simplify its internal logic, see https://github.com/vikejs/vike/discussions/3116)
-export const createTodoHandler: UniversalHandler<Universal.Context & object> = enhance(
+export const createTodoHandler: UniversalHandler = enhance(
 	async (request, _context, _runtime) => {
 		// In a real case, user-provided data should ALWAYS be validated with tools like zod
 		const newTodo = (await request.json()) as { text: string };

@@ -5,8 +5,8 @@ import { useAtom } from "jotai";
 
 import { patchAtom, roleAtom, tierAtom } from "./tier-list.atoms";
 
-const TIERS: Array<Tier | "all"> = ["all", "S", "A", "B", "C", "D"];
-const ROLES: Array<ChampionRole | "all"> = ["all", "Top", "Jungle", "Mid", "ADC", "Support"];
+const TIERS: (Tier | "all")[] = ["all", "S", "A", "B", "C", "D"];
+const ROLES: (ChampionRole | "all")[] = ["all", "Top", "Jungle", "Mid", "ADC", "Support"];
 
 const TIER_COLORS: Record<string, string> = {
 	S: "border-amber-400 bg-amber-400/10 text-amber-400",
@@ -35,7 +35,9 @@ export function TierListFilters({ patches }: Props) {
 					{TIERS.map(t => (
 						<button
 							key={t}
-							onClick={() => setTier(t)}
+							onClick={() => {
+								setTier(t);
+							}}
 							className={`px-3 py-1 rounded-md text-sm font-semibold border transition-colors ${
 								tier === t
 									? `${TIER_COLORS[t]} ring-1 ring-current`
@@ -54,7 +56,9 @@ export function TierListFilters({ patches }: Props) {
 					{ROLES.map(r => (
 						<button
 							key={r}
-							onClick={() => setRole(r)}
+							onClick={() => {
+								setRole(r);
+							}}
 							className={`px-3 py-1 rounded-md text-sm font-medium border transition-colors ${
 								role === r
 									? "border-primary bg-primary/10 text-primary ring-1 ring-primary"
@@ -72,7 +76,9 @@ export function TierListFilters({ patches }: Props) {
 					<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Patch</p>
 					<div className="flex flex-wrap gap-2">
 						<button
-							onClick={() => setPatch("latest")}
+							onClick={() => {
+								setPatch("latest");
+							}}
 							className={`px-3 py-1 rounded-md text-sm font-medium border transition-colors ${
 								patch === "latest"
 									? "border-primary bg-primary/10 text-primary ring-1 ring-primary"
@@ -83,7 +89,9 @@ export function TierListFilters({ patches }: Props) {
 						{patches.map(p => (
 							<button
 								key={p}
-								onClick={() => setPatch(p)}
+								onClick={() => {
+									setPatch(p);
+								}}
 								className={`px-3 py-1 rounded-md text-sm font-medium border transition-colors ${
 									patch === p
 										? "border-primary bg-primary/10 text-primary ring-1 ring-primary"

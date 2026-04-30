@@ -11,7 +11,9 @@ export type Data = Champion & {
 export async function data(pageContext: PageContextServer): Promise<Data> {
 	const { id } = pageContext.routeParams;
 	const champion = SEED_CHAMPIONS.find(c => c.id === id);
-	if (!champion) throw render(404);
+	if (!champion) {
+		throw render(404);
+	}
 	const abilities = SEED_ABILITIES.filter(a => a.championId === id);
 	const skins = SEED_SKINS.filter(s => s.championId === id);
 	return { ...champion, abilities, skins };

@@ -3,7 +3,6 @@ import { usePageContext } from "vike-react/usePageContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	const pageContext = usePageContext();
-	// @ts-expect-error session added by authjs middleware
 	const session = pageContext.session as { user?: { name?: string } } | null | undefined;
 	const user = session?.user;
 

@@ -15,11 +15,7 @@ const SLOT_LABEL: Record<string, string> = {
 export default function Page() {
 	const champion = useData<Data>();
 
-	const abilities = [...champion.abilities].sort(
-		(a, b) =>
-			SLOT_ORDER.indexOf(a.slot as (typeof SLOT_ORDER)[number]) -
-			SLOT_ORDER.indexOf(b.slot as (typeof SLOT_ORDER)[number]),
-	);
+	const abilities = [...champion.abilities].toSorted((a, b) => SLOT_ORDER.indexOf(a.slot) - SLOT_ORDER.indexOf(b.slot));
 
 	const statEntries = Object.entries(champion.stats).map(([key, value]) => ({ key, value }));
 
@@ -126,7 +122,7 @@ export default function Page() {
 				<div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 max-w-2xl">
 					{statEntries.map(({ key, value }) => (
 						<div key={key} className="rounded-lg border border-border bg-card px-3 py-2">
-							<p className="text-xs text-muted-foreground capitalize">{key.replace(/([A-Z])/g, " $1")}</p>
+							<p className="text-xs text-muted-foreground capitalize">{key.replaceAll(/([A-Z])/g, " $1")}</p>
 							<p className="text-sm font-semibold">{value}</p>
 						</div>
 					))}

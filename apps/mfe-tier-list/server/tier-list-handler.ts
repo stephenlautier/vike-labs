@@ -7,15 +7,23 @@ export type EnrichedTierEntry = ChampionTier & {
 };
 
 export function buildEnrichedTiers(tierFilter?: Tier, roleFilter?: ChampionRole, patch?: string): EnrichedTierEntry[] {
-	let entries = SEED_TIERS as ChampionTier[];
+	let entries = SEED_TIERS;
 
-	if (tierFilter) entries = entries.filter(e => e.tier === tierFilter);
-	if (roleFilter) entries = entries.filter(e => e.role === roleFilter);
-	if (patch) entries = entries.filter(e => e.patch === patch);
+	if (tierFilter) {
+		entries = entries.filter(e => e.tier === tierFilter);
+	}
+	if (roleFilter) {
+		entries = entries.filter(e => e.role === roleFilter);
+	}
+	if (patch) {
+		entries = entries.filter(e => e.patch === patch);
+	}
 
 	return entries.flatMap(entry => {
 		const champion = SEED_CHAMPIONS.find(c => c.id === entry.championId);
-		if (!champion) return [];
+		if (!champion) {
+			return [];
+		}
 		return [
 			{
 				...entry,

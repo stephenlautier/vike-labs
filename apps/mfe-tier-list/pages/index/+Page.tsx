@@ -21,19 +21,29 @@ export default function Page() {
 
 	const latestPatch = patches[0] ?? "";
 
-	const filtered = useMemo(() => {
-		return entries.filter(entry => {
-			if (tierFilter !== "all" && entry.tier !== tierFilter) return false;
-			if (roleFilter !== "all" && entry.role !== roleFilter) return false;
-			const effectivePatch = patchFilter === "latest" ? latestPatch : patchFilter;
-			if (effectivePatch && entry.patch !== effectivePatch) return false;
-			return true;
-		});
-	}, [entries, tierFilter, roleFilter, patchFilter, latestPatch]);
+	const filtered = useMemo(
+		() =>
+			entries.filter(entry => {
+				if (tierFilter !== "all" && entry.tier !== tierFilter) {
+					return false;
+				}
+				if (roleFilter !== "all" && entry.role !== roleFilter) {
+					return false;
+				}
+				const effectivePatch = patchFilter === "latest" ? latestPatch : patchFilter;
+				if (effectivePatch && entry.patch !== effectivePatch) {
+					return false;
+				}
+				return true;
+			}),
+		[entries, tierFilter, roleFilter, patchFilter, latestPatch],
+	);
 
 	const byTier = useMemo(() => {
 		const map = new Map<string, typeof filtered>();
-		for (const tier of TIER_ORDER) map.set(tier, []);
+		for (const tier of TIER_ORDER) {
+			map.set(tier, []);
+		}
 		for (const entry of filtered) {
 			map.get(entry.tier)?.push(entry);
 		}

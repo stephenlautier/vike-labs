@@ -8,7 +8,9 @@ type Props = {
 };
 
 export function TierRow({ tier, entries }: Props) {
-	if (entries.length === 0) return null;
+	if (entries.length === 0) {
+		return null;
+	}
 
 	return (
 		<div className="flex gap-4 items-start">

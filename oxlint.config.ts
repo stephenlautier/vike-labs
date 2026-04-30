@@ -35,6 +35,7 @@ export default defineConfig({
 		"no-duplicate-imports": ["error", { allowSeparateTypeImports: true }],
 		"init-declarations": "off",
 		"max-statements": ["warn", { max: 40 }],
+
 		"id-length": "off",
 		"capitalized-comments": "off",
 		"sort-imports": [
@@ -68,6 +69,7 @@ export default defineConfig({
 		"import/no-named-export": "off",
 		"import/no-cycle": "warn",
 		"import/no-self-import": "error",
+		"import/prefer-default-export": "off",
 
 		// ── TypeScript ─────────────────────────────────────────────────────────
 		"typescript/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
@@ -128,6 +130,9 @@ export default defineConfig({
 		"jsx-a11y/iframe-has-title": "error",
 		"jsx-a11y/label-has-associated-control": "error",
 		"jsx-a11y/tabindex-no-positive": "warn",
+
+		// ── Eslint ───────────────────────────────────────────────────────────────
+		"eslint/max-lines-per-function": "off",
 
 		// ── Vitest ─────────────────────────────────────────────────────────────
 		"vitest/no-focused-tests": "error",
@@ -200,8 +205,6 @@ export default defineConfig({
 				// render() return type is implicit JSX; Stencil convention omits it
 				"typescript/explicit-function-return-type": "off",
 				"typescript/explicit-module-boundary-types": "off",
-				// Named exports are correct for libs (AGENTS.md)
-				"import/prefer-default-export": "off",
 			},
 		},
 	],

@@ -2,9 +2,7 @@ import { SEED_ABILITIES, SEED_CHAMPIONS, SEED_SKINS } from "@rift/champion";
 import type { Hono } from "hono";
 
 export function registerChampionsRoutes(app: Hono): void {
-	app.get("/api/champions", c => {
-		return c.json(SEED_CHAMPIONS);
-	});
+	app.get("/api/champions", c => c.json(SEED_CHAMPIONS));
 
 	app.get("/api/champions/:id", c => {
 		const { id } = c.req.param();
