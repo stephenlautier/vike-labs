@@ -2,6 +2,8 @@ import type { JSX } from "react";
 import "./tailwind.css";
 import { usePageContext } from "vike-react/usePageContext";
 
+import { Link } from "../components/Link";
+
 export default function Layout({ children }: { children: React.ReactNode }): JSX.Element {
 	return (
 		<div className="min-h-screen flex flex-col">
@@ -19,13 +21,11 @@ function Nav(): JSX.Element {
 	return (
 		<header className="border-b border-border bg-background sticky top-0 z-10">
 			<div className="container mx-auto px-4 h-14 flex items-center justify-between">
-				<a href="/" className="font-bold text-lg tracking-tight">
-					Rift
-				</a>
+				<Link href="/">Rift</Link>
 				<nav className="flex items-center gap-6 text-sm">
-					<a href="http://localhost:3001">Champions</a>
-					<a href="http://localhost:3002">Tier List</a>
-					<a href="http://localhost:3003">My Profile</a>
+					<Link href="/champions">Champions</Link>
+					<Link href="/tier-list">Tier List</Link>
+					<Link href="/player">My Profile</Link>
 				</nav>
 				<div className="text-sm">
 					{user ? (

@@ -3,8 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "nx run-many -t dev --parallel",
+    "dev": "nx run-many -t dev --projects=shell,api --parallel",
+    "dev:all": "nx run-many -t dev --parallel",
     "dev:shell": "nx run shell:dev",
+    "dev:api": "nx run api:dev",
     "dev:champions": "nx run mfe-champions:dev",
     "dev:tier-list": "nx run mfe-tier-list:dev",
     "dev:player": "nx run mfe-player:dev",

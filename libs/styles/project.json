@@ -1,0 +1,30 @@
+{
+  "name": "styles",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/styles/src",
+  "tags": ["type:lib", "scope:styles"],
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm oxlint src/",
+        "cwd": "libs/styles"
+      }
+    },
+    "fmt": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm oxfmt src/",
+        "cwd": "libs/styles"
+      }
+    },
+    "fmt:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm oxfmt --check src/",
+        "cwd": "libs/styles"
+      }
+    }
+  }
+}

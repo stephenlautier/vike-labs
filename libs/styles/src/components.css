@@ -1,0 +1,9 @@
+/*
+ * Reusable component classes shared across all MFEs. Imported once via the
+ * shell layout (alongside `tokens.css`). Add classes here only when they're
+ * truly cross-app — otherwise prefer Tailwind utilities or Stencil scoped
+ * styles inside `libs/ui`.
+ */
+@layer components {
+	/* placeholder — no shared classes yet */
+}

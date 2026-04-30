@@ -12,7 +12,7 @@
     "@auth/core": "catalog:",
     "@radix-ui/react-icons": "catalog:",
     "@rift/auth": "workspace:*",
-    "@universal-middleware/core": "catalog:",
+    "@rift/styles": "workspace:*",
     "@vikejs/hono": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
